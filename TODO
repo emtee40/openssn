@@ -1,0 +1,16 @@
+AI stuff
+The AI ships should occasionally turn and/or change speed
+
+Torpedo stuff
+Create weapons display (F3)
+Create torpedo code (ShipType 3, ShipClass 5)
+Display torpedos on map
+Add noise maker (ShipType 4, ShipClass 6)
+
+
+Add missions and objectives
+Add thermal layer?
+
+Fix ESM signal analysis box.
+Create Weapons screen (probably assign to F3)
+

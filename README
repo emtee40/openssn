@@ -1,0 +1,138 @@
+OpenSSN - What is OpenSSN?
+==========================
+
+OpenSSN is a submarine simulation (subsim) which tries to emulate
+the behaviour of modern submarines. The player is placed in command
+of a submarine and is able to move about in a deep ocean environment.
+
+At this time there is no combat in OpenSSN, but combat missions are
+planned for future releases.
+
+
+
+
+Why a subsim?
+======================
+
+I've always been a fan of subsims and played commercial games,
+but couldn't find a modern subsim for open source operating systems
+(such as Linux and FreeBSD). Danger from the Deep is available,
+but it's stictly for World War II u-boats, and has relatively high
+graphics requirements. Looking around I found a half dozen or so
+subsims that had begun and dropped away shortly after beginning development.
+
+The LinuxSSN project had laid a solid foundation before the developers
+dropped the project and I decided to pick up where they left off.
+The heart of OpenSSN comes from their project and attempts to further
+their work.
+
+
+
+
+Licensing info
+====================
+
+The OpenSSN project is licensed under the GNU General Public License,
+version 2. The LinuxSSN project was also GNU GPL licensed and we
+carry on that tradition. Please see the LICENSE file for further details.
+
+
+
+What do I need to build OpenSSN?
+=================================
+
+To build OpenSSN you'll need a C++ compiler (GNU's Compiler Collection
+is recommended) and the following development libraries:
+
+SDL
+SDL_gfx
+SDL_image
+
+
+Assuming the above libraries are installed, it should be possible to
+build OpenSSN with the following commands
+
+tar zxf openssn-0.2.tar.gz
+cd openssn/src
+make
+
+
+
+
+
+Running OpenSSN
+==================================
+
+Once OpenSSN has built, an executable file (called openssn) will
+be placed in the directory immediately above the "src" folder.
+The game can be run with plain
+
+./openssn
+
+The following command line parameters are recognized:
+
+-w	Run in windowed mode, this is the default
+-f	Run in full screen
+-v	Display version number and exit
+-h	Display help and exit
+
+
+
+
+Control Keys
+===========================
+
+At the moment, it's probably easiest to use the mouse to
+manipulate the submarine, however keyboard support is included and
+the following keys work.
+
+
+Direct the submarine..............
+Plus key		Increase sub's speed
+Minus key		Slow down
+Left keypad (4)		Turn left
+Right keypad (6)	Turn right
+Down keypad (2)		Dive deeper
+Up keypad (8)		Rise toward the surface
+
+
+System controls...................
+F1			Sonar screen
+F2			Map screen
+F4			Map screen
+F5			ESM signals screen
+F6			Radar screen
+F10			Take screen shot
+TAB			Select next target
+Delete			Increase map scale
+Insert			Decrease map scale
+Up, down, left, right	Manipulate map
+P			Pause the game
+Page Up			Compress Time
+Page Down		Slow time
+ESC 			Quit
+
+
+
+Weapon controls (only for use on the weapons screen)
+T			Load a torpedo
+N			Load a noise maker
+U			Unload a tube
+F			Fire a tube
+
+Each of the weapon station keys should be followed by
+a number indication which tube should be loaded or fired.
+The tubes are numbered 1-6.
+
+
+
+
+
+
+Contact information
+============================
+
+Did you find a bug? Would you like to request a feature? Did
+you patch something and want to share it? Send an e-mail to
+jessefrgsmith@yahoo.ca. Please place "OpenSSN" in the subject line.
+

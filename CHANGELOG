@@ -1,0 +1,54 @@
+  - Ship class data (name, speed, depth) is now kept in the
+    "ships" directory and is loaded at the beginning of each
+    scenario.
+
+  - Now we can only select a target if we can see it on the map.
+
+
+  ============ openssn-0.2 released May 23, 2011 ================
+
+  - Added rough manual in ODF and PDF formats.
+
+  - Sub now turns/dives a little faster.
+
+  - We now display a message when switching screens to show which
+    console we are viewing.
+
+  - Desired depth and speed now stay within sane ranges.
+
+  - Player can now get information on selected targets.
+
+  - TMA screen wasn't working, removed it.
+
+  - Targets are now picked up faintly at first, then become solid
+    contacts and fade out when the signal is lost.
+
+  - Made sure detection through sonar, esm and radar work.
+    Also made sure radar and esm does not track subs.
+
+  - Players can only see ships on the map if they can detect them.
+
+  - Player ships is now green and thicker on the map, making
+    it easier to spot.
+
+  - Extended CreateShips function to allow for more missions.
+    Missions can be created in data/ships.dat files.
+
+  - Radar and ESM no longer work is we are below periscope depth.
+
+  - Makefile now handles install and deinstall targets
+
+  - Massive code clean-up to allow the game to access data and
+    image files in other locations (ie /usr/local/share/games/openssn)
+
+  - Moved data and images files into their own directories.
+
+  - Map now zooms in/out smoothly
+
+  - Reduced CPU usage, was around 95-100%. Should now be closer
+    to 10% on most modern machines.
+
+
+
+
+===========  openssn 0.1 released May 12, 2011 ===============

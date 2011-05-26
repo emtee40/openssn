@@ -1,0 +1,18 @@
+Each ship gets a class file. The files are formated wit hthe following fields:
+
+Speed MaxDepth Rudder Torpedos ClassName
+
+For example:
+33 950 10 GenericSub
+
+
+Each class is assigned a number. Currently the following classes exist:
+
+Name		Class
+Los Angeles	1
+Akula		2
+Destroyer	3
+Merchant	4
+Torpedo		5
+NoiseMaker	6
+
