@@ -1,3 +1,11 @@
+  - Torpedoes and noisemakers can be loaded using the mouse.
+
+  - Reduced CPU usage on Weapons screen by about 50%.
+
+  - Toned down waterfall display a little, reduced brightness.
+
+  - Add weapons console and the ability to load/unload tubes.
+
   - Ship class data (name, speed, depth) is now kept in the
     "ships" directory and is loaded at the beginning of each
     scenario.

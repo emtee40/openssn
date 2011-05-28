@@ -715,6 +715,25 @@ void LoadWidgets(){
 		exit(0);
 	}
 	SDL_FreeSurface(temp);
+
+        temp = Load_Image("images/noisemaker.png");
+        if (temp)
+        {
+           noisemaker_image = SDL_DisplayFormat(temp);
+           if (! noisemaker_image)
+             cerr << "Error loading noisemaker image." << endl;
+           SDL_FreeSurface(temp);
+        }
+
+        temp = Load_Image("images/torpedo.png");
+        if (temp)
+        {
+           torpedo_image = SDL_DisplayFormat(temp);
+           if (! noisemaker_image)
+             cerr << "Error loading torpedo image." << endl;
+           SDL_FreeSurface(temp);
+        }
+
 }
 
 
@@ -735,6 +754,8 @@ void UnLoadWidgets(){
 	SDL_FreeSurface(plusbuttondown); 
 	SDL_FreeSurface(minusbuttonup);
 	SDL_FreeSurface(minusbuttondown); 
+        SDL_FreeSurface(torpedo_image);
+        SDL_FreeSurface(noisemaker_image);
 }
 
 void DisplayNavigationWidgets(){	
@@ -1067,7 +1088,7 @@ void LatLonDifference(int x, int y, double *platdif, double *plondif){ // CHANGE
 
 void CreateShips(int mission_number){
   char *ship_file;
-  char filename[128] = "data/ships0.dat";
+  char filename[128];
   char line[256], *status;
   int i;
   FILE *my_file;
@@ -1626,6 +1647,10 @@ void DisplayWeapons()
     SDL_Rect weapons, tubes;
     DFont fnt("images/font.png", "data/font.dat");
     char text[256];
+    int index, y1, y2;
+
+    if (! update_weapons_screen)
+        return;
 
     weapons.x = 150;
     weapons.y = 145;
@@ -1654,14 +1679,48 @@ void DisplayWeapons()
     SDL_UpdateRects(screen, 1, &weapons);
 
     SDL_FillRect(screen, &tubes, black);
-    DrawRectangle(screen, 390, 150, 500, 190, green);
-    DrawRectangle(screen, 390, 200, 500, 240, green);
-    DrawRectangle(screen, 390, 250, 500, 290, green);
-    DrawRectangle(screen, 390, 300, 500, 340, green);
-    DrawRectangle(screen, 390, 350, 500, 390, green);
-    DrawRectangle(screen, 390, 400, 500, 440, green);
-    
+    y1 = 150; y2 = 190;
+    for (index = 0; index < MAX_TUBES; index++)
+    {
+        // draw tube
+        DrawRectangle(screen, 390, y1, 500, y2, green);
+        // draw buttons
+        fnt.PutString(screen, 520, y1 + 5, "  Load");
+        fnt.PutString(screen, 520, y1 + 18, "Torpedo");
+        DrawRectangle(screen, 520, y1, 590, y2, green);
+        fnt.PutString(screen, 600, y1 + 5, "   Load");
+        fnt.PutString(screen, 600, y1 + 18, "Noise Maker");
+        DrawRectangle(screen, 600, y1, 690, y2, green);
+        fnt.PutString(screen, 700, y1 + 10, "Unload");
+        DrawRectangle(screen, 700, y1, 760, y2, green);
+        fnt.PutString(screen, 770, y1 + 10, "Fire!");
+        DrawRectangle(screen, 770, y1, 815, y2, green);
+        y1 += 50; y2 += 50;
+    }
     SDL_UpdateRects(screen, 1, &tubes);
+
+    // put stuff in the tubes
+    y1 = 151;
+    for (index = 0; index < MAX_TUBES; index++)
+    {
+       tubes.x = 391;
+       tubes.y = y1;
+       tubes.w = 105;
+       tubes.h = 35;
+       if (Subs[0].torpedo_tube[index] == TUBE_TORPEDO)
+          SDL_BlitSurface(torpedo_image, NULL, screen, &tubes);
+       else if (Subs[0].torpedo_tube[index] == TUBE_NOISEMAKER)
+          SDL_BlitSurface(noisemaker_image, NULL, screen, &tubes);
+       else
+       {
+         SDL_FillRect(screen, &tubes, black); 
+         sprintf(text, "Tube %d", index + 1);
+         fnt.PutString(screen, 420, y1 + 10, text);
+       }
+       SDL_UpdateRects(screen, 1, &tubes);
+       y1 += 50;
+    }
+    update_weapons_screen = FALSE;
 }
 
 
@@ -1783,6 +1842,9 @@ Uint32 TmaTimer(Uint32 interval, void *param){
 
 int HandleInput(SDL_Event &event, int &mousex, int &mousey){
 	static string textline;
+        int y1, y2, x_checks_out;
+        int index;
+
 	switch (event.type){
 		case SDL_MOUSEBUTTONDOWN:
 			mousex = event.button.x;
@@ -1991,6 +2053,51 @@ int HandleInput(SDL_Event &event, int &mousex, int &mousey){
 				}
 			}
 
+                        // Weapon console events
+                        if (drawweapons)
+                        {
+                            x_checks_out = TRUE;
+                            y1 = 150; y2 = 190;
+                            // check all x1-x2 possiblities
+                            if ( (mousex > 520) && (mousex < 590) )
+                               tube_action = LOAD_TORPEDO;
+                            else if ( (mousex > 600) && (mousex < 680) )
+                               tube_action = LOAD_NOISEMAKER;
+                            else if ( (mousex > 700) && (mousex < 760) )
+                               tube_action = UNLOAD_TUBE;
+                            else if ( (mousex > 770) && (mousex < 815) )
+                               tube_action = FIRE_TUBE;
+                            else
+                            {
+                               tube_action = 0;
+                               x_checks_out = FALSE;
+                            }
+                            // look at all y1-y2 button possibilities
+                            if (x_checks_out)
+                            {
+                                index = 0;
+                                tube_to_use = -1;
+                                while ( (index < MAX_TUBES) && 
+                                        (tube_to_use == -1) )
+                                {
+                                    if ((mousey > y1) && (mousey < y2) )
+                                      tube_to_use = index;
+                                    else
+                                    {
+                                        index++;
+                                        y1 += 50; y2 += 50;
+                                    }
+                                }    // end of checking buttons vertically
+                                if (tube_to_use == -1)
+                                   tube_action = 0;
+                            }
+                            else
+                              tube_action = 0;
+                            if ( (tube_action) && (tube_to_use > -1) )
+                              return USE_TUBE;
+                                 
+
+                        }   // end of weapons screen
 			// ESM events
 			if(drawesm){
 				if(mousex > 744 && mousex < 791){
@@ -2315,16 +2422,16 @@ int HandleInput(SDL_Event &event, int &mousex, int &mousey){
                                          tube_to_use = 1;
                                          return USE_TUBE;
                                 case SDLK_3:
-                                         tube_to_use = 0;
+                                         tube_to_use = 2;
                                          return USE_TUBE;
                                 case SDLK_4:
-                                         tube_to_use = 1;
+                                         tube_to_use = 3;
                                          return USE_TUBE;
                                 case SDLK_5:
-                                         tube_to_use = 0;
+                                         tube_to_use = 4;
                                          return USE_TUBE;
                                 case SDLK_6:
-                                         tube_to_use = 1;
+                                         tube_to_use = 5;
                                          return USE_TUBE;
 
 				default:	
@@ -2497,6 +2604,7 @@ int main(int argc, char **argv){
 					fnt.PutString(screen, 933, 718, text);
 					break;
 				case WEAPONS:
+                                        update_weapons_screen = TRUE;
 					ShowStation(3);
 					UpdateDisplay();
                                         Message.post_message("Weapons console");
@@ -2505,6 +2613,7 @@ int main(int argc, char **argv){
 					fnt.PutString(screen, 933, 718, text);
 					break;
                                 case WHICHTUBE:
+                                        update_weapons_screen = TRUE;
                                         UpdateDisplay();
                                         Message.post_message("Which tube (1-6)?");
                                         Message.display_message();
@@ -2994,6 +3103,8 @@ int main(int argc, char **argv){
                                         Subs[0].Use_Tube(tube_action, tube_to_use);
                                         tube_action = 0;
                                         tube_to_use = -1;
+                                        update_weapons_screen = TRUE;
+                                        UpdateDisplay();
                                         break;
 				case PAUSEGAME:
 					if (pause_game){ //UnPause

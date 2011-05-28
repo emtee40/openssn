@@ -176,6 +176,9 @@ SDL_Surface	*tracker1[2]={NULL, NULL};
 SDL_Surface	*tracker2[2]={NULL, NULL};
 SDL_Surface	*tracker3[2]={NULL, NULL};
 SDL_Surface	*tracker4[2]={NULL, NULL};
+SDL_Surface	*noisemaker_image = NULL;
+SDL_Surface	*torpedo_image = NULL;
+
 
 //a mutex so we don't crash and burn
 //when accessing the same globals
@@ -209,6 +212,7 @@ Uint32 dark_green, dark_red, brown, dark_grey;
 bool show_spherical_traces = true, northcenter = true, pause_game = false;
 bool assigntracker = false;
 int current_target = -1;
+int update_weapons_screen = TRUE;
 
 GameClock Clock;
 Submarine Subs[MAX_SUBS]; //Somewhere to put our little floating buddies.

@@ -67,6 +67,8 @@ void AnBqq5::InitGraphics()
 	black = SDL_MapRGB(screen->format, 0, 0, 0);
 	white = SDL_MapRGB(screen->format, 255, 255, 255);
 	green = SDL_MapRGB(screen->format, 0,255,0);
+        // medium_green = SDL_MapRGB(screen->format, 0, 160, 0);
+        // dark_green = SDL_MapRGB(screen->format, 0, 100, 0);
 }
 
 void AnBqq5::ClearSonarData(){  //when the display is switched from north centered
@@ -156,7 +158,7 @@ void AnBqq5::Sonar(bool center)
 			//TargetId not used now but maybe later in TMA
 
 			//visable mono color from 70 - 255
-			tracecolor=SDL_MapRGB(sonarscreen->format, 0,(int)(signal+flowandambientnoise), 0);
+			tracecolor=SDL_MapRGB(sonarscreen->format, 0,(int) (signal+flowandambientnoise), 0);
 			//Change brightness based on strength of signal
 			int tdirection = direction;
 			for(int xx = 1;xx < 6; xx++){
@@ -364,7 +366,7 @@ void AnBqq5::AdvanceSonarDisplay(){
 		int relative_bearing = bearing_to_target - recipbearing;
 		if(relative_bearing > 150 && relative_bearing < 210) sensordeaf = true;
 		if (!sensordeaf){	
-			noisecolor=SDL_MapRGB(sonarscreen->format, 0,(int)(flowandambientnoise - RandInt(40)), 0);
+			noisecolor=SDL_MapRGB(sonarscreen->format, 0,(int) abs((flowandambientnoise - RandInt(40))) , 0);
 			DPixel(sonarscreen, nbp, 0, noisecolor);
 		}
 		else{
@@ -405,7 +407,7 @@ void AnBqq5::AdvanceSonarDisplay(){
 			int relative_bearing = bearing_to_target - recipbearing;
 			if(relative_bearing > 150 && relative_bearing < 210) sensordeaf = true;		
 			if (!sensordeaf){	
-				noisecolor=SDL_MapRGB(sonarscreen->format, 0,(int)(flowandambientnoise - RandInt(40)), 0);
+				noisecolor=SDL_MapRGB(sonarscreen->format, 0,(int) abs((flowandambientnoise - RandInt(40))) , 0);
 				DPixel(sonarscreen, nbp, 70, noisecolor);
 			}
 			else{
@@ -446,7 +448,7 @@ void AnBqq5::AdvanceSonarDisplay(){
 			int relative_bearing = bearing_to_target - recipbearing;
 			if(relative_bearing > 150 && relative_bearing < 210) sensordeaf = true;			
 			if (!sensordeaf){	
-				noisecolor=SDL_MapRGB(sonarscreen->format, 0,(int)(flowandambientnoise - RandInt(40)), 0);
+				noisecolor=SDL_MapRGB(sonarscreen->format, 0,(int) abs((flowandambientnoise - RandInt(40))) , 0);
 				DPixel(sonarscreen, nbp, 140, noisecolor);
 			}
 			else{
@@ -505,7 +507,7 @@ void AnBqq5::AdvanceTB16Screen()
 			int relative_bearing = bearing_to_target - array_heading;
 			if(relative_bearing > 150 && relative_bearing < 210) sensordeaf = true;
 			if(!sensordeaf){
-				noisecolor=SDL_MapRGB(towedarrayscreen->format, 0,(int)(flowandambientnoise - RandInt(40)), 0);
+				noisecolor=SDL_MapRGB(towedarrayscreen->format, 0,(int)abs((flowandambientnoise - RandInt(40))), 0);
 				DPixel(towedarrayscreen, nbp, 0, noisecolor);
 			}
 			else{
@@ -547,7 +549,7 @@ void AnBqq5::AdvanceTB16Screen()
 				int relative_bearing = bearing_to_target - array_heading;
 				if(relative_bearing > 150 && relative_bearing < 210) sensordeaf = true;
 				if(!sensordeaf){
-					noisecolor=SDL_MapRGB(towedarrayscreen->format, 0,(int)(flowandambientnoise - RandInt(40)), 0);
+					noisecolor=SDL_MapRGB(towedarrayscreen->format, 0,(int)abs((flowandambientnoise - RandInt(40))), 0);
 					DPixel(towedarrayscreen, nbp, 70, noisecolor);
 				}
 				else{
@@ -587,7 +589,7 @@ void AnBqq5::AdvanceTB16Screen()
 				int relative_bearing = bearing_to_target - array_heading;
 				if(relative_bearing > 150 && relative_bearing < 210) sensordeaf = true;
 				if(!sensordeaf){
-					noisecolor=SDL_MapRGB(towedarrayscreen->format, 0,(int)(flowandambientnoise - RandInt(40)), 0);
+					noisecolor=SDL_MapRGB(towedarrayscreen->format, 0,(int)abs((flowandambientnoise - RandInt(40))), 0);
 					DPixel(towedarrayscreen, nbp, 140, noisecolor);
 				}
 				else{
