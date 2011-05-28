@@ -79,7 +79,9 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 #define TUBE_ERROR_TORPEDO_SUCCESS 6  // tube loaded successfully
 #define TUBE_ERROR_NOISEMAKER_SUCCESS 7  // tube loaded successfully
 #define TUBE_ERROR_UNLOAD_SUCCESS 8   // we cleared the tube ok
-
+#define TUBE_ERROR_FIRE_SUCCESS 9   // we fired a fish!
+#define TUBE_ERROR_FIRE_FAIL 10     // cannot fire
+#define TUBE_ERROR_NOISE_SUCCESS 11   // noisemaker in the house!
 
 
 /**
@@ -88,6 +90,7 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 
 class Submarine : public Coord,  public Stack  {
 public:
+        Submarine *next;
 	float NauticalMiles;
 	float HisPassiveSonarCrosssection;
 	float EffectiveTargetSpeed;
@@ -147,6 +150,9 @@ public:
         // Load information on this type of ship/sub
         int Load_Class(char *from_file);
         int Use_Tube(int action, int tube_number);
+        Submarine *Fire_Tube(Submarine *target);
+        Submarine *target;
+        int fuel_remaining;
 };
 
 #endif
