@@ -79,10 +79,11 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 #define TUBE_ERROR_TORPEDO_SUCCESS 6  // tube loaded successfully
 #define TUBE_ERROR_NOISEMAKER_SUCCESS 7  // tube loaded successfully
 #define TUBE_ERROR_UNLOAD_SUCCESS 8   // we cleared the tube ok
-#define TUBE_ERROR_FIRE_SUCCESS 9   // we fired a fish!
-#define TUBE_ERROR_FIRE_FAIL 10     // cannot fire
-#define TUBE_ERROR_NOISE_SUCCESS 11   // noisemaker in the house!
+#define TUBE_ERROR_FIRE_FAIL 9      // could not fire torpedo
+#define TUBE_ERROR_FIRE_SUCCESS 10  // we fired a torpedo
+#define TUBE_ERROR_FIRE_NOISEMAKER 11   // we fired a noisemaker
 
+#define TORPEDO_FUEL 600
 
 /**
   *@author Michael Bridak
@@ -90,7 +91,6 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 
 class Submarine : public Coord,  public Stack  {
 public:
-        Submarine *next;
 	float NauticalMiles;
 	float HisPassiveSonarCrosssection;
 	float EffectiveTargetSpeed;
@@ -117,7 +117,7 @@ public:
 	int DesiredSpeed; /*Scotty warp speed!*/
 	int MaxSpeed; /*Captin I've given her all she's got!*/
 	int MinSpeed; /*You want to go how fast in reverse!?*/
-	int DesiredHeading; /*Man I have to PEE!*/
+	int DesiredHeading; 
 	int Rudder; /*bend me and she will turn*/
 	int TorpedosOnBoard; /*Where are all the fish!*/
         int NoiseMakers;    // to destract the torpedos
@@ -132,7 +132,11 @@ public:
 	double BearingToTarget(Submarine &Target);
 	float DEAngle(Submarine &Target);
         int torpedo_tube[MAX_TUBES];
-
+        Submarine *next;     // also for torpedos, though could be used
+                             // later for ships
+        Submarine *target;   // for torpedoes
+        int fuel_remaining;  // mostly for torpedos, 
+                             // but maybe for electric subs later
 	Submarine();
 	~Submarine();
         void Init();
@@ -150,9 +154,8 @@ public:
         // Load information on this type of ship/sub
         int Load_Class(char *from_file);
         int Use_Tube(int action, int tube_number);
-        Submarine *Fire_Tube(Submarine *target);
-        Submarine *target;
-        int fuel_remaining;
+
+        Submarine *Fire_Tube(Submarine *target, char *ship_file);
 };
 
 #endif

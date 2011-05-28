@@ -217,6 +217,7 @@ int update_weapons_screen = TRUE;
 GameClock Clock;
 Submarine Subs[MAX_SUBS]; //Somewhere to put our little floating buddies.
 Contact Contacts[MAX_SUBS]; //Workable contacts.
+Submarine *torpedoes;   // a linked-list of torpedoes
 TowedArray TB16;
 TargetMotionAnalysis Tma;
 msg Message;
@@ -292,5 +293,8 @@ inline int		Clamp(int);
 inline double	Clamp(double);
 Uint32	TmaTimer(Uint32 interval, void *param);
 Uint32	timerfunc(Uint32 interval, void *param);
+
+Submarine *Add_Torpedo(Submarine *all_torpedoes, Submarine *new_torpedo);
+
 #endif
 

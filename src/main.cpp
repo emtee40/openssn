@@ -167,6 +167,11 @@ void MapIcon(int x, int y, int ShipType, int Friend, Uint32 color){
       DrawBox(screen, x ,y, 7, 'T', color); //Top Half Cross
     }
   }
+  else if (ShipType == TYPE_TORPEDO)
+  {
+      DrawDiamond(screen, x, y, 7, 'B', color);
+      DrawLine(screen, x, y-5, x, y, color);
+  }
 }
 
 
@@ -981,8 +986,37 @@ void DisplayWidgets(){
 
 
 
+// This function adds a torpedo to the linked-list of torpedoes
+// The returned value is the new linked-list pointer, in case
+// the new_torpedo is the first in the list.
+Submarine *Add_Torpedo(Submarine *all_torp, Submarine *new_torp)
+{
+   Submarine *my_torp;
+
+   // we do not have a torpedo to add
+   if (! new_torp)
+     return all_torp;
+
+   // empty list
+   if (! all_torp)
+       return new_torp;
+
+   // add one to an existing list
+   my_torp = all_torp;
+   while (my_torp->next)
+      my_torp = my_torp->next;
+
+   // add to end of list
+   my_torp->next = new_torp;
+   
+   return all_torp;
+}
+
+
 //######################################
 void ShipHandeling(){
+       Submarine *my_torp;
+
        // see if we can use radar, esm, etc
        if ( Subs[0].Depth > PERISCOPE_DEPTH)
        {
@@ -996,8 +1030,20 @@ void ShipHandeling(){
 	}
 	for (int x = 0; x < 19; x++){
 		Contacts[x].UpdateContact();	
-	} 
+	}
+
+        // move some torps
+        my_torp = torpedoes;
+        while (my_torp)
+        {
+           my_torp->UpdateLatLon();
+           my_torp->Handeling();
+           my_torp = my_torp->next;
+        }
 }
+
+
+
 
 
 double RelativeBearing(int observer, int target){
@@ -1283,6 +1329,8 @@ void PlaceShips(int scale, int change_scrollx, int change_scrolly, int current_t
 	static int scrolloffsetx=0; //offset to center map
 	static int scrolloffsety=0;
 	Uint32 color;
+        Submarine *a_torp;
+
 	scale = scale * MAP_FACTOR;
 	if(mapcenter){ //center map onto our own ntds symbol
 		scrolloffsetx = 250 - ((int)Subs[0].Lat_TotalYards / scale);
@@ -1324,6 +1372,7 @@ void PlaceShips(int scale, int change_scrollx, int change_scrolly, int current_t
                        			   color = yellow;
                                         else
                                            color = brown;
+                                        break;
 				default: // Unknown
                                         if (fresh >= CONTACT_SOLID)
                                            color = grey;
@@ -1347,6 +1396,38 @@ void PlaceShips(int scale, int change_scrollx, int change_scrolly, int current_t
 		}   // end of we are on the map
              }    // end of able to detect
 	}
+
+        // now place torpedoes
+        a_torp = torpedoes;
+        while (a_torp)
+        {
+           x = 500 - ((int)a_torp->Lat_TotalYards / scale);
+           x = x - scrolloffsetx;
+           y = 500 - ((int)a_torp->Lon_TotalYards / scale);
+           y = y - scrolloffsety;
+           if (x>10 && x<490 && y>10 && y<490)  //are we going to fall off  map??
+           {
+              x = x + xoffset;
+              y = y + yoffset;
+              switch(a_torp->Friend){
+                 case 0: //Foe??
+                         color = red;
+                         break;
+                 case 1: //Friend??
+                         color = green;
+                         break;
+                 case 2: // Neither???
+                         color = yellow;
+                         break;
+                 default: // Unknown
+                          color = grey;
+                          break;
+               }
+               MapIcon(x, y, (int)a_torp->ShipType, (int)a_torp->Friend, color); 
+           }   // within map limits
+             
+           a_torp = a_torp->next;
+        }  // end of displaying torpedoes
 }
 
 
@@ -2447,6 +2528,7 @@ int HandleInput(SDL_Event &event, int &mousex, int &mousey){
 
 int main(int argc, char **argv){
 	static char text[120];
+        int status;
 	int hours=0;
 	int minutes=0;
 	int seconds=0;
@@ -2470,6 +2552,7 @@ int main(int argc, char **argv){
 	northcenter = true; //make the sonar display N. centered
 	Uint32 timer1; // our event timers....
 	SDL_TimerID timer_id, timer_id2;
+        torpedoes = NULL;
 	tmamutex = SDL_CreateMutex();
 	srand(time(NULL)); //Seed the random generator
 
@@ -3100,7 +3183,46 @@ int main(int argc, char **argv){
 					break;
                                 case USE_TUBE:
                                         // load, fire or unload a tube
-                                        Subs[0].Use_Tube(tube_action, tube_to_use);
+                                        status = Subs[0].Use_Tube(tube_action, tube_to_use);
+                                        if (status == TUBE_ERROR_FIRE_NOISEMAKER)
+                                        {
+                                            Submarine *new_torpedo;
+                                            char *ship_file, filename[] = "ships/class5.shp";
+                                            ship_file = Find_Data_File(filename);
+                                            new_torpedo = Subs[0].Fire_Tube(NULL, ship_file);
+                                            if ( (ship_file) && (ship_file != filename) )
+                                                free(ship_file);
+                                            if (new_torpedo)
+                                            {
+                                                new_torpedo->Friend = FRIEND;
+                                                torpedoes = Add_Torpedo(torpedoes, new_torpedo);
+                                            }
+                                        }
+                                        else if ( (status == TUBE_ERROR_FIRE_SUCCESS) && (current_target > -1) )
+                                        {
+                                           char *ship_file, filename[] = "ships/class5.shp";
+                                           ship_file = Find_Data_File(filename);
+                                           if (current_target > -1)
+                                           {
+                                              Submarine *new_torpedo;
+                                              new_torpedo = Subs[0].Fire_Tube( &(Subs[current_target]), ship_file );
+                                              if ( (ship_file) && (ship_file != filename) )
+                                                free(ship_file);
+                                              if (new_torpedo)
+                                              {
+                                                  new_torpedo->Friend = FRIEND;
+                                                  torpedoes = Add_Torpedo(torpedoes, new_torpedo);
+                                              }
+                                           }
+                                          }
+                                          else if (status == TUBE_ERROR_FIRE_SUCCESS)
+                                           {
+                                               Message.post_message("Torpedo has no target.");
+                                               Message.display_message();
+                                               Subs[0].TorpedosOnBoard++;
+                                           }
+                                        
+
                                         tube_action = 0;
                                         tube_to_use = -1;
                                         update_weapons_screen = TRUE;

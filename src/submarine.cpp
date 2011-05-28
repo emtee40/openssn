@@ -19,6 +19,8 @@ $Id: submarine.cpp,v 1.6 2003/04/14 05:51:04 mbridak Exp $
 #include <iostream>
 #include <fstream>
 #include <math.h>
+#include <limits.h>
+#include <stdlib.h>
 #include "submarine.h"
 using namespace std;
 
@@ -92,6 +94,9 @@ void Submarine::Init()
         current_target = -1;
         for (index = 0; index < MAX_TUBES; index++)
            torpedo_tube[index] = TUBE_EMPTY;
+        next = NULL;
+        target = NULL;
+        fuel_remaining = INT_MAX;
 }
 
 
@@ -539,8 +544,20 @@ int Submarine::Use_Tube(int action, int tube_number)
                 NoiseMakers++;
             torpedo_tube[tube_number] = TUBE_EMPTY;
             return TUBE_ERROR_UNLOAD_SUCCESS;
-
-       
+      case FIRE_TUBE:
+            if (torpedo_tube[tube_number] == TUBE_EMPTY)
+               return TUBE_ERROR_FIRE_FAIL;
+            else if (torpedo_tube[tube_number] == TUBE_TORPEDO)
+            {
+               torpedo_tube[tube_number] = TUBE_EMPTY;
+               return TUBE_ERROR_FIRE_SUCCESS;
+            }
+            else if (torpedo_tube[tube_number] == TUBE_NOISEMAKER)
+            {
+               torpedo_tube[tube_number] = TUBE_EMPTY;
+               return TUBE_ERROR_FIRE_NOISEMAKER;
+            } 
+            break;
 
      default: 
           return TUBE_ERROR_ACTION;
@@ -549,3 +566,48 @@ int Submarine::Use_Tube(int action, int tube_number)
    return TRUE;     // this shouldn't happen, but just in case
 }
 
+
+
+
+// This function launches a torpedo or noise maker. If the
+// passed target is NULL, the new torp/noisemaker is given a
+// random course and no target, leaving it to run in a striaght line.
+// On success the function passes back a pointer to the new torpedo
+// and on failure NULL is returned.
+Submarine *Submarine::Fire_Tube(Submarine *target, char *ship_file)
+{
+   Submarine *my_torp;
+   my_torp = new Submarine();
+   if (! my_torp)
+       return NULL;
+
+   my_torp->Load_Class(ship_file);
+   if (target)
+   {
+       my_torp->target = target;
+       // set heading and desired depth
+       my_torp->DesiredHeading = my_torp->Heading = BearingToTarget(*target);
+       my_torp->DesiredDepth = target->Depth;
+   }
+   else // no target, noisemaker
+   {
+       my_torp->target = NULL;
+       // set random heading
+       my_torp->Heading = rand() % 360;
+       my_torp->DesiredHeading = my_torp->Heading;
+       
+   }
+   // set current position 
+   my_torp->Lat_TotalYards = Lat_TotalYards;
+   my_torp->Lon_TotalYards = Lon_TotalYards;
+   // set fuel
+   my_torp->fuel_remaining = TORPEDO_FUEL;
+   // set depth 
+   my_torp->Depth = Depth;
+   // set speed and desired speed
+   my_torp->Speed = Speed;
+   my_torp->DesiredSpeed = my_torp->MaxSpeed;
+   my_torp->ShipType = TYPE_TORPEDO;
+   my_torp->Friend = FOE;
+   return my_torp;
+}
