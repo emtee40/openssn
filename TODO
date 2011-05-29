@@ -1,5 +1,7 @@
 AI stuff
-The AI ships should occasionally turn and/or change speed
+  Make ships run away from torpedoes.
+  Warships should hunt enemies.
+  Warships should fire at enemies.
 
 Torpedo stuff
   Add torpedoes to waterfall display(s)

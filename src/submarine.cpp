@@ -701,11 +701,62 @@ int Submarine::Torpedo_AI()
 
    // check to see if we can hear the target
    can_hear_target = Can_Hear(target);
-   DesiredHeading = BearingToTarget(*target);
-   DesiredDepth = target->Depth;
+   if (can_hear_target)
+   {
+     DesiredHeading = BearingToTarget(*target);
+     DesiredDepth = target->Depth;
+     DesiredSpeed = MaxSpeed;
+   }
+   // what if we can't hear the target, go into search mode
+   else
+   {
+      DesiredHeading = Heading + 90;
+      DesiredSpeed = MaxSpeed / 2;
+   }
+   return TRUE;
+}
+
+
+// This function lets us figure out what to do with surface
+// ships. By default a surface ships just wanders around
+// and make the occasional turn.
+// Note: Later we will add hunting, running and shooting at stuff here.
+// This function returns TRUE
+int Submarine::Ship_AI()
+{
+   int change;
+
+   // nothing is going on, we have a 1/100 chance of making a turn
+   change = rand() % CHANCE_COURSE;
+   if (! change)
+   {
+      DesiredHeading = Heading + ((rand() % 180) - 90);
+      if (DesiredHeading >= 360)
+        DesiredHeading = DesiredHeading % 360;
+   }
 
    return TRUE;
 }
+
+
+// This function tells us what AI submarines will do.
+// Right now they just make the occasional turn. Later we
+// will add depth/speed and combat changed in here.
+int Submarine::Sub_AI()
+{
+   int change;
+
+   // got nothing to do, but perhaps change course
+   change = rand() % CHANCE_COURSE;
+   if (! change)
+   {
+     DesiredHeading = Heading + ( (rand() % 100) - 90);
+     if (DesiredHeading >= 360)
+       DesiredHeading = DesiredHeading % 360;
+   }
+   return TRUE;
+}
+
 
 
 
@@ -751,4 +802,5 @@ int Submarine::Take_Damage()
    else
      return DAMAGE_OK;
 }
+
 

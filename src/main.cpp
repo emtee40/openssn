@@ -1072,6 +1072,14 @@ void ShipHandeling(){
 
 	for (int x = 0; x < ships; x++){
 		Subs[x].UpdateLatLon();	//Move all the ships
+                // see what the AI wants to do
+                if (x > 0)
+                {
+                  if (Subs[x].ShipType == TYPE_SUB)
+                    Subs[x].Sub_AI();
+                  else if (Subs[x].ShipType == TYPE_SHIP)
+                    Subs[x].Ship_AI();
+                }
 		Subs[x].Handeling();	//Steer, Change Depth etc...
 	}
 	for (int x = 0; x < 19; x++){

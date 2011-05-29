@@ -93,6 +93,7 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 #define DAMAGE_OK 1
 #define DAMAGE_SINK 2
 
+#define CHANCE_COURSE 1000
 
 /**
   *@author Michael Bridak
@@ -170,6 +171,8 @@ public:
         Submarine *Fire_Tube(Submarine *target, char *ship_file);
         int Can_Hear(Submarine *target);
         int Torpedo_AI();
+        int Ship_AI();            // figure out what to do with surface ships
+        int Sub_AI();        // like ship AI in 3D
         int Check_Status();         // see if our torpedo is ok
         int Take_Damage();         // we were hit!
 };
