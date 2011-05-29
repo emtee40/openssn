@@ -295,6 +295,8 @@ Uint32	TmaTimer(Uint32 interval, void *param);
 Uint32	timerfunc(Uint32 interval, void *param);
 
 Submarine *Add_Torpedo(Submarine *all_torpedoes, Submarine *new_torpedo);
+Submarine *Remove_Torpedo(Submarine *all_torpedoes, Submarine *old_torpedo);
+void Remove_Inactive_Ship(Submarine *victim);  // find and remove inactive ship
 
 #endif
 

@@ -2,14 +2,9 @@ AI stuff
 The AI ships should occasionally turn and/or change speed
 
 Torpedo stuff
-Create torpedo code (ShipType 3, ShipClass 5)
-  Torpedoes will be ships, but stored in a linked list rather than
-  an array due to their constant changes.
-  And torps will have severe fuel restrictions.
-  (At some point the ships should move to a linked-list too.)
-Display torpedos on map
-Add noise maker (ShipType 4, ShipClass 6)
+  Add torpedoes to waterfall display(s)
 
+(At some point the ships should move to a linked-list too.)
 
 Add missions and objectives
 Add thermal layer?

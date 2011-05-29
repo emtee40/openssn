@@ -1013,9 +1013,55 @@ Submarine *Add_Torpedo(Submarine *all_torp, Submarine *new_torp)
 }
 
 
+// This function removes a torpedo from the list of all
+// torpedoes. It returns the first item in the torpedo linked-list.
+Submarine *Remove_Torpedo(Submarine *all_torpedoes, Submarine *old_torpedo)
+{
+   Submarine *my_torp, *previous;
+
+   if (! all_torpedoes)
+      return NULL;
+   if (! old_torpedo)
+      return all_torpedoes;
+
+   my_torp = all_torpedoes;
+   previous = NULL;
+   while (my_torp)
+   {
+      // found match and it is the first in the list
+      if ( (my_torp == old_torpedo) && (! previous) )
+      {
+          previous = my_torp->next;
+          free(my_torp);
+          return previous;
+      }
+      // found a match and it isn't the first in the list
+      else if (my_torp == old_torpedo)
+      {
+         previous->next = my_torp->next;
+         free(my_torp);
+         return all_torpedoes;
+      }
+      // no match found
+      else
+      {
+          previous = my_torp;
+          my_torp = my_torp->next;
+      }
+      
+   }
+   // item wasn't found, just return the complete list
+   return all_torpedoes;
+}
+
+
+
+
+
 //######################################
 void ShipHandeling(){
-       Submarine *my_torp;
+       Submarine *my_torp, *temp_torp;
+       int status;
 
        // see if we can use radar, esm, etc
        if ( Subs[0].Depth > PERISCOPE_DEPTH)
@@ -1036,11 +1082,96 @@ void ShipHandeling(){
         my_torp = torpedoes;
         while (my_torp)
         {
-           my_torp->UpdateLatLon();
-           my_torp->Handeling();
-           my_torp = my_torp->next;
-        }
+           my_torp->UpdateLatLon();  
+           my_torp->Torpedo_AI();   // see where we should be going
+           my_torp->Handeling();    // change heading and depth
+           status = my_torp->Check_Status();  // see if we ran into something
+                                              // or we are out of fuel
+           if (status == OUT_OF_FUEL)
+           {
+               temp_torp = my_torp->next;
+               torpedoes = Remove_Torpedo(torpedoes, my_torp);
+               my_torp = temp_torp;
+               Message.post_message("A torpedo ran out of fuel.");
+               Message.display_message();
+           }
+           else if (status == HIT_TARGET)
+           {
+               int target_status;
+               // damage target
+               target_status = my_torp->target->Take_Damage();
+               if (target_status == DAMAGE_SINK)
+               {
+                   Remove_Inactive_Ship(my_torp->target);
+               }
+               temp_torp = my_torp->next;
+               torpedoes = Remove_Torpedo(torpedoes, my_torp);
+               my_torp = temp_torp;
+               Message.post_message("A torpedo hit its target!");
+               if (target_status == DAMAGE_SINK)
+                  Message.post_message("Target is sinking!");
+               Message.display_message();
+           }
+           else
+              my_torp = my_torp->next;
+        }   // end of all torpedoes
 }
+
+
+
+// This function may get a little messy, we need to do a few things
+// to remove a ship completely from the scenario.
+// 1. We find the index number of the inactive ship.
+// 2. Any torpedoes shooting at this target have to have their
+//    target variable set to NULL
+// 3. Any ships/subs who were tracking this ship need to stop
+//    (we reset the targets and target_strength variables)
+// 4. We move all ships _later_ in the list down one place in the Subs index
+void Remove_Inactive_Ship(Submarine *victim)
+{
+    int ship_index = 0, found = FALSE;
+    Submarine *torpedo;
+    int index;
+
+    // 1. find the ship's index
+    while ( (ship_index < MAX_SUBS) && (!found) )
+    {
+        if ( Subs[ship_index].Active )
+          ship_index++;
+        else
+           found = TRUE;
+    }
+
+    if (! found)   // couldn't find victim, this should never happen, quit
+        return;
+
+    // 2. Cancel torpedoes targetting this ship
+    torpedo = torpedoes;
+    while (torpedo)
+    {
+        if (torpedo->target == victim)
+          torpedo->target = NULL;
+        torpedo = torpedo->next;
+    }
+
+    // 3. Ships who were tracking this ship need to stop
+    for (index = 0; index < MAX_SUBS; index++)
+    {
+        if ( Subs[index].Active )
+           Subs[index].Cancel_Target(ship_index);
+    }
+
+    // 4. Move all ships down onein the list
+    index = ship_index;
+    while (index < (MAX_SUBS - 1) )
+    {
+       memcpy( &(Subs[index]), &(Subs[index + 1]), sizeof(Submarine) );
+       index++;
+    }
+    memset(&(Subs[MAX_SUBS - 1]), 0, sizeof(Submarine));
+    ships--;
+}
+
 
 
 
@@ -3196,6 +3327,8 @@ int main(int argc, char **argv){
                                             {
                                                 new_torpedo->Friend = FRIEND;
                                                 torpedoes = Add_Torpedo(torpedoes, new_torpedo);
+                                                Message.post_message("Noise maker launched!");
+                                                Message.display_message();
                                             }
                                         }
                                         else if ( (status == TUBE_ERROR_FIRE_SUCCESS) && (current_target > -1) )
@@ -3212,6 +3345,8 @@ int main(int argc, char **argv){
                                               {
                                                   new_torpedo->Friend = FRIEND;
                                                   torpedoes = Add_Torpedo(torpedoes, new_torpedo);
+                                                  Message.post_message("Torpedo launched!");
+                                                  Message.display_message();
                                               }
                                            }
                                           }
@@ -3246,6 +3381,9 @@ int main(int argc, char **argv){
                 SDL_Delay(GAME_DELAY);
 		}   // end of main loop
 	UnLoadWidgets();
+        // get rid of torpedoes
+        while (torpedoes)
+            torpedoes = Remove_Torpedo(torpedoes, torpedoes);
 	SDL_Quit();
 }
 

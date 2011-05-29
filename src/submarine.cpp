@@ -96,7 +96,8 @@ void Submarine::Init()
            torpedo_tube[index] = TUBE_EMPTY;
         next = NULL;
         target = NULL;
-        fuel_remaining = INT_MAX;
+        fuel_remaining = INT_MAX; 
+        hull_strength = 1;
 }
 
 
@@ -407,7 +408,7 @@ int Submarine::Add_Target(int new_sub, float signal_strength)
 
 
 
-// Find an remove a target from the list
+// Find and reduce a target from the list
 void Submarine::Remove_Target(int old_sub)
 {
    int index = 0, found = FALSE;
@@ -426,6 +427,25 @@ void Submarine::Remove_Target(int old_sub)
           index++;
    }
 }
+
+// Find and completely remove a target from the list
+void Submarine::Cancel_Target(int old_sub)
+{
+   int index = 0, found = FALSE;
+
+   while ( (!found) && (index < MAX_SUBS) )
+   {
+       if (targets[index] == old_sub)
+       {
+         target_strength[index] = 0;
+         targets[index] = -1;
+         found = TRUE;
+       }
+       else
+          index++;
+   }
+}
+
 
 
 
@@ -493,7 +513,7 @@ int Submarine::Load_Class(char *my_file)
        return FALSE;
 
     // load data
-    infile >> MaxSpeed >> MaxDepth >> Rudder >> TorpedosOnBoard >> ClassName;
+    infile >> MaxSpeed >> MaxDepth >> Rudder >> TorpedosOnBoard >> hull_strength >> ClassName;
     infile.close();
     return TRUE;
 }
@@ -611,3 +631,124 @@ Submarine *Submarine::Fire_Tube(Submarine *target, char *ship_file)
    my_torp->Friend = FOE;
    return my_torp;
 }
+
+
+
+// This function lets us know if we can hear another ship/sub/
+// It returns TRUE if we can hear it and FALSE if we can not.
+int Submarine::Can_Hear(Submarine *target)
+{
+
+        float Range = DistanceToTarget(*target);
+        float NauticalMiles = (float)Range / 2000.0;
+        float HisPassiveSonarCrosssection = target->PSCS;
+        float EffectiveTargetSpeed;
+        float AmbientNoise;
+        float OwnShipNoise;
+        float TotalNoise;
+        float TargetNoise;
+        float Gb;
+        float Lbp;
+        float NoiseFromSpeed;
+        float BasisNoiseLevel;
+        float value;
+        float SeaState = 3.0; // Anyone want to model the weather.
+
+        if (target->Speed <= 5.0){
+             EffectiveTargetSpeed = 0.0;
+        }else{
+             EffectiveTargetSpeed = target->Speed - 5.0;
+        }
+
+        if (target->Speed < 20.0){
+             NoiseFromSpeed = 1.30;
+             BasisNoiseLevel = 0.0;
+        }else{
+             NoiseFromSpeed = 0.65;
+             BasisNoiseLevel = 9.75;
+        }
+        AmbientNoise = 89.0 + (5.0 * SeaState);
+        OwnShipNoise = RadiatedNoise();
+        TotalNoise = 10.0 * log10(pow(10.0,OwnShipNoise/10.0) + pow(10.0,AmbientNoise/10.0));
+        Gb = (TotalNoise - AmbientNoise) / 2.9;
+        Lbp = AmbientNoise + Gb;
+        TargetNoise = HisPassiveSonarCrosssection +
+        ((NoiseFromSpeed * EffectiveTargetSpeed) + BasisNoiseLevel);
+        value = TargetNoise - (20.0 * log10(NauticalMiles) + 1.1 * NauticalMiles) - Lbp;
+        // if (!observer)
+        //      SonarStation.flowandambientnoise = (Lbp - 34);
+        if (value > -45.0){
+                return TRUE;
+        }else{
+                return FALSE;
+        }
+
+}
+
+
+
+
+// This function will simply return if we do not have a target.
+// If we do have a target, and we can hear it, this will adjust the
+// torpedo's desired heading and desired depth to match the target.
+// The function returns TRUE.
+int Submarine::Torpedo_AI()
+{
+   int can_hear_target;
+
+   if (! target)
+      return TRUE;
+
+   // check to see if we can hear the target
+   can_hear_target = Can_Hear(target);
+   DesiredHeading = BearingToTarget(*target);
+   DesiredDepth = target->Depth;
+
+   return TRUE;
+}
+
+
+
+// Thisfunction checks on our torpedo to see how it
+// is doing. If it has hit its target, we return HIT_TARGET.
+// If we run out of fuel, we return OUT_OF_FUEL. Otherwise
+// we return STATUS_OK.
+// This function just checks status changes, it doesn't do
+// anything about them.
+int Submarine::Check_Status()
+{
+   double range;
+
+   // first see if we ran out of fuel
+   fuel_remaining--;
+   if (fuel_remaining < 1)
+      return OUT_OF_FUEL;
+
+   if (target)
+   {
+      range = DistanceToTarget(*target);
+      if (range < HITTING_RANGE)
+         return HIT_TARGET;
+   }
+
+   return STATUS_OK;
+}
+
+
+
+// This function reduces the remaining strength of the ship's hull.
+// If the ship/sub can still float, we return DAMAGE_OK, but if
+// the ship is sinking, we return DAMAGE_SINK.
+// If the ship sinks, we set Active to FALSE.
+int Submarine::Take_Damage()
+{
+   hull_strength--;
+   if (hull_strength < 1)
+   {
+      Active = FALSE;
+      return DAMAGE_SINK;
+   }
+   else
+     return DAMAGE_OK;
+}
+

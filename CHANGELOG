@@ -1,3 +1,14 @@
+  - Ships now take damage when hit by torpedoes and sink.
+
+  - Torpedoes can now run out of fuel (after around 8-10 miles).
+
+  - Added torpedo clean-up code.
+
+  - Torpedos now listen for and track their targets.
+
+  - Torpedos and noisemakers can now be fired by the player
+    and are shown on the tactical map.
+    
   - Torpedoes and noisemakers can be loaded using the mouse.
 
   - Reduced CPU usage on Weapons screen by about 50%.

@@ -84,6 +84,15 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 #define TUBE_ERROR_FIRE_NOISEMAKER 11   // we fired a noisemaker
 
 #define TORPEDO_FUEL 600
+#define HITTING_RANGE 50
+
+#define OUT_OF_FUEL 1
+#define HIT_TARGET 2
+#define STATUS_OK 3
+
+#define DAMAGE_OK 1
+#define DAMAGE_SINK 2
+
 
 /**
   *@author Michael Bridak
@@ -131,12 +140,14 @@ public:
 	double DistanceToTarget(Submarine &Target);
 	double BearingToTarget(Submarine &Target);
 	float DEAngle(Submarine &Target);
+        int hull_strength;
         int torpedo_tube[MAX_TUBES];
         Submarine *next;     // also for torpedos, though could be used
                              // later for ships
         Submarine *target;   // for torpedoes
         int fuel_remaining;  // mostly for torpedos, 
                              // but maybe for electric subs later
+        
 	Submarine();
 	~Submarine();
         void Init();
@@ -146,6 +157,7 @@ public:
         int target_strength[MAX_SUBS];
         int Add_Target(int new_sub, float contact_strength);
         void Remove_Target(int old_sub);
+        void Cancel_Target(int old_sub);
         int Can_Detect(int a_sub);
 
         // returns target index or -1 if none is available
@@ -156,6 +168,10 @@ public:
         int Use_Tube(int action, int tube_number);
 
         Submarine *Fire_Tube(Submarine *target, char *ship_file);
+        int Can_Hear(Submarine *target);
+        int Torpedo_AI();
+        int Check_Status();         // see if our torpedo is ok
+        int Take_Damage();         // we were hit!
 };
 
 #endif
