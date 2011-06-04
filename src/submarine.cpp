@@ -21,6 +21,7 @@ $Id: submarine.cpp,v 1.6 2003/04/14 05:51:04 mbridak Exp $
 #include <math.h>
 #include <limits.h>
 #include <stdlib.h>
+#include <string.h>
 #include "submarine.h"
 using namespace std;
 
@@ -98,6 +99,8 @@ void Submarine::Init()
         target = NULL;
         fuel_remaining = INT_MAX; 
         hull_strength = 1;
+        has_sonar = 1;
+        mission_status = MISSION_NONE;
 }
 
 
@@ -151,49 +154,49 @@ void Submarine::CheckForCavitation(){
 		return;
 	}
 }
-double Submarine::BearingToTarget(Submarine &Target){
+double Submarine::BearingToTarget(Submarine *Target){
 	double latdif=0, londif=0, bearing = 0; //atan() needs doubles
 	//LatLonDifference(observer, target, &latdif, &londif);
 
-	if (Lat_TotalYards > Target.Lat_TotalYards){
-		latdif = Lat_TotalYards - Target.Lat_TotalYards;
+	if (Lat_TotalYards > Target->Lat_TotalYards){
+		latdif = Lat_TotalYards - Target->Lat_TotalYards;
 	}
 	else{
-		latdif = Target.Lat_TotalYards - Lat_TotalYards;
+		latdif = Target->Lat_TotalYards - Lat_TotalYards;
 	}
 
-	if (Lon_TotalYards > Target.Lon_TotalYards){
-		londif = Lon_TotalYards - Target.Lon_TotalYards;
+	if (Lon_TotalYards > Target->Lon_TotalYards){
+		londif = Lon_TotalYards - Target->Lon_TotalYards;
 	}
 	else{
-		londif = Target.Lon_TotalYards - Lon_TotalYards;
+		londif = Target->Lon_TotalYards - Lon_TotalYards;
 	}
 
-	if ((Lon_TotalYards < Target.Lon_TotalYards) &&
-	(Lat_TotalYards < Target.Lat_TotalYards)){
+	if ((Lon_TotalYards < Target->Lon_TotalYards) &&
+	(Lat_TotalYards < Target->Lat_TotalYards)){
 		bearing = (360 - ((atan(latdif / londif) * 360) / 6.28318530717958647692));
 	}
-	if ((Lon_TotalYards < Target.Lon_TotalYards) &&
-	(Lat_TotalYards > Target.Lat_TotalYards)){
+	if ((Lon_TotalYards < Target->Lon_TotalYards) &&
+	(Lat_TotalYards > Target->Lat_TotalYards)){
 		bearing = (0 + ((atan(latdif / londif) * 360) / 6.28318530717958647692));
 	}
-	if ((Lon_TotalYards > Target.Lon_TotalYards) &&
-	(Lat_TotalYards < Target.Lat_TotalYards)){
+	if ((Lon_TotalYards > Target->Lon_TotalYards) &&
+	(Lat_TotalYards < Target->Lat_TotalYards)){
 		bearing = (180 + ((atan(latdif / londif) * 360) / 6.28318530717958647692));
 	}
-	if ((Lon_TotalYards > Target.Lon_TotalYards) &&
-	(Lat_TotalYards > Target.Lat_TotalYards)){
+	if ((Lon_TotalYards > Target->Lon_TotalYards) &&
+	(Lat_TotalYards > Target->Lat_TotalYards)){
 		bearing = (180 - ((atan(latdif / londif) * 360) / 6.28318530717958647692));
 	}
 	if (londif == 0){
-		if (Lat_TotalYards > Target.Lat_TotalYards){
+		if (Lat_TotalYards > Target->Lat_TotalYards){
 			bearing = 90;
 		}else{
 			bearing = 270;
 		}
 	}
 	if (latdif == 0){
-		if (Lon_TotalYards > Target.Lon_TotalYards){
+		if (Lon_TotalYards > Target->Lon_TotalYards){
 			bearing = 180;
 		}else{
 			bearing = 0;
@@ -202,37 +205,37 @@ double Submarine::BearingToTarget(Submarine &Target){
 	return bearing;
 }
 
-double Submarine::DistanceToTarget(Submarine &Target){
+double Submarine::DistanceToTarget(Submarine *Target){
 	double latdif = 0, londif = 0; //sqrt needs doubles
 	//LatLonDifference( observer,  target,  &latdif,  &londif );
 
-	if (Lat_TotalYards > Target.Lat_TotalYards){
-		latdif = Lat_TotalYards - Target.Lat_TotalYards;
+	if (Lat_TotalYards > Target->Lat_TotalYards){
+		latdif = Lat_TotalYards - Target->Lat_TotalYards;
 	}
 	else{
-		latdif = Target.Lat_TotalYards - Lat_TotalYards;
+		latdif = Target->Lat_TotalYards - Lat_TotalYards;
 	}
 
-	if (Lon_TotalYards > Target.Lon_TotalYards){
-		londif = Lon_TotalYards - Target.Lon_TotalYards;
+	if (Lon_TotalYards > Target->Lon_TotalYards){
+		londif = Lon_TotalYards - Target->Lon_TotalYards;
 	}
 	else{
-		londif = Target.Lon_TotalYards - Lon_TotalYards;
+		londif = Target->Lon_TotalYards - Lon_TotalYards;
 	}
 	return sqrt((latdif * latdif) + (londif * londif));
 }
 
-float Submarine::DEAngle(Submarine &Target){
+float Submarine::DEAngle(Submarine *Target){
 	double distance = 0.0;
 	int depthDifference = 0;
 	double deang = 0.0;
 
 	distance = DistanceToTarget(Target);
 
-	if (Depth < Target.Depth){
-		depthDifference = (int)(Target.Depth - Depth);
+	if (Depth < Target->Depth){
+		depthDifference = (int)(Target->Depth - Depth);
 	}else{
-		depthDifference = (int)(Depth - Target.Depth);
+		depthDifference = (int)(Depth - Target->Depth);
 	}
 
      if (depthDifference != 0) depthDifference = depthDifference * 3;
@@ -243,7 +246,7 @@ float Submarine::DEAngle(Submarine &Target){
 		deang =  (atan(depthDifference / distance) * 360) / 6.283185307179;
 	}
 
-	if (Depth > Target.Depth){
+	if (Depth > Target->Depth){
 		deang = 90.0 - deang;
 	}else{
 		deang = deang - 90.0;
@@ -513,10 +516,36 @@ int Submarine::Load_Class(char *my_file)
        return FALSE;
 
     // load data
-    infile >> MaxSpeed >> MaxDepth >> Rudder >> TorpedosOnBoard >> hull_strength >> ClassName;
+    infile >> MaxSpeed >> MaxDepth >> Rudder >> TorpedosOnBoard >> hull_strength >> has_sonar >> ClassName;
     infile.close();
     return TRUE;
 }
+
+
+// This function tries to load a single line from the passed file
+// and translates the contents to the ship's mission.
+// The function returns TRUE on success and FALSE if an
+// error occurs.
+int Submarine::Load_Mission(FILE *from_file)
+{
+    char line[256];
+    
+    if (! from_file)
+       return FALSE;
+
+    memset(line, '\0', 256);
+    fgets(line, 256, from_file);
+    if (! strcasecmp(line, "sink") )
+        mission_status = MISSION_SINK;
+    else if (! strcasecmp(line, "find") )
+        mission_status = MISSION_FIND;
+    else if (! strcasecmp(line, "alive") )
+        mission_status = MISSION_ALIVE;
+    else
+        mission_status = MISSION_NONE;
+    return TRUE;
+}
+
 
 
 
@@ -606,7 +635,7 @@ Submarine *Submarine::Fire_Tube(Submarine *target, char *ship_file)
    {
        my_torp->target = target;
        // set heading and desired depth
-       my_torp->DesiredHeading = my_torp->Heading = BearingToTarget(*target);
+       my_torp->DesiredHeading = my_torp->Heading = BearingToTarget(target);
        my_torp->DesiredDepth = target->Depth;
    }
    else // no target, noisemaker
@@ -639,7 +668,7 @@ Submarine *Submarine::Fire_Tube(Submarine *target, char *ship_file)
 int Submarine::Can_Hear(Submarine *target)
 {
 
-        float Range = DistanceToTarget(*target);
+        float Range = DistanceToTarget(target);
         float NauticalMiles = (float)Range / 2000.0;
         float HisPassiveSonarCrosssection = target->PSCS;
         float EffectiveTargetSpeed;
@@ -653,6 +682,10 @@ int Submarine::Can_Hear(Submarine *target)
         float BasisNoiseLevel;
         float value;
         float SeaState = 3.0; // Anyone want to model the weather.
+        float minimum_sound = -45.0;
+
+        if (ShipType == TYPE_TORPEDO)
+            minimum_sound *= 2.5;
 
         if (target->Speed <= 5.0){
              EffectiveTargetSpeed = 0.0;
@@ -677,7 +710,7 @@ int Submarine::Can_Hear(Submarine *target)
         value = TargetNoise - (20.0 * log10(NauticalMiles) + 1.1 * NauticalMiles) - Lbp;
         // if (!observer)
         //      SonarStation.flowandambientnoise = (Lbp - 34);
-        if (value > -45.0){
+        if (value > minimum_sound){
                 return TRUE;
         }else{
                 return FALSE;
@@ -703,7 +736,7 @@ int Submarine::Torpedo_AI()
    can_hear_target = Can_Hear(target);
    if (can_hear_target)
    {
-     DesiredHeading = BearingToTarget(*target);
+     DesiredHeading = BearingToTarget(target);
      DesiredDepth = target->Depth;
      DesiredSpeed = MaxSpeed;
    }
@@ -722,9 +755,40 @@ int Submarine::Torpedo_AI()
 // and make the occasional turn.
 // Note: Later we will add hunting, running and shooting at stuff here.
 // This function returns TRUE
-int Submarine::Ship_AI()
+int Submarine::Ship_AI(Submarine *all_torpedoes)
 {
    int change;
+   Submarine *torpedo;
+   int can_hear_torpedo;
+   double distance;
+   int bearing;
+
+   // most important thing we can do is run away from torpedoes
+   if (has_sonar)
+   {
+       // go through all torpedoes and see if any of them
+       // chasing us
+       torpedo = all_torpedoes;
+       while (torpedo)
+       {
+           can_hear_torpedo = Can_Hear(torpedo);
+           distance = DistanceToTarget(torpedo);
+           if ( (can_hear_torpedo) && (distance < (10 * MILES_TO_YARDS) ) )
+           {
+               bearing = (int) BearingToTarget(torpedo);
+               bearing += 180;
+               if (bearing >= 360)
+                  bearing = bearing % 360;
+               DesiredHeading = bearing;
+               DesiredSpeed = MaxSpeed;
+               return TRUE;
+           }
+           torpedo = torpedo->next;
+      }
+      // if we got this far we cannot hear a torpedo coming at us
+      if (Speed == MaxSpeed)
+         DesiredSpeed = MaxSpeed / 2;
+   }
 
    // nothing is going on, we have a 1/100 chance of making a turn
    change = rand() % CHANCE_COURSE;
@@ -742,9 +806,45 @@ int Submarine::Ship_AI()
 // This function tells us what AI submarines will do.
 // Right now they just make the occasional turn. Later we
 // will add depth/speed and combat changed in here.
-int Submarine::Sub_AI()
+int Submarine::Sub_AI(Submarine *all_torpedoes)
 {
    int change;
+   Submarine *torpedo;
+   int can_hear_torpedo;
+   double distance;
+   int bearing;
+
+   // most important thing we can do is run away from torpedoes
+   if (has_sonar)
+   {
+       // go through all torpedoes and see if any of them
+       // chasing us
+       torpedo = all_torpedoes;
+       while (torpedo)
+       {
+           can_hear_torpedo = Can_Hear(torpedo);
+           distance = DistanceToTarget(torpedo);
+           if ( (can_hear_torpedo) && (distance < (10 * MILES_TO_YARDS) ) )
+           {
+               bearing = (int) BearingToTarget(torpedo);
+               bearing += 180;
+               if (bearing >= 360)
+                  bearing = bearing % 360;
+               DesiredHeading = bearing;
+               DesiredSpeed = MaxSpeed;
+               // subs are dive too
+               if (torpedo->Depth <= Depth)  // it is above us
+                  DesiredDepth = MaxDepth;
+               else if (torpedo->Depth > Depth)  // below us
+                  DesiredDepth = PERISCOPE_DEPTH;
+               return TRUE;
+           }
+           torpedo = torpedo->next;
+      }
+      // if we got this far we cannot hear a torpedo coming at us
+      if (Speed == MaxSpeed)
+         DesiredSpeed = MaxSpeed / 2;
+   }
 
    // got nothing to do, but perhaps change course
    change = rand() % CHANCE_COURSE;
@@ -777,7 +877,7 @@ int Submarine::Check_Status()
 
    if (target)
    {
-      range = DistanceToTarget(*target);
+      range = DistanceToTarget(target);
       if (range < HITTING_RANGE)
          return HIT_TARGET;
    }

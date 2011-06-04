@@ -1,3 +1,18 @@
+  - Submarines now run from torpedoes.
+
+  - Ships with sonar will now run away from torpedoes.
+
+  - Fixed torpedo's sonar.
+
+  - Fixed ESM station display. Signals from targets now display.
+
+  - Converted abs() calls to fabs for compatibility with FreeBSD.
+
+
+============ openssn-0.3 released May 30, 2011 =================
+
+  - Non-player ships now make course changes on their own.
+
   - Ships now take damage when hit by torpedoes and sink.
 
   - Torpedoes can now run out of fuel (after around 8-10 miles).
@@ -15,7 +30,7 @@
 
   - Toned down waterfall display a little, reduced brightness.
 
-  - Add weapons console and the ability to load/unload tubes.
+  - Added weapons console and the ability to load/unload tubes.
 
   - Ship class data (name, speed, depth) is now kept in the
     "ships" directory and is loaded at the beginning of each

@@ -95,6 +95,16 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 
 #define CHANCE_COURSE 1000
 
+#define MISSION_NONE 0
+#define MISSION_SINK 1
+#define MISSION_FIND 2
+#define MISSION_ALIVE 3
+
+#define YARDS_TO_MILES 0.000568
+#define MILES_TO_YARDS 1760
+#define PERISCOPE_DEPTH 50
+
+
 /**
   *@author Michael Bridak
   */
@@ -138,10 +148,12 @@ public:
 	void CheckForCavitation(); /*self explanitory */
 	void Handeling(); /*Turn Left/Right go Up/Down Etc...*/
 	float CheckNegSpeed(float); /*if Speed is negative return inverse value*/
-	double DistanceToTarget(Submarine &Target);
-	double BearingToTarget(Submarine &Target);
-	float DEAngle(Submarine &Target);
+	double DistanceToTarget(Submarine *Target);
+	double BearingToTarget(Submarine *Target);
+	float DEAngle(Submarine *Target);
         int hull_strength;
+        int mission_status;
+        int has_sonar;
         int torpedo_tube[MAX_TUBES];
         Submarine *next;     // also for torpedos, though could be used
                              // later for ships
@@ -166,13 +178,14 @@ public:
 
         // Load information on this type of ship/sub
         int Load_Class(char *from_file);
+        int Load_Mission(FILE *from_file);
         int Use_Tube(int action, int tube_number);
 
         Submarine *Fire_Tube(Submarine *target, char *ship_file);
         int Can_Hear(Submarine *target);
         int Torpedo_AI();
-        int Ship_AI();            // figure out what to do with surface ships
-        int Sub_AI();        // like ship AI in 3D
+        int Ship_AI(Submarine *all_torpedoes);  // figure out what to do with surface ships
+        int Sub_AI(Submarine *all_torpedoes);   // like ship AI in 3D
         int Check_Status();         // see if our torpedo is ok
         int Take_Damage();         // we were hit!
 };

@@ -52,7 +52,7 @@ SDL_image
 Assuming the above libraries are installed, it should be possible to
 build OpenSSN with the following commands
 
-tar zxf openssn-0.2.tar.gz
+tar zxf openssn-0.3.tar.gz
 cd openssn/src
 make
 
@@ -99,7 +99,8 @@ Up keypad (8)		Rise toward the surface
 System controls...................
 F1			Sonar screen
 F2			Map screen
-F4			Map screen
+F3			Weapons station
+F4			Helm console
 F5			ESM signals screen
 F6			Radar screen
 F10			Take screen shot
@@ -114,7 +115,7 @@ ESC 			Quit
 
 
 
-Weapon controls (only for use on the weapons screen)
+Weapon controls 
 T			Load a torpedo
 N			Load a noise maker
 U			Unload a tube

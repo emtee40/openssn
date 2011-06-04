@@ -280,7 +280,7 @@ bool Esm::isTargetVisible(int target, int TargetRange, int ObserverDepth,
 
   bool boolean = false;
   // we cannot detect subs on esm
-  if (Subs[target].Depth >= 0.0)
+  if (Subs[target].Depth > 0.0)
        return false;
 
   CurrentAntennaHeight = getAntennaHeight(ObserverDepth,SeaState);
@@ -389,18 +389,16 @@ void Esm::DisplayContacts(int ships){
 	  }
 
 	for (int target=1; target<ships; target++){
-		bearing = (int)Subs[0].BearingToTarget(Subs[target]);
-		range = (int)Subs[0].DistanceToTarget(Subs[target]);
+		bearing = (int)Subs[0].BearingToTarget(& (Subs[target]) );
+		range = (int)Subs[0].DistanceToTarget(& (Subs[target]) );
 		depth = (int)Subs[0].Depth;
 
 //		bearing = getBearing((int)Subs[0].BearingToTarget(Subs[target]), depth, 100, 3);
 		
 		radians = float(bearing) *(3.14/180.0);  // degrees to radians
 
-
 		if(isTargetVisible(target, range, depth,100, true, 3)) 
 		  {
-
 		    // Plot a line at the correct bearing 	
 		    x = int(326.0 + (460.0 - 326.0)*cos(1.57-radians));
 		    y = int(383.0 - (460.0 - 326.0)*sin(1.57-radians));

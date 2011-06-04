@@ -1076,9 +1076,9 @@ void ShipHandeling(){
                 if (x > 0)
                 {
                   if (Subs[x].ShipType == TYPE_SUB)
-                    Subs[x].Sub_AI();
+                    Subs[x].Sub_AI(torpedoes);
                   else if (Subs[x].ShipType == TYPE_SHIP)
-                    Subs[x].Ship_AI();
+                    Subs[x].Ship_AI(torpedoes);
                 }
 		Subs[x].Handeling();	//Steer, Change Depth etc...
 	}
@@ -1190,7 +1190,7 @@ double RelativeBearing(int observer, int target){
 	//measured clockwise from on ships heading to target bearing.
 	double relative_bearing;
 	int observer_heading, bearing_to_target;
-	bearing_to_target = (int)Subs[observer].BearingToTarget(Subs[target]);
+	bearing_to_target = (int)Subs[observer].BearingToTarget(& (Subs[target]) );
 	observer_heading = (int)Subs[observer].Heading;
 	if(observer_heading > bearing_to_target) bearing_to_target += 360;
 	relative_bearing = bearing_to_target - observer_heading;
@@ -1272,11 +1272,11 @@ void LatLonDifference(int x, int y, double *platdif, double *plondif){ // CHANGE
 }
 
 void CreateShips(int mission_number){
-  char *ship_file;
+  char *ship_file, *mission_name;
   char filename[128];
   char line[256], *status;
   int i;
-  FILE *my_file;
+  FILE *my_file, *mission_file;
 
   snprintf(filename, 128, "data/ships%d.dat", mission_number);
   // ifstream constructor opens file
@@ -1291,9 +1291,19 @@ void CreateShips(int mission_number){
     exit(1);
   }
 
+  snprintf(filename, 128, "data/mission%d.dat", mission_number);
+  mission_name = Find_Data_File(filename);
+  mission_file = fopen(mission_name, "r");
+  if ( (mission_name) && (mission_name != filename) )
+    free(mission_name);
+
+  
   // init all ships
   for (i = 0; i < MAX_SUBS; i++)
+  {
       Subs[i].Init();
+      Subs[i].Load_Mission(mission_file);
+  }
 
   // Read in the data from the ship file
   // Format of ship file: 1 row of data per ship
@@ -1334,7 +1344,11 @@ void CreateShips(int mission_number){
      status = fgets(line, 256, my_file);
   }
   // inClientFile.close();
-  fclose(my_file);
+  if (my_file)
+     fclose(my_file);
+  if (mission_file)
+     fclose(mission_file);
+
   // ships = i - 1;
   ships = i;
   // rdm 5/15/01 testing to be sure correct number of ships being read
@@ -1417,12 +1431,13 @@ void Display_Target()
    sprintf(buffer, "Spead: %d knots", (int) Subs[current_target].Speed);
    fnt.PutString(screen, 140, 436, buffer);
 
-   range = Subs[0].DistanceToTarget(Subs[current_target]);
-   range *= 0.000568;
+   range = Subs[0].DistanceToTarget(& (Subs[current_target]) );
+   // range *= 0.000568;
+   range *= YARDS_TO_MILES;
    sprintf(buffer, "Range: %2.1f miles", range);
    fnt.PutString(screen, 140, 448, buffer);
 
-   bearing = Subs[0].BearingToTarget(Subs[current_target]);
+   bearing = Subs[0].BearingToTarget(& (Subs[current_target]) );
    sprintf(buffer, "Bearing: %2.0lf", bearing);
    fnt.PutString(screen, 140, 460, buffer); 
 
@@ -1605,7 +1620,7 @@ float Radar_Detection(double Range, int observer, int target)
    bool result;
 
    depth = (int) Subs[observer].Depth;
-   range = (int) Subs[observer].DistanceToTarget(Subs[target]);
+   range = (int) Subs[observer].DistanceToTarget( & (Subs[target]) );
    result = RadarStation.isTargetVisible(target, range, depth,
                          SHIP_HEIGHT, DEFAULT_SEA_STATE);
    if (result)
@@ -1622,7 +1637,7 @@ float Esm_Detection(double Range, int observer, int target)
    bool result;
 
    depth = (int) Subs[observer].Depth;
-   range = (int) Subs[observer].DistanceToTarget(Subs[target]);
+   range = (int) Subs[observer].DistanceToTarget(& (Subs[target]) );
    result = EsmStation.isTargetVisible(target, range, depth,
                        SHIP_HEIGHT, TRUE, DEFAULT_SEA_STATE);
    if (result)
@@ -1767,7 +1782,7 @@ void SoundEnvironment(){
 			float signal;
 			signal = Any_Detection(Range, 0, target);
 			if (signal){ // Are we audible?
-				bearing = (int)Subs[0].BearingToTarget(Subs[target]);  //Change me to float for better tma
+				bearing = (int)Subs[0].BearingToTarget(& (Subs[target]) );  //Change me to float for better tma
 				Subs[0].RegisterEvent(bearing,signal,target);
                                 // printf("Adding target %d to list.\n", target);
                                 Subs[0].Add_Target(target, signal);
@@ -1817,7 +1832,7 @@ int InBaffles(int observer, int target, int sensor){
 		case 1:	//Spherical
 			sensordeaf = 0;
 			array_heading = (int)Subs[observer].Heading;
-			bearing_to_target = (int)Subs[observer].BearingToTarget(Subs[target]);
+			bearing_to_target = (int)Subs[observer].BearingToTarget( &( Subs[target]) );
 			if(array_heading > bearing_to_target) bearing_to_target += 360;
 			relative_bearing = bearing_to_target - array_heading;
 			if(relative_bearing > 150 && relative_bearing < 210) sensordeaf = 1;
@@ -2055,7 +2070,7 @@ Uint32 TmaTimer(Uint32 interval, void *param){
 	Tma.Lock(); //Lock Tma access mutex
 	param = NULL; //Quites error messages.
 	tick ++; //record the time of the tma record.
-	Tma.RecordBoatPosition(Subs[0].Lat_TotalYards, Subs[0].Lon_TotalYards, Subs[0].BearingToTarget(Subs[1]), tick);
+	Tma.RecordBoatPosition(Subs[0].Lat_TotalYards, Subs[0].Lon_TotalYards, Subs[0].BearingToTarget(& (Subs[1])) , tick);
 	Tma.UnLock(); //Unlock mutex
 	return interval;
 }

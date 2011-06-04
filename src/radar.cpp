@@ -815,8 +815,8 @@ void Radar::DisplayContacts(int ships)
   // set dx = 144	dy = 144
   
   for (int target=1; target<ships; target++){
-    bearing = (int)Subs[0].BearingToTarget(Subs[target]);
-    range = (int)Subs[0].DistanceToTarget(Subs[target]);
+    bearing = (int)Subs[0].BearingToTarget(& (Subs[target]) );
+    range = (int)Subs[0].DistanceToTarget(& (Subs[target]) );
     depth = (int)Subs[0].Depth;
     
     radians = float(bearing) *(3.14/180.0);  // degrees to radians
@@ -1154,10 +1154,10 @@ int Radar::DeltaBearing(int bearing1, int bearing2)
 {
 	// Difference between two bearings
 	int deltabearing;
-	if (abs(bearing1 - bearing2) < 180){
-		 deltabearing = abs(bearing1 - bearing2);
+	if (fabs(bearing1 - bearing2) < 180){
+		 deltabearing = (int) fabs(bearing1 - bearing2);
 	}else{
-		deltabearing = 360 - abs(bearing1 - bearing2);
+		deltabearing = (int) (360 - fabs(bearing1 - bearing2));
 	}
 	return deltabearing;
 }
