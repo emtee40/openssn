@@ -66,7 +66,7 @@ class Radar {
 
 	void DisplayWidgets();
 
-	void DisplayContacts(int ships);
+	void DisplayContacts();
 
 	void DisplaySweep();
 	
@@ -120,7 +120,7 @@ class Radar {
 	int getRange(int); // Get target range
 	float getRadarHorizon(int ObserverDepth, int TargetHeight, int SeaState);
 
-	bool isTargetVisible(int, int, int, int, int); // Can we see the target
+	bool isTargetVisible(Submarine *, int, int, int, int); // Can we see the target
 
 	SDL_Rect destination_rectangle;
 	SDL_Rect source_rectangle;

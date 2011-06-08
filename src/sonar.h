@@ -24,6 +24,7 @@ $Id: sonar.h,v 1.10 2003/09/20 22:53:15 mbridak Exp $
 
 class AnBqq5{
 public:
+	Submarine *Subs;
 	int cursorBearing;
 	bool bearingdisplay5by6;
 	bool arraychoice5by6;
@@ -171,7 +172,6 @@ private:
 	SDL_Surface *tracker3[2];
 	SDL_Surface *tracker4[2];
 	DFont largeFont(const char*, const char *);
-	Submarine *Subs;
 	TowedArray &TB16;
 	TargetMotionAnalysis &Tma;
 	msg &Message;

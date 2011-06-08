@@ -5,7 +5,6 @@ AI stuff
 Torpedo stuff
   Add torpedoes to waterfall display(s)
 
-At some point the ships should move to a linked-list too.
 Maybe put all ships/subs/torpedoes in one list?
 
 Add missions and objectives

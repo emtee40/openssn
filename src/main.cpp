@@ -989,7 +989,7 @@ void DisplayWidgets(){
 // This function adds a torpedo to the linked-list of torpedoes
 // The returned value is the new linked-list pointer, in case
 // the new_torpedo is the first in the list.
-Submarine *Add_Torpedo(Submarine *all_torp, Submarine *new_torp)
+Submarine *Add_Ship(Submarine *all_torp, Submarine *new_torp)
 {
    Submarine *my_torp;
 
@@ -1015,7 +1015,7 @@ Submarine *Add_Torpedo(Submarine *all_torp, Submarine *new_torp)
 
 // This function removes a torpedo from the list of all
 // torpedoes. It returns the first item in the torpedo linked-list.
-Submarine *Remove_Torpedo(Submarine *all_torpedoes, Submarine *old_torpedo)
+Submarine *Remove_Ship(Submarine *all_torpedoes, Submarine *old_torpedo)
 {
    Submarine *my_torp, *previous;
 
@@ -1062,27 +1062,31 @@ Submarine *Remove_Torpedo(Submarine *all_torpedoes, Submarine *old_torpedo)
 void ShipHandeling(){
        Submarine *my_torp, *temp_torp;
        int status;
+       Submarine *ship;
 
        // see if we can use radar, esm, etc
-       if ( Subs[0].Depth > PERISCOPE_DEPTH)
+       if ( Subs->Depth > PERISCOPE_DEPTH)
        {
            EsmStation.LowerMast();
            RadarStation.LowerMast();
        }
 
-	for (int x = 0; x < ships; x++){
-		Subs[x].UpdateLatLon();	//Move all the ships
+        ship = Subs;
+	while (ship)
+        {
+		ship->UpdateLatLon();	//Move all the ships
                 // see what the AI wants to do
-                if (x > 0)
+                if (ship != Subs)
                 {
-                  if (Subs[x].ShipType == TYPE_SUB)
-                    Subs[x].Sub_AI(torpedoes);
-                  else if (Subs[x].ShipType == TYPE_SHIP)
-                    Subs[x].Ship_AI(torpedoes);
+                  if (ship->ShipType == TYPE_SUB)
+                    ship->Sub_AI(torpedoes);
+                  else if (ship->ShipType == TYPE_SHIP)
+                    ship->Ship_AI(torpedoes);
                 }
-		Subs[x].Handeling();	//Steer, Change Depth etc...
+		ship->Handeling();	//Steer, Change Depth etc...
+                ship = ship->next;
 	}
-	for (int x = 0; x < 19; x++){
+	for (int x = 0; x < MAX_SUBS; x++){
 		Contacts[x].UpdateContact();	
 	}
 
@@ -1098,7 +1102,7 @@ void ShipHandeling(){
            if (status == OUT_OF_FUEL)
            {
                temp_torp = my_torp->next;
-               torpedoes = Remove_Torpedo(torpedoes, my_torp);
+               torpedoes = Remove_Ship(torpedoes, my_torp);
                my_torp = temp_torp;
                Message.post_message("A torpedo ran out of fuel.");
                Message.display_message();
@@ -1113,7 +1117,7 @@ void ShipHandeling(){
                    Remove_Inactive_Ship(my_torp->target);
                }
                temp_torp = my_torp->next;
-               torpedoes = Remove_Torpedo(torpedoes, my_torp);
+               torpedoes = Remove_Ship(torpedoes, my_torp);
                my_torp = temp_torp;
                Message.post_message("A torpedo hit its target!");
                if (target_status == DAMAGE_SINK)
@@ -1129,31 +1133,18 @@ void ShipHandeling(){
 
 // This function may get a little messy, we need to do a few things
 // to remove a ship completely from the scenario.
-// 1. We find the index number of the inactive ship.
-// 2. Any torpedoes shooting at this target have to have their
+// 1. Any torpedoes shooting at this target have to have their
 //    target variable set to NULL
-// 3. Any ships/subs who were tracking this ship need to stop
-//    (we reset the targets and target_strength variables)
-// 4. We move all ships _later_ in the list down one place in the Subs index
+// 2. Any ships/subs who were tracking this ship need to stop
 void Remove_Inactive_Ship(Submarine *victim)
 {
-    int ship_index = 0, found = FALSE;
     Submarine *torpedo;
-    int index;
+    Submarine *ship;
 
-    // 1. find the ship's index
-    while ( (ship_index < MAX_SUBS) && (!found) )
-    {
-        if ( Subs[ship_index].Active )
-          ship_index++;
-        else
-           found = TRUE;
-    }
-
-    if (! found)   // couldn't find victim, this should never happen, quit
+    if (! victim)   // couldn't find victim, this should never happen, quit
         return;
 
-    // 2. Cancel torpedoes targetting this ship
+    // 1. Cancel torpedoes targetting this ship
     torpedo = torpedoes;
     while (torpedo)
     {
@@ -1162,22 +1153,18 @@ void Remove_Inactive_Ship(Submarine *victim)
         torpedo = torpedo->next;
     }
 
-    // 3. Ships who were tracking this ship need to stop
-    for (index = 0; index < MAX_SUBS; index++)
+    // 2. Ships who were tracking this ship need to stop
+    ship = Subs;
+    while (ship)
     {
-        if ( Subs[index].Active )
-           Subs[index].Cancel_Target(ship_index);
+       ship->Cancel_Target(victim);
+       ship = ship->next;
     }
 
-    // 4. Move all ships down onein the list
-    index = ship_index;
-    while (index < (MAX_SUBS - 1) )
-    {
-       memcpy( &(Subs[index]), &(Subs[index + 1]), sizeof(Submarine) );
-       index++;
-    }
-    memset(&(Subs[MAX_SUBS - 1]), 0, sizeof(Submarine));
-    ships--;
+    Subs->last_target = NULL;
+    Remove_Ship(Subs, victim);
+    if (victim == current_target)
+       current_target = NULL;
 }
 
 
@@ -1185,13 +1172,13 @@ void Remove_Inactive_Ship(Submarine *victim)
 
 
 
-double RelativeBearing(int observer, int target){
+double RelativeBearing(Submarine *observer, Submarine *target){
 	// Returns the relative bearing of target to observer. This bearing is
 	//measured clockwise from on ships heading to target bearing.
 	double relative_bearing;
 	int observer_heading, bearing_to_target;
-	bearing_to_target = (int)Subs[observer].BearingToTarget(& (Subs[target]) );
-	observer_heading = (int)Subs[observer].Heading;
+	bearing_to_target = (int) observer->BearingToTarget(target );
+	observer_heading = (int)observer->Heading;
 	if(observer_heading > bearing_to_target) bearing_to_target += 360;
 	relative_bearing = bearing_to_target - observer_heading;
 	return relative_bearing;
@@ -1208,7 +1195,7 @@ int ReciprocalBearing(int bearing){
 	return recipbearing;
 }
 
-double AngleOnBow(int observer, int target){
+double AngleOnBow(Submarine *observer, Submarine *target){
 	// Returns the Angle on the Bow (AOB) of target relative to observer.
 	// Note: -180 < Angle on Bow < 180
 	// Positive AOB = Port AOB, Negative AOB = Starboard AOB
@@ -1218,7 +1205,7 @@ double AngleOnBow(int observer, int target){
 	// target pointing at observer -> 0
 	// target pointing away from observer -> -180
 	double aob=0;
-	aob = Subs[target].Heading - Subs[observer].Heading
+	aob = target->Heading - observer->Heading
 	-	RelativeBearing(observer,target) - 180;
 	if (aob > 180) aob = 360 - aob;
 	if (aob < -180) aob = 360 + aob;
@@ -1245,7 +1232,7 @@ int maximize360 ( int compass_bearing ){
 	return compass_bearing;
 }
 
-double CalculateRange(int observer, int target){
+double CalculateRange(Submarine *observer, Submarine *target){
 	//Calculates the distance in yards from the observer, to the target.
 
 	double latdif = 0, londif = 0; //sqrt needs doubles
@@ -1253,21 +1240,21 @@ double CalculateRange(int observer, int target){
 	return sqrt((latdif * latdif) + (londif * londif));
 }
 
-void LatLonDifference(int x, int y, double *platdif, double *plondif){ // CHANGE TO REFERENCES
+void LatLonDifference(Submarine *x, Submarine *y, double *platdif, double *plondif){ // CHANGE TO REFERENCES
 	//Returns in yards the difference between object x and object y
 
-	if (Subs[x].Lat_TotalYards > Subs[y].Lat_TotalYards){
-		*platdif = Subs[x].Lat_TotalYards - Subs[y].Lat_TotalYards;
+	if (x->Lat_TotalYards > y->Lat_TotalYards){
+		*platdif = x->Lat_TotalYards - y->Lat_TotalYards;
 	}
 	else{
-		*platdif = Subs[y].Lat_TotalYards - Subs[x].Lat_TotalYards;
+		*platdif = y->Lat_TotalYards - x->Lat_TotalYards;
 	}
 
-	if (Subs[x].Lon_TotalYards > Subs[y].Lon_TotalYards){
-		*plondif = Subs[x].Lon_TotalYards - Subs[y].Lon_TotalYards;
+	if (x->Lon_TotalYards > y->Lon_TotalYards){
+		*plondif = x->Lon_TotalYards - y->Lon_TotalYards;
 	}
 	else{
-		*plondif = Subs[y].Lon_TotalYards - Subs[x].Lon_TotalYards;
+		*plondif = y->Lon_TotalYards - x->Lon_TotalYards;
 	}
 }
 
@@ -1277,6 +1264,7 @@ void CreateShips(int mission_number){
   char line[256], *status;
   int i;
   FILE *my_file, *mission_file;
+  Submarine *new_ship;
 
   snprintf(filename, 128, "data/ships%d.dat", mission_number);
   // ifstream constructor opens file
@@ -1298,13 +1286,6 @@ void CreateShips(int mission_number){
     free(mission_name);
 
   
-  // init all ships
-  for (i = 0; i < MAX_SUBS; i++)
-  {
-      Subs[i].Init();
-      Subs[i].Load_Mission(mission_file);
-  }
-
   // Read in the data from the ship file
   // Format of ship file: 1 row of data per ship
   // Active flag, Ship Type, Friend flag, Speed, DesiredSpeed, Depth, 
@@ -1317,30 +1298,52 @@ void CreateShips(int mission_number){
   status = fgets(line, 256, my_file);
   while (status)
   {
-    sscanf(line, "%d %d %d %d %f %f %f %f %f %f",
-                  &(Subs[i].Active), &(Subs[i].ShipType),
-                  &(Subs[i].ShipClass), &(Subs[i].Friend),
-                  &(Subs[i].Speed), &(Subs[i].Depth),
-                  &(Subs[i].Heading), &(Subs[i].Lat_TotalYards),
-                  &(Subs[i].Lon_TotalYards), &(Subs[i].PSCS) );
+   #ifdef DEBUG
+   printf("Creating new ship\n");
+   #endif
+     new_ship = new Submarine();
+     if (new_ship)
+     {
+        #ifdef DEBUG
+        printf("Added new ship to list of ships.\n");
+        #endif
+        new_ship->Init();
 
-    /*
-    inClientFile >> Subs[i].Active >> Subs[i].ShipType 
-                 >> Subs[i].ShipClass >> Subs[i].Friend
-		 >> Subs[i].Speed >> Subs[i].Depth
-		 >> Subs[i].Heading
-		 >> Subs[i].Lat_TotalYards >> Subs[i].Lon_TotalYards
-		 >> Subs[i].PSCS;
-     */
-     Subs[i].DesiredSpeed = (int) Subs[i].Speed;
-     Subs[i].DesiredDepth = (int) Subs[i].Depth;
-     Subs[i].DesiredHeading = (int) Subs[i].Heading;
-     sprintf(filename, "ships/class%d.shp", Subs[i].ShipClass);
+        #ifdef DEBUG
+        printf("Loaded: %s", line);
+        #endif
+        sscanf(line, "%d %d %d %d %d %d %f %f %f",
+                  &(new_ship->ShipType),
+                  &(new_ship->ShipClass), &(new_ship->Friend),
+                  &(new_ship->DesiredSpeed), &(new_ship->DesiredDepth),
+                  &(new_ship->DesiredHeading), &(new_ship->Lat_TotalYards),
+                  &(new_ship->Lon_TotalYards), &(new_ship->PSCS) );
+
+     #ifdef DEBUG
+     printf("%d %d %d %d %d %d %f %f %f\n",
+                  (new_ship->ShipType),
+                  (new_ship->ShipClass), (new_ship->Friend),
+                  (new_ship->DesiredSpeed), (new_ship->DesiredDepth),
+                  (new_ship->DesiredHeading), (new_ship->Lat_TotalYards),
+                  (new_ship->Lon_TotalYards), (new_ship->PSCS) );
+
+     #endif
+     new_ship->Speed = new_ship->DesiredSpeed;
+     new_ship->Depth = new_ship->DesiredDepth;
+     new_ship->Heading = new_ship->DesiredHeading;
+     #ifdef DEBUG
+     printf("Set S: %f H: %f D: %f\n", new_ship->Speed,
+            new_ship->Heading, new_ship->Depth);
+     #endif
+     new_ship->Load_Mission(mission_file);
+     sprintf(filename, "ships/class%d.shp", new_ship->ShipClass);
      ship_file = Find_Data_File(filename);
-     Subs[i].Load_Class(ship_file);
+     new_ship->Load_Class(ship_file);
+     Subs = Add_Ship(Subs, new_ship);
      if ( (ship_file) && (ship_file != filename) )
         free(ship_file);
      i+=1;
+     }
      status = fgets(line, 256, my_file);
   }
   // inClientFile.close();
@@ -1353,6 +1356,13 @@ void CreateShips(int mission_number){
   ships = i;
   // rdm 5/15/01 testing to be sure correct number of ships being read
   // cout << " Number of ships = " <<  i-1 << endl;
+  if (Subs)
+  {
+      SonarStation.Subs = Subs;
+      RadarStation.Subs = Subs;
+      EsmStation.Subs = Subs;
+      ControlStation.Subs = Subs;
+  }
 }
 
 void UpdateSensors(){
@@ -1361,10 +1371,13 @@ void UpdateSensors(){
 //the cable on the TB16 is 2600ft. wich is 866yds. The FIFO is
 //100 elements holding 2 double precision floats. So 866/100
 //Is 8.66, Which is the resolution of our placement of the array.
+        #ifdef DEBUG
+        printf("Updating sensors and stuff\n");
+        #endif
 	static float distance_traveled;
-	distance_traveled += Subs[0].Speed * 0.555;
+	distance_traveled += Subs->Speed * 0.555;
 	if(distance_traveled >= 8.66){ //if we've gone 8.66yds record our loc in the FIFO
-		TB16.RecordPos(Subs[0].Lat_TotalYards,  Subs[0].Lon_TotalYards);
+		TB16.RecordPos(Subs->Lat_TotalYards,  Subs->Lon_TotalYards);
 		distance_traveled = distance_traveled - 8.66;
 	}
 	TB16.OperateWinch();//extend/retract the array as needed.
@@ -1387,10 +1400,10 @@ void UpdateDisplay(){
         if (drawweapons)
             DisplayWeapons();
 	if (drawradar){
-		RadarStation.DisplayContacts(ships);	
+		RadarStation.DisplayContacts();	
 	}
 	if (drawesm){
-		EsmStation.DisplayContacts(ships);			
+		EsmStation.DisplayContacts();			
 	}
 	if (drawcontrol){
 		ControlStation.Display();			
@@ -1409,10 +1422,7 @@ void Display_Target()
    float range;
    double bearing;
 
-   if (current_target == -1)
-      return;
-
-   if (! Subs[current_target].Active)
+   if (! current_target)
       return;
 
    // make empty box to the side of the screen
@@ -1425,26 +1435,26 @@ void Display_Target()
    // fill in data
    sprintf(buffer, "   Target");
    fnt.PutString(screen, 150, 400, buffer);
-   sprintf(buffer, "Heading: %d", (int) Subs[current_target].Heading);
+   sprintf(buffer, "Heading: %d", (int) current_target->Heading);
    fnt.PutString(screen, 140, 424, buffer);
    
-   sprintf(buffer, "Spead: %d knots", (int) Subs[current_target].Speed);
+   sprintf(buffer, "Spead: %d knots", (int) current_target->Speed);
    fnt.PutString(screen, 140, 436, buffer);
 
-   range = Subs[0].DistanceToTarget(& (Subs[current_target]) );
+   range = Subs->DistanceToTarget(current_target);
    // range *= 0.000568;
    range *= YARDS_TO_MILES;
    sprintf(buffer, "Range: %2.1f miles", range);
    fnt.PutString(screen, 140, 448, buffer);
 
-   bearing = Subs[0].BearingToTarget(& (Subs[current_target]) );
+   bearing = Subs->BearingToTarget(current_target);
    sprintf(buffer, "Bearing: %2.0lf", bearing);
    fnt.PutString(screen, 140, 460, buffer); 
 
-   sprintf(buffer, "Depth: %d feet", (int) Subs[current_target].Depth);
+   sprintf(buffer, "Depth: %d feet", (int) current_target->Depth);
    fnt.PutString(screen, 140, 472, buffer);
 
-   sprintf(buffer, "Type: %s", Subs[current_target].ClassName );
+   sprintf(buffer, "Type: %s", current_target->ClassName );
    fnt.PutString(screen, 140, 484, buffer);
 
    SDL_UpdateRects(screen, 1, &rectangle); 
@@ -1468,15 +1478,18 @@ void DrawMap(){
 			DrawPixel(screen, x+5, y+5, white);
 		}
 	}
+        #ifdef DEBUG
+        printf("About to place ships.\n");
+        #endif
 	PlaceShips(mapscale, 0, 0, current_target);
 	SDL_UpdateRects(screen, 1, &rectangle);
 
 }
 
-void PlaceShips(int scale, int change_scrollx, int change_scrolly, int current_target){
+void PlaceShips(int scale, int change_scrollx, int change_scrolly, Submarine *current_target){
 	//Places all Ships onto the map. Soon to change, so only registered contacts appear.
 	//scale is in YDS per pixel
-        int status, fresh;
+        int fresh;
 	int x, y; //where to place the ships
 	int xoffset = 374;  //offsets to move the ships to
 	int yoffset = 145;  //the defined place on map screen
@@ -1484,31 +1497,39 @@ void PlaceShips(int scale, int change_scrollx, int change_scrolly, int current_t
 	static int scrolloffsety=0;
 	Uint32 color;
         Submarine *a_torp;
+        Submarine *target_ship;
 
 	scale = scale * MAP_FACTOR;
 	if(mapcenter){ //center map onto our own ntds symbol
-		scrolloffsetx = 250 - ((int)Subs[0].Lat_TotalYards / scale);
-		scrolloffsety = 250 - ((int)Subs[0].Lon_TotalYards / scale);
+		scrolloffsetx = 250 - ((int)Subs->Lat_TotalYards / scale);
+		scrolloffsety = 250 - ((int)Subs->Lon_TotalYards / scale);
 	}else{
 		scrolloffsetx += change_scrollx;
 		scrolloffsety += change_scrolly;
 	}
-	for (int shipnum = 0; shipnum<ships; shipnum++)
+        target_ship = Subs;
+        #ifdef DEBUG
+        printf("About to place ships on map.\n");
+        #endif
+        while (target_ship)
         {
-             status = Subs[0].Can_Detect(shipnum);
-             if ( (status >= 0) || (shipnum == 0) )
+             fresh = Subs->Can_Detect(target_ship);
+             #ifdef DEBUG
+             printf("Freshness factor %d\n", fresh);
+             #endif
+             if ( (fresh) || (target_ship == Subs) )
              {
-		x = 500 - ((int)Subs[shipnum].Lat_TotalYards / scale);
+		x = 500 - ((int)target_ship->Lat_TotalYards / scale);
 		x = x - scrolloffsetx;
-		y = 500 - ((int)Subs[shipnum].Lon_TotalYards / scale);
+		y = 500 - ((int)target_ship->Lon_TotalYards / scale);
 		y = y - scrolloffsety;
 		if (x>10 && x<490 && y>10 && y<490){ //are we going to fall off the damn map???
 			x = x + xoffset;
 			y = y + yoffset;
                         // not only do we need friend/foe, but
                         // also fresh/old contact
-                        fresh = Subs[0].target_strength[status];
-			switch(Subs[shipnum].Friend){
+                        // fresh = Subs->Can_Detect(target_ship);
+			switch(target_ship->Friend){
 				case 0: //Foe??
                                         if (fresh >= CONTACT_SOLID)
 					  color = red;
@@ -1534,24 +1555,31 @@ void PlaceShips(int scale, int change_scrollx, int change_scrolly, int current_t
                                            color = dark_grey;
 					break;
 			}
-			if (shipnum == 0){  // Is it me???
+			if (target_ship == Subs){  // Is it me???
 				color = green;
 			}
-                        if ( (fresh >= CONTACT_WEAK) || (shipnum == 0) )
+                        #ifdef DEBUG
+                        printf("Deciding if to draw clearly.\n");
+                        #endif
+                        if ( (fresh >= CONTACT_WEAK) || (Subs == target_ship) )
                         {
-			  MapIcon(x, y, (int)Subs[shipnum].ShipType, (int)Subs[shipnum].Friend, color); //Draw the NTDS symbol.
+			  MapIcon(x, y, (int)target_ship->ShipType, (int)target_ship->Friend, color); //Draw the NTDS symbol.
                           // check to see if we should highlight
-                          if (current_target == shipnum)
-                             MapIcon(x, y+1, (int)Subs[shipnum].ShipType, (int)Subs[shipnum].Friend, color);
-			  DirectionalPointer(x-2, y+2, (int)Subs[shipnum].Heading, (int)Subs[shipnum].Speed, black);
-			  DirectionalPointer(x, y, (int)Subs[shipnum].Heading, (int)Subs[shipnum].Speed, color);
+                          if (current_target == target_ship)
+                             MapIcon(x, y+1, (int)target_ship->ShipType, (int)target_ship->Friend, color);
+			  DirectionalPointer(x-2, y+2, (int)target_ship->Heading, (int)target_ship->Speed, black);
+			  DirectionalPointer(x, y, (int)target_ship->Heading, (int)target_ship->Speed, color);
 			// Add pointer the show heading.
                         }   // end of we can hear you ok
 		}   // end of we are on the map
              }    // end of able to detect
+             target_ship = target_ship->next;
 	}
 
         // now place torpedoes
+        #ifdef DEBUG
+        printf("About to draw torpedoes on map\n");
+        #endif
         a_torp = torpedoes;
         while (a_torp)
         {
@@ -1588,10 +1616,13 @@ void PlaceShips(int scale, int change_scrollx, int change_scrolly, int current_t
 
 // calls the other detection functions to see if there is
 // any way we can pick up the target
-float Any_Detection(double Range, int observer, int target)
+float Any_Detection(double Range, Submarine *observer, Submarine *target)
 {
     float status;
 
+    #ifdef DEBUG
+    printf("Attempting all forms of detection.\n");
+    #endif
     status = Radar_Detection(Range, observer, target);
     if (status)
     {
@@ -1606,7 +1637,7 @@ float Any_Detection(double Range, int observer, int target)
     }
     // this one takes the most math, so we do it last
     // status = Sonar_Detection(Range, observer, target);
-    status = Sonar_Detection_New(Range, &(Subs[observer]), &(Subs[target]) );
+    status = Sonar_Detection_New(Range, observer, target);
     // if (status)
     //   printf("I can hear target %d\n", target);
     return status;
@@ -1614,13 +1645,13 @@ float Any_Detection(double Range, int observer, int target)
 
 
 // Can I see you on radar?
-float Radar_Detection(double Range, int observer, int target)
+float Radar_Detection(double Range, Submarine *observer, Submarine *target)
 {
    int depth, range;
    bool result;
 
-   depth = (int) Subs[observer].Depth;
-   range = (int) Subs[observer].DistanceToTarget( & (Subs[target]) );
+   depth = (int) observer->Depth;
+   range = (int) observer->DistanceToTarget(target);
    result = RadarStation.isTargetVisible(target, range, depth,
                          SHIP_HEIGHT, DEFAULT_SEA_STATE);
    if (result)
@@ -1631,13 +1662,13 @@ float Radar_Detection(double Range, int observer, int target)
 
 
 // Can I detect your radar?
-float Esm_Detection(double Range, int observer, int target)
+float Esm_Detection(double Range, Submarine *observer, Submarine *target)
 {
    int depth, range;
    bool result;
 
-   depth = (int) Subs[observer].Depth;
-   range = (int) Subs[observer].DistanceToTarget(& (Subs[target]) );
+   depth = (int) observer->Depth;
+   range = (int) observer->DistanceToTarget(target);
    result = EsmStation.isTargetVisible(target, range, depth,
                        SHIP_HEIGHT, TRUE, DEFAULT_SEA_STATE);
    if (result)
@@ -1771,47 +1802,61 @@ void SoundEnvironment(){
 
 	int bearing;
 	double Range;
+        Submarine *target;
 
 	//loop through each ship and let them listen
 	//for the other ships...
-	Subs[0].AdvanceSonarHistory(); //advance sonar queue by 1/5th of a second
+        #ifdef DEBUG
+        printf("Advancing sonar.\n");
+        #endif
+	Subs->AdvanceSonarHistory(); //advance sonar queue by 1/5th of a second
 	TB16.AdvanceSonarHistory(); //advance sonar queue by 1/5th of a second
-	for (int target=0; target<ships; target++){
-		if (!InBaffles(0, target, 1)){ //I'm not deaf?
-			Range = CalculateRange(target, 0);
+	// for (target=Subs->next; target; target = target->next){
+        target = Subs->next;
+        while (target)
+        {
+          #ifdef DEBUG
+          printf("Checking if we can hear other ships.\n");
+          #endif
+		if (!InBaffles(Subs, target, 1)){ //I'm not deaf?
+			Range = CalculateRange(target, Subs);
 			float signal;
-			signal = Any_Detection(Range, 0, target);
+			signal = Any_Detection(Range, Subs, target);
 			if (signal){ // Are we audible?
-				bearing = (int)Subs[0].BearingToTarget(& (Subs[target]) );  //Change me to float for better tma
-				Subs[0].RegisterEvent(bearing,signal,target);
+                        #ifdef DEBUG
+                        printf("Heard you, adding to list.\n");
+                        #endif
+				bearing = (int)Subs->BearingToTarget(target);  //Change me to float for better tma
+				Subs->RegisterEvent(bearing,signal);
                                 // printf("Adding target %d to list.\n", target);
-                                Subs[0].Add_Target(target, signal);
+                                Subs->Add_Target(target, signal);
 			}
                         else {
                           // printf("Lost target %d from list.\n", target);
-                          Subs[0].Remove_Target(target);
+                          Subs->Remove_Target(target);
                         }
 		}
-		if (!InBaffles(0, target, 2) && TB16.GetLength() >240){ // do the same for towed array
-			Range = TB16.RangeToTarget(Subs[target].Lat_TotalYards, Subs[target].Lon_TotalYards);
+		if (!InBaffles(Subs, target, 2) && TB16.GetLength() >240){ // do the same for towed array
+			Range = TB16.RangeToTarget(target->Lat_TotalYards, target->Lon_TotalYards);
 			float signal;
 			// signal = Sonar_Detection(Range, 0, target);
-                        signal = Sonar_Detection_New(Range, &(Subs[0]), &(Subs[target]));
+                        signal = Sonar_Detection_New(Range, Subs, target);
 			if (signal){ // Are we audible?
-				bearing = (int)TB16.BearingToTarget(Subs[target].Lat_TotalYards, Subs[target].Lon_TotalYards);  //Change me to float for better tma
-				TB16.RegisterEvent(bearing,signal,target);
+				bearing = (int)TB16.BearingToTarget(target->Lat_TotalYards, target->Lon_TotalYards);  //Change me to float for better tma
+				TB16.RegisterEvent(bearing,signal);
                                 // printf("Adding target %d to list.\n", target);
-                                Subs[0].Add_Target(target, signal);
+                                Subs->Add_Target(target, signal);
 			}
                         else {
                           // printf("Lost target %d from list.\n", target);
-                          Subs[0].Remove_Target(target);
+                          Subs->Remove_Target(target);
                         }
 		}
+            target = target->next;
 	}
 }
 
-int InBaffles(int observer, int target, int sensor){
+int InBaffles(Submarine *observer, Submarine *target, int sensor){
 /*********************************************
 	This function will return if a target is in
 	the observers Baffles and therefore not
@@ -1831,8 +1876,8 @@ int InBaffles(int observer, int target, int sensor){
 	switch(sensor){
 		case 1:	//Spherical
 			sensordeaf = 0;
-			array_heading = (int)Subs[observer].Heading;
-			bearing_to_target = (int)Subs[observer].BearingToTarget( &( Subs[target]) );
+			array_heading = (int)observer->Heading;
+			bearing_to_target = (int)observer->BearingToTarget( target);
 			if(array_heading > bearing_to_target) bearing_to_target += 360;
 			relative_bearing = bearing_to_target - array_heading;
 			if(relative_bearing > 150 && relative_bearing < 210) sensordeaf = 1;
@@ -1841,7 +1886,7 @@ int InBaffles(int observer, int target, int sensor){
 		case 2:	//Towed
 			sensordeaf = 0;
 			array_heading = (int)TB16.ReturnHeading();
-			bearing_to_target = (int)TB16.BearingToTarget(Subs[target].Lat_TotalYards, Subs[target].Lon_TotalYards);
+			bearing_to_target = (int)TB16.BearingToTarget(target->Lat_TotalYards, target->Lon_TotalYards);
 			if(array_heading > bearing_to_target) bearing_to_target += 360;
 			relative_bearing = bearing_to_target - array_heading;
 			if(relative_bearing < 30 || relative_bearing > 330) sensordeaf = 1;
@@ -1866,10 +1911,10 @@ void DisplayTMA(int xoffset,int yoffset){
 	destination.w = 500;
 	destination.h = 500;
 	Tma.Lock();
-	Tma.our_heading = (double)Subs[0].Heading;
-	Tma.our_speed = (float)Subs[0].Speed;
-	Tma.target_heading = (double)Subs[1].Heading;
-	Tma.target_speed = (float)Subs[1].Speed;
+	Tma.our_heading = (double)Subs->Heading;
+	Tma.our_speed = (float)Subs->Speed;
+	Tma.target_heading = (double)Subs->Heading;
+	Tma.target_speed = (float)Subs->Speed;
 	Tma.DisplayGeoPlot(xoffset,yoffset);
 	//Tma.DisplayLOS();
 	SDL_BlitSurface(Tma.GeoPlotScreen, &source, screen, &destination);
@@ -1899,9 +1944,9 @@ void DisplayWeapons()
     SDL_FillRect(screen, &weapons, black);
     sprintf(text, "WEAPONS");
     fnt.PutString(screen, 190, 150, text);
-    sprintf(text, "     Torpedos: %d", Subs[0].TorpedosOnBoard);
+    sprintf(text, "     Torpedos: %d", Subs->TorpedosOnBoard);
     fnt.PutString(screen, 160, 174, text);
-    sprintf(text, "Noise Makers: %d", Subs[0].NoiseMakers);
+    sprintf(text, "Noise Makers: %d", Subs->NoiseMakers);
     fnt.PutString(screen, 160, 196, text);
     sprintf(text, "'T' to load torpedo");
     fnt.PutString(screen, 160, 300, text);
@@ -1942,9 +1987,9 @@ void DisplayWeapons()
        tubes.y = y1;
        tubes.w = 105;
        tubes.h = 35;
-       if (Subs[0].torpedo_tube[index] == TUBE_TORPEDO)
+       if (Subs->torpedo_tube[index] == TUBE_TORPEDO)
           SDL_BlitSurface(torpedo_image, NULL, screen, &tubes);
-       else if (Subs[0].torpedo_tube[index] == TUBE_NOISEMAKER)
+       else if (Subs->torpedo_tube[index] == TUBE_NOISEMAKER)
           SDL_BlitSurface(noisemaker_image, NULL, screen, &tubes);
        else
        {
@@ -2049,17 +2094,26 @@ void ShowStation(int station){
 	}
 }
 
+
+
+
+
 /**************************************************
 This is our callback function to handle
 time critical Functions
 **************************************************/
 Uint32 timerfunc(Uint32 interval, void *param){
-	param = NULL;
-	Clock.UpdateTime();
-	ShipHandeling();
-	UpdateSensors();
-	return interval;
+        param = NULL;
+        #ifdef DEBUG
+        printf("In timer function\n");
+        #endif
+        Clock.UpdateTime();
+        ShipHandeling();
+        UpdateSensors();
+        return interval;
 }
+
+
 
 /***************************************************
 Another callback to handle the 60 second
@@ -2070,7 +2124,7 @@ Uint32 TmaTimer(Uint32 interval, void *param){
 	Tma.Lock(); //Lock Tma access mutex
 	param = NULL; //Quites error messages.
 	tick ++; //record the time of the tma record.
-	Tma.RecordBoatPosition(Subs[0].Lat_TotalYards, Subs[0].Lon_TotalYards, Subs[0].BearingToTarget(& (Subs[1])) , tick);
+	Tma.RecordBoatPosition(Subs->Lat_TotalYards, Subs->Lon_TotalYards, Subs->BearingToTarget(& (Subs[1])) , tick);
 	Tma.UnLock(); //Unlock mutex
 	return interval;
 }
@@ -2704,7 +2758,7 @@ int main(int argc, char **argv){
 	drawesm = 0;
 	drawcontrol = 0;
 	northcenter = true; //make the sonar display N. centered
-	Uint32 timer1; // our event timers....
+	Uint32 timer1; // timer2; // our event timers....
 	SDL_TimerID timer_id, timer_id2;
         torpedoes = NULL;
 	tmamutex = SDL_CreateMutex();
@@ -2756,6 +2810,8 @@ int main(int argc, char **argv){
 	static DFont fnt2(file3,file4);
 	SDL_UpdateRect(screen, 0, 0, 0, 0);
 	timer1 = SDL_GetTicks();// initialize the timer
+        SDL_Delay(1000);   // show splash screen for one second
+        /*
 	while (!quit){
 		if (SDL_GetTicks() - timer1 > 5000) quit = true; // if 5 seconds has passed, exit intro
 		while (SDL_PollEvent(&event)){
@@ -2769,7 +2825,7 @@ int main(int argc, char **argv){
 			}
 		}
 	}
-
+        */
 	//LoadWidgets(); //load up the buttons
 	SDL_Rect rectangle;
 	rectangle.x = 0;
@@ -2791,6 +2847,7 @@ int main(int argc, char **argv){
 	timer_id = SDL_AddTimer(1000, timerfunc, NULL);
 	timer_id2 = SDL_AddTimer(60000, TmaTimer, NULL);
 	timer1 = SDL_GetTicks();
+        // timer2 = SDL_GetTicks();
 	const int frameperiod = 100;	//how fast we want the displays to update (in milliseconds)... this allows for a fixed frame rate
 	while (!quit)
         { 	//This is the main loop.....
@@ -2807,11 +2864,11 @@ int main(int argc, char **argv){
 			SDL_FillRect(screen, &rectangle, black);
                         sprintf(text, "Now - Wanted");
                         fnt.PutString(screen, 30, 20, text);
-			sprintf(text, "S: [%3i]  -   [%3i]", (int)Subs[0].Speed, Subs[0].DesiredSpeed);
+			sprintf(text, "S: [%3i]  -   [%3i]", (int)Subs->Speed, Subs->DesiredSpeed);
 			fnt.PutString(screen, 30, 31, text);
-			sprintf(text, "H: [%3i]  -   [%3i]", (int)Subs[0].Heading, Subs[0].DesiredHeading);
+			sprintf(text, "H: [%3i]  -   [%3i]", (int)Subs->Heading, Subs->DesiredHeading);
 			fnt.PutString(screen, 30, 42, text);
-			sprintf(text, "D: [%4i]  -  [%4i]", (int)Subs[0].Depth, Subs[0].DesiredDepth);
+			sprintf(text, "D: [%4i]  -  [%4i]", (int)Subs->Depth, Subs->DesiredDepth);
 			fnt.PutString(screen, 30, 53, text);
 			// sprintf(text, "ARRAY [%4i]", TB16.GetLength());
 			// fnt.PutString(screen, 40, 53, text);
@@ -2880,7 +2937,7 @@ int main(int argc, char **argv){
 					fnt.PutString(screen, 933, 718, text);
 					break;
                                 case SWITCHTARGET:
-	                                current_target = Subs[0].Next_Target();
+	                                current_target = Subs->Next_Target();
                                         if (drawmap)
                                         {
                                           DrawMap();
@@ -2889,6 +2946,7 @@ int main(int argc, char **argv){
                                         SDL_Delay(100);
                                         break;
 				case QUIT:
+                                        printf("Got quit signal.\n");
 					ResetWidgetFlags();
 					quitwidget=1;
 					DisplayWidgets();
@@ -2945,10 +3003,10 @@ int main(int argc, char **argv){
 						DisplayWidgets();
 						break;
 				case INCREASESPEED:
-					Subs[0].DesiredSpeed++;
+					Subs->DesiredSpeed++;
 					break;
 				case DECREASESPEED:
-					Subs[0].DesiredSpeed--;
+					Subs->DesiredSpeed--;
 					break;
 				case DUMPSCREEN:
 					screendumpcount++;
@@ -2957,26 +3015,26 @@ int main(int argc, char **argv){
 					cerr << "Screen Dump" << endl;
 					break;
 				case TURNPORT:
-					Subs[0].DesiredHeading--;
-					if(Subs[0].DesiredHeading < 0){
-						Subs[0].DesiredHeading += 360;
+					Subs->DesiredHeading--;
+					if(Subs->DesiredHeading < 0){
+						Subs->DesiredHeading += 360;
 					}
 					break;
 				case TURNSTARBOARD:
-					Subs[0].DesiredHeading++;
-					if(Subs[0].DesiredHeading > 359){
-						Subs[0].DesiredHeading -= 360;
+					Subs->DesiredHeading++;
+					if(Subs->DesiredHeading > 359){
+						Subs->DesiredHeading -= 360;
 					}
 					break;
 				case INCREASEDEPTH:
-					Subs[0].DesiredDepth++;
-                                        if (Subs[0].DesiredDepth > Subs[0].MaxDepth)
-                                           Subs[0].DesiredDepth = Subs[0].MaxDepth;
+					Subs->DesiredDepth++;
+                                        if (Subs->DesiredDepth > Subs->MaxDepth)
+                                           Subs->DesiredDepth = Subs->MaxDepth;
 					break;
 				case DECREASEDEPTH:
-					Subs[0].DesiredDepth--;
-					if(Subs[0].DesiredDepth < 0){
-						Subs[0].DesiredDepth = 0;
+					Subs->DesiredDepth--;
+					if(Subs->DesiredDepth < 0){
+						Subs->DesiredDepth = 0;
 					}
 					break;
 				case INCREASEMAPSCALE:
@@ -3277,7 +3335,7 @@ int main(int argc, char **argv){
 					RadarStation.ClearScreen();
 					break;
 				case RADARUP:
-                                        if (Subs[0].Depth < PERISCOPE_DEPTH)
+                                        if (Subs->Depth < PERISCOPE_DEPTH)
                                         {
 					  RadarStation.RaiseMast();
 					  RadarStation.DisplayWidgets();
@@ -3289,7 +3347,7 @@ int main(int argc, char **argv){
 					EsmStation.ClearScreen();
 					break;
 				case ESMUP:
-                                        if (Subs[0].Depth < PERISCOPE_DEPTH)
+                                        if (Subs->Depth < PERISCOPE_DEPTH)
                                         {
 					  EsmStation.RaiseMast();
 					  EsmStation.DisplayWidgets();
@@ -3337,37 +3395,37 @@ int main(int argc, char **argv){
 					break;
                                 case USE_TUBE:
                                         // load, fire or unload a tube
-                                        status = Subs[0].Use_Tube(tube_action, tube_to_use);
+                                        status = Subs->Use_Tube(tube_action, tube_to_use);
                                         if (status == TUBE_ERROR_FIRE_NOISEMAKER)
                                         {
                                             Submarine *new_torpedo;
                                             char *ship_file, filename[] = "ships/class5.shp";
                                             ship_file = Find_Data_File(filename);
-                                            new_torpedo = Subs[0].Fire_Tube(NULL, ship_file);
+                                            new_torpedo = Subs->Fire_Tube(NULL, ship_file);
                                             if ( (ship_file) && (ship_file != filename) )
                                                 free(ship_file);
                                             if (new_torpedo)
                                             {
                                                 new_torpedo->Friend = FRIEND;
-                                                torpedoes = Add_Torpedo(torpedoes, new_torpedo);
+                                                torpedoes = Add_Ship(torpedoes, new_torpedo);
                                                 Message.post_message("Noise maker launched!");
                                                 Message.display_message();
                                             }
                                         }
-                                        else if ( (status == TUBE_ERROR_FIRE_SUCCESS) && (current_target > -1) )
+                                        else if ( (status == TUBE_ERROR_FIRE_SUCCESS) && (current_target) )
                                         {
                                            char *ship_file, filename[] = "ships/class5.shp";
                                            ship_file = Find_Data_File(filename);
-                                           if (current_target > -1)
+                                           if (current_target)
                                            {
                                               Submarine *new_torpedo;
-                                              new_torpedo = Subs[0].Fire_Tube( &(Subs[current_target]), ship_file );
+                                              new_torpedo = Subs->Fire_Tube(current_target, ship_file );
                                               if ( (ship_file) && (ship_file != filename) )
                                                 free(ship_file);
                                               if (new_torpedo)
                                               {
                                                   new_torpedo->Friend = FRIEND;
-                                                  torpedoes = Add_Torpedo(torpedoes, new_torpedo);
+                                                  torpedoes = Add_Ship(torpedoes, new_torpedo);
                                                   Message.post_message("Torpedo launched!");
                                                   Message.display_message();
                                               }
@@ -3377,7 +3435,7 @@ int main(int argc, char **argv){
                                            {
                                                Message.post_message("Torpedo has no target.");
                                                Message.display_message();
-                                               Subs[0].TorpedosOnBoard++;
+                                               Subs->TorpedosOnBoard++;
                                            }
                                         
 
@@ -3401,12 +3459,36 @@ int main(int argc, char **argv){
 					break;
 				}
 			}
+                /*
+                if (timer2 < (SDL_GetTicks() - (1000/timecompression) ) )
+                {
+                   #ifdef DEBUG
+                   printf("Launching timer function.\n");
+                   #endif
+                   // timerfunc(0, NULL);
+                   timer2 = SDL_GetTicks();
+                }
+                */
                 SDL_Delay(GAME_DELAY);
 		}   // end of main loop
+        #ifdef DEBUG
+        printf("Unloading widgets.\n");
+        #endif
 	UnLoadWidgets();
         // get rid of torpedoes
+        #ifdef DEBUG
+        printf("Destroying torpedoes\n");
+        #endif
         while (torpedoes)
-            torpedoes = Remove_Torpedo(torpedoes, torpedoes);
+            torpedoes = Remove_Ship(torpedoes, torpedoes);
+        #ifdef DEBUG
+        printf("Destroying subs\n");
+        #endif
+        while (Subs)
+            Subs = Remove_Ship(Subs, Subs);
+        #ifdef DEBUG
+        printf("Killing SDL\n");
+        #endif
 	SDL_Quit();
 }
 

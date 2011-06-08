@@ -666,52 +666,52 @@ void Control::ClearSpeed(){
 void Control::ToggleBEMER(){
   ClearOrdSpeed();
   BEMER = !BEMER;
-  Subs[0].DesiredSpeed = -16; 
+  Subs->DesiredSpeed = -16; 
 }
 void Control::ToggleBSTD(){
   ClearOrdSpeed();
   BSTD = !BSTD;
-  Subs[0].DesiredSpeed = -12; 
+  Subs->DesiredSpeed = -12; 
 }
 void Control::ToggleB23(){
   ClearOrdSpeed();
   B23 = !B23;
-  Subs[0].DesiredSpeed = -8; 
+  Subs->DesiredSpeed = -8; 
 }
 void Control::ToggleB13(){
   ClearOrdSpeed();
   B13 = !B13;
- Subs[0].DesiredSpeed = -4; 
+ Subs->DesiredSpeed = -4; 
 }
 void Control::ToggleASTOP(){
   ClearOrdSpeed();
   ASTOP = !ASTOP;
-  Subs[0].DesiredSpeed = 0;
+  Subs->DesiredSpeed = 0;
 }
 void Control::ToggleA13(){
   ClearOrdSpeed();
   A13 = !A13;
-  Subs[0].DesiredSpeed = 5;
+  Subs->DesiredSpeed = 5;
 }
 void Control::ToggleA23(){
   ClearOrdSpeed();
   A23 = !A23;
-  Subs[0].DesiredSpeed = 10;
+  Subs->DesiredSpeed = 10;
 }
 void Control::ToggleASTD(){
   ClearOrdSpeed();
   ASTD = !ASTD;
-  Subs[0].DesiredSpeed = 15;
+  Subs->DesiredSpeed = 15;
 }
 void Control::ToggleAFULL(){
   ClearOrdSpeed();
   AFULL = !AFULL;
-  Subs[0].DesiredSpeed = 20; 
+  Subs->DesiredSpeed = 20; 
 }
 void Control::ToggleAFLK(){
   ClearOrdSpeed();
   AFLK = !AFLK;
-  Subs[0].DesiredSpeed = 32; 
+  Subs->DesiredSpeed = 32; 
 }
 
 void Control::Display(){
@@ -723,8 +723,8 @@ void Control::Display(){
   float previous_speed, previous_depth;
 
   
-  if (depthup) Subs[0].DesiredDepth--;   // Take her up!!
-  if (depthdown) Subs[0].DesiredDepth++; // Take her down!!
+  if (depthup) Subs->DesiredDepth--;   // Take her up!!
+  if (depthdown) Subs->DesiredDepth++; // Take her down!!
   
   // Heading Screen
   src.x=110;
@@ -763,8 +763,8 @@ void Control::Display(){
   fnt.PutString(screen, 247, 199, text);
 
   // Clear the Ordered Depth Boxes if needed.
-  if(Subs[0].DesiredDepth == 100.0) ClearOrdDepth();
-  if(Subs[0].DesiredDepth == 1000.0) ClearOrdDepth();
+  if(Subs->DesiredDepth == 100.0) ClearOrdDepth();
+  if(Subs->DesiredDepth == 1000.0) ClearOrdDepth();
   
   
   // Speed Screen
@@ -773,7 +773,7 @@ void Control::Display(){
   src.h=15;
   src.w=75;
   
-  sprintf(text, "%d", int(Subs[0].Speed));
+  sprintf(text, "%d", int(Subs->Speed));
   fnt.PutString(screen, 355, 144, text);
   
   // Desired Speed Screen
@@ -782,10 +782,10 @@ void Control::Display(){
   src.h=15;
   src.w=75;
   
-  sprintf(text, "%i", (int)Subs[0].DesiredSpeed);
+  sprintf(text, "%i", (int)Subs->DesiredSpeed);
   fnt.PutString(screen, 355, 199, text);
   
-  radians = Subs[0].Heading *(3.14/180.0);  // degrees to radians
+  radians = Subs->Heading *(3.14/180.0);  // degrees to radians
 
   if (!HeadingStack.empty()) // Is there is data on the stack?
     { 
@@ -794,14 +794,14 @@ void Control::Display(){
       previous_depth = DepthStack.pop();
 
       // Next lines clear the display as nec to prevent garbage on screen      
-      if(Subs[0].Heading <= 10.0 && previous_radians*(180.0/3.14) > 10.0) ClearHeading();
-      if(Subs[0].Heading <= 100.0 && previous_radians*(180.0/3.14) > 100.0) ClearHeading();
-      if(Subs[0].Speed <= 10.0 && previous_speed > 10.0) ClearSpeed();
-      if(Subs[0].Speed >= -10.0 && previous_speed < -10.0) ClearSpeed();
-      if(Subs[0].Speed >= 0.0 && previous_speed < 0.0) ClearSpeed();
+      if(Subs->Heading <= 10.0 && previous_radians*(180.0/3.14) > 10.0) ClearHeading();
+      if(Subs->Heading <= 100.0 && previous_radians*(180.0/3.14) > 100.0) ClearHeading();
+      if(Subs->Speed <= 10.0 && previous_speed > 10.0) ClearSpeed();
+      if(Subs->Speed >= -10.0 && previous_speed < -10.0) ClearSpeed();
+      if(Subs->Speed >= 0.0 && previous_speed < 0.0) ClearSpeed();
  
-      if(Subs[0].Depth <= 100.0 && previous_depth > 100.0) ClearDepth();
-      if(Subs[0].Depth <= 1000.0 && previous_depth > 1000.0) ClearDepth();
+      if(Subs->Depth <= 100.0 && previous_depth > 100.0) ClearDepth();
+      if(Subs->Depth <= 1000.0 && previous_depth > 1000.0) ClearDepth();
       
 
       // Clear Old Data from Heading Compass
@@ -817,8 +817,8 @@ void Control::Display(){
 
   // Push the data on the stack
   HeadingStack.push(radians);
-  SpeedStack.push(Subs[0].Speed);
-  DepthStack.push(Subs[0].Depth);
+  SpeedStack.push(Subs->Speed);
+  DepthStack.push(Subs->Depth);
 
  SDL_UpdateRect(screen,0, 0, 0, 0);
 
@@ -847,7 +847,7 @@ void Control::AdjustHeading(int x, int y){
       heading = int(270.0 + (180/3.14)*atan(c5/c6));
     }
   
-  Subs[0].DesiredHeading = heading;
+  Subs->DesiredHeading = heading;
   
   return;
 

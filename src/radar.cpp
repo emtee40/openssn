@@ -802,10 +802,11 @@ void Radar::DisplayRings()
     }
 }
 
-void Radar::DisplayContacts(int ships)
+void Radar::DisplayContacts()
 {
   float radians;
   int bearing, range, depth;
+  Submarine *target;
 
   DisplaySweep();  // Start the radar sweep
 
@@ -813,16 +814,18 @@ void Radar::DisplayContacts(int ships)
 
   // Note: Center of radar screen @ (x,y) = (316,374)
   // set dx = 144	dy = 144
-  
-  for (int target=1; target<ships; target++){
-    bearing = (int)Subs[0].BearingToTarget(& (Subs[target]) );
-    range = (int)Subs[0].DistanceToTarget(& (Subs[target]) );
-    depth = (int)Subs[0].Depth;
+ 
+  target = Subs->next; 
+  while (target)
+  {
+    bearing = (int)Subs->BearingToTarget(target);
+    range = (int)Subs->DistanceToTarget(target);
+    depth = (int)Subs->Depth;
     
     radians = float(bearing) *(3.14/180.0);  // degrees to radians
     
-    if(isTargetVisible(target, range, depth, 100, 3)) {
-      
+    if(isTargetVisible(target, range, depth, 100, 3)) 
+    {
       // Find where we plot the dot
       x = 316 + int((460-316)*(range/float(1000*RangeScale))*cos(1.57-radians)); 
       y = 374 - int((374-230)* (range/float(1000*RangeScale))*sin(1.57-radians)); 
@@ -870,8 +873,9 @@ void Radar::DisplayContacts(int ships)
 
       SDL_BlitSurface(blip, NULL, screen, &dest); // Do the actual Blit
 
-    }
-  }
+    }   // if visible
+    target = target->next;
+  }   // end of while
   SDL_UpdateRect(screen,0, 0, 0, 0);
 }
 
@@ -1023,7 +1027,8 @@ int Radar::getAntennaHeight(int Depth,int SeaState) const
     }
 }
 
-bool Radar::isTargetVisible(int target, int TargetRange, int ObserverDepth,
+bool Radar::isTargetVisible(Submarine *target, int TargetRange, 
+                            int ObserverDepth,
 			    int TargetHeight, int SeaState)
 {
   // Determines if observer's radar can detect target.
@@ -1049,7 +1054,7 @@ bool Radar::isTargetVisible(int target, int TargetRange, int ObserverDepth,
   bool boolean = false;
 
   // if target is under water we cannot see them
-  if (Subs[target].Depth > 0.0)
+  if (target->Depth > 0.0)
      return false;
 
   CurrentAntennaHeight = getAntennaHeight(ObserverDepth,SeaState);
@@ -1057,7 +1062,7 @@ bool Radar::isTargetVisible(int target, int TargetRange, int ObserverDepth,
   
   RadarHorizon = 2400*(int)(sqrt(float(CurrentAntennaHeight)) + sqrt(float(TargetHeight)));
   
-  if(Subs[target].Depth <= 0 && int(TargetRange) <= 1000*getRangeScale() && getMastStatus() == 1 &&
+  if(target->Depth <= 0 && int(TargetRange) <= 1000*getRangeScale() && getMastStatus() == 1 &&
      TargetRange <= RadarHorizon) boolean = true;
   return boolean;
   

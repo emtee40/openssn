@@ -1,3 +1,9 @@
+  - Targeting system now respects the new ship linked list format.
+
+  - Adjusted ship data file format to be more clean.
+
+  - Ships are now stored in a linked list, rather than fixed array.
+
   - Submarines now run from torpedoes.
 
   - Ships with sonar will now run away from torpedoes.

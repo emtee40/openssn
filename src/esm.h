@@ -27,6 +27,7 @@ $Id: esm.h,v 1.5 2003/04/14 05:51:03 mbridak Exp $
 class Esm {
 public: 
 
+	Submarine *Subs;	
 	SDL_Rect src, dest;
 
 	SDL_Surface *esmscreen;
@@ -52,10 +53,10 @@ public:
 	bool getMastStatus() const;  // Get the current mast position
 	int getAntennaHeight(int, int) const; // Get current mast height
 	int getBearing(int, int, int, int);  // Get the Esm bearing
-	int getSignalStrength(int, int, int, int, bool, int); // Get the Esm signal strength
+	int getSignalStrength(Submarine *, int, int, int, bool, int); // Get the Esm signal strength
 	int getEsmHorizon(int, int, int);  // Get the Esm Horizon
 
-	bool isTargetVisible(int target, int TargetRange, int ObserverDepth,
+	bool isTargetVisible(Submarine *, int TargetRange, int ObserverDepth,
 			  int TargetHeight, bool TargetRadar, int SeaState);
 
 	void ClearScreen();
@@ -64,7 +65,7 @@ public:
 
 	void DisplayWidgets();
 
-	void DisplayContacts(int ships);
+	void DisplayContacts();
 	void InitGraphics(SDL_Surface *temp, SDL_Surface *tempradarscreen);
 	void DLine(SDL_Surface *screen, int X1, int Y1, int X2, int Y2, Uint32 Color);
 	void DPixel(SDL_Surface *screen, int x, int y, Uint32 color);
@@ -83,7 +84,6 @@ public:
 
 	SDL_Surface *styllus;
 
-	Submarine *Subs;	
 
 	bool Mast;
 	int MastHeight;

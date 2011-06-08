@@ -87,11 +87,8 @@ void Submarine::Init()
         NoiseMakers = 12;
         ShipClass = CLASS_MERCHANT;
         // clear targets
-        for (index = 0; index < MAX_SUBS; index++)
-        {
-           targets[index] = -1;
-           target_strength[index] = 0;
-        }
+        targets = NULL;
+        last_target = NULL;
         current_target = -1;
         for (index = 0; index < MAX_TUBES; index++)
            torpedo_tube[index] = TUBE_EMPTY;
@@ -364,12 +361,11 @@ void Submarine::Handeling(){
 
 // We can detect a new target
 // Make sure it is on the list.
-// Function returns TRUE on success or false if the list is full.
-int Submarine::Add_Target(int new_sub, float signal_strength)
+// Function returns TRUE on success or FALSE on error
+int Submarine::Add_Target(Submarine *new_sub, float signal_strength)
 {
-   int index = 0, found = FALSE;
-   int empty_index = -1;
-   int add_contact;
+   int add_contact, found = FALSE;
+   Target *my_target, *new_target, *last_target = NULL;
 
    if (signal_strength == 2.0)
       add_contact = CONTACT_SOLID;
@@ -378,74 +374,96 @@ int Submarine::Add_Target(int new_sub, float signal_strength)
    else
       add_contact = 1;
 
-   while ( (index < MAX_SUBS) && (! found) )
+   // check to see if target is already in the list
+   my_target = targets;
+   while ( (my_target) && (! found) )
    {
-       if (targets[index] == -1)
-          empty_index = index;
-       if (targets[index] == new_sub)
+       if (my_target->sub == new_sub)
           found = TRUE;
        else
-          index++;
-   }
+       {
+          last_target = my_target;
+          my_target = (Target *) my_target->next;
+       }
+   }   // end of looking for existing target
 
-   // if we found the target, it is already in the list and we
-   // can bail out successfully
    if (found)
    {
-      if (target_strength[index] < CONTACT_SOLID)
-         target_strength[index] += add_contact;
+      my_target->contact_strength += add_contact;   
+      if (my_target->contact_strength > CONTACT_SOLID)
+         my_target->contact_strength = CONTACT_SOLID;
       return TRUE;
    }
-
-   // we didn't find a match, can we use an existing slot?
-   if (empty_index >= 0)
+   else // need new contact
    {
-       targets[empty_index] = new_sub;
-       target_strength[empty_index] = add_contact;
-       return TRUE;
+      #ifdef DEBUG
+      printf("Adding new target\n");
+      #endif
+      new_target = (Target *) calloc( 1, sizeof(Target) );
+      if (! new_target)
+          return FALSE;
+      new_target->sub = new_sub;
+      new_target->contact_strength = add_contact;
+      new_target->next = NULL;   // not needed, but let's be careful
+      if (last_target)
+         last_target->next = new_target;
+      else
+         targets = new_target;
    }
-
-   // target is not in the list and the list is full (this should not happen)
-   return FALSE;
+   return TRUE;
 }
 
 
 
 // Find and reduce a target from the list
-void Submarine::Remove_Target(int old_sub)
+void Submarine::Remove_Target(Submarine *old_sub)
 {
-   int index = 0, found = FALSE;
+   int found = FALSE;
+   Target *my_target;
 
-   while ( (! found) && (index < MAX_SUBS) )
+   my_target = targets;
+   while ( (! found) && (my_target) )
    {
-       if (targets[index] == old_sub)
+       if (my_target->sub == old_sub)
        {
-          if (target_strength[index] < 1)
-             targets[index] = -1;
+          if (my_target->contact_strength < 1)
+             Cancel_Target(old_sub);
           else
-             target_strength[index] -= 2;
+             my_target->contact_strength -= 2;
           found = TRUE;
        }
        else
-          index++;
+          my_target = (Target *)my_target->next;
    }
 }
 
 // Find and completely remove a target from the list
-void Submarine::Cancel_Target(int old_sub)
+void Submarine::Cancel_Target(Submarine *old_sub)
 {
-   int index = 0, found = FALSE;
+   int found = FALSE;
+   Target *my_target, *previous = NULL;
 
-   while ( (!found) && (index < MAX_SUBS) )
+   #ifdef DEBUG
+   printf("Removing target we can't hear.\n");
+   #endif
+   my_target = targets;
+   while ( (!found) && (my_target) )
    {
-       if (targets[index] == old_sub)
+       if (my_target->sub == old_sub)
        {
-         target_strength[index] = 0;
-         targets[index] = -1;
+         if (previous)
+            previous->next = my_target->next;
+         else   // first item in the list
+           targets = (Target *) my_target->next;
+
+         free(my_target);
          found = TRUE;
        }
        else
-          index++;
+       {
+          previous = my_target;
+          my_target = (Target *)my_target->next;
+       }
    }
 }
 
@@ -453,50 +471,58 @@ void Submarine::Cancel_Target(int old_sub)
 
 
 // This function will let us know if a ship is on our target list
-// Returns the index of the item or -1 if it is not listed.
-int Submarine::Can_Detect(int a_sub)
+// Returns the signal strength if the ship exists or FALSE if it does not.
+int Submarine::Can_Detect(Submarine *a_sub)
 {
-    int index = 0, found = FALSE;
+    int found = FALSE;
+    Target *my_target;
 
-    while ( (index < MAX_SUBS) && (! found) )
+    my_target = (Target *)targets;
+    while ( (my_target) && (! found) )
     {
-       if (targets[index] == a_sub)
+       if (my_target->sub == a_sub)
           found = TRUE;
        else
-          index++;
+          my_target = (Target *)my_target->next;
     }
     if (found)
-      return index;
+      return my_target->contact_strength;
     else 
-      return -1;
+      return FALSE;
 }
 
 
 
 
 // Find the next available target. Return the target
-// index or -1 if none is found. Also set current_target.
-int Submarine::Next_Target()
+// pointer or NULL if no target is found
+Submarine *Submarine::Next_Target()
 {
-    int tries = 0;
-    int found = FALSE;
+     Target *original = last_target;
+     Target *my_target;
 
-    current_target++;
-    while ( (tries < MAX_SUBS) && (! found) )
-    {
-       if (current_target >= MAX_SUBS)
-          current_target = 0;
-       if ( (targets[current_target] >= 0) && 
-            (target_strength[current_target] >= CONTACT_WEAK) )
-         found = TRUE;
-       else
-         current_target++; 
-       tries++;
-    }
-    if (found)
-       return targets[current_target];
-    else
-       return -1;
+     if (! targets)
+     {
+         last_target = NULL;
+         return NULL;    // no possible targets
+     }
+     if (! original)     // nothing selected before, return first item
+     {
+        last_target = targets;
+        return (Submarine *)last_target->sub;
+     }
+     
+     my_target = (Target *) original->next;
+     if (my_target)
+     {
+        last_target = my_target;
+        return (Submarine *)last_target->sub;
+     }
+     else
+     {
+        last_target = targets;
+        return (Submarine *)last_target->sub;
+     }
 }
 
 

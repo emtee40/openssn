@@ -22,9 +22,6 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 #include "coord.h"
 #include "stack.h"
 
-#ifndef MAX_SUBS
-#define MAX_SUBS 20
-#endif
 
 #ifndef TRUE
 #define TRUE 1
@@ -109,6 +106,14 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
   *@author Michael Bridak
   */
 
+typedef struct
+{
+   void *sub;
+   void *next;
+   int contact_strength;
+} Target;
+
+
 class Submarine : public Coord,  public Stack  {
 public:
 	float NauticalMiles;
@@ -158,6 +163,7 @@ public:
         Submarine *next;     // also for torpedos, though could be used
                              // later for ships
         Submarine *target;   // for torpedoes
+        Target *last_target;
         int fuel_remaining;  // mostly for torpedos, 
                              // but maybe for electric subs later
         
@@ -166,15 +172,14 @@ public:
         void Init();
 
         // We should be able to track targets
-        int targets[MAX_SUBS];
-        int target_strength[MAX_SUBS];
-        int Add_Target(int new_sub, float contact_strength);
-        void Remove_Target(int old_sub);
-        void Cancel_Target(int old_sub);
-        int Can_Detect(int a_sub);
+        Target *targets;
+        int Add_Target(Submarine *new_sub, float contact_strength);
+        void Remove_Target(Submarine *old_sub);
+        void Cancel_Target(Submarine *old_sub);
+        int Can_Detect(Submarine *a_sub);
 
         // returns target index or -1 if none is available
-        int Next_Target();
+        Submarine *Next_Target();
 
         // Load information on this type of ship/sub
         int Load_Class(char *from_file);

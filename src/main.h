@@ -211,11 +211,12 @@ Uint32 textcolor, black, white, red, green, yellow, grey, mapcolor;//Place to ho
 Uint32 dark_green, dark_red, brown, dark_grey;
 bool show_spherical_traces = true, northcenter = true, pause_game = false;
 bool assigntracker = false;
-int current_target = -1;
+Submarine *current_target = NULL;
 int update_weapons_screen = TRUE;
 
 GameClock Clock;
-Submarine Subs[MAX_SUBS]; //Somewhere to put our little floating buddies.
+// Submarine Subs[MAX_SUBS]; //Somewhere to put our little floating buddies.
+Submarine *Subs = NULL;   // all subs, ships 
 Contact Contacts[MAX_SUBS]; //Workable contacts.
 Submarine *torpedoes;   // a linked-list of torpedoes
 TowedArray TB16;
@@ -244,13 +245,13 @@ void	CreateShips(int mission_number);
 void	UpdateSensors(void);
 void	UpdateDisplay(void);
 void	TakeCommands(void);
-double	RelativeBearing(int observer, int target);
-int		ReciprocalBearing(int bearing);
-double	AngleOnBow(int observer, int target);
-int		maximize360 ( int course );
-int		minimize360 ( int course );
-double	CalculateRange(int observer, int target);
-void	LatLonDifference(int observer, int target, double *platdif, double *plondif);
+double	RelativeBearing(Submarine *observer, Submarine *target);
+int	ReciprocalBearing(int bearing);
+double	AngleOnBow(Submarine *observer, Submarine *target);
+int	maximize360 ( int course );
+int	minimize360 ( int course );
+double	CalculateRange(Submarine *observer, Submarine *target);
+void	LatLonDifference(Submarine *observer, Submarine *target, double *platdif, double *plondif);
 void	PositionCursor(int, int);
 void	ClearScreen(void);
 void    Display_Target(void);
@@ -263,7 +264,7 @@ void	DrawDiamond(SDL_Surface *screen, int X1, int Y1, int Size, char Direction, 
 void	DrawBox(SDL_Surface *screen, int X1, int Y1, int Size, char Direction, Uint32 Color);
 void    DrawRectangle(SDL_Surface *screen, int x1, int y1, int x2, int y2, Uint32 Color);
 void	DrawCross(SDL_Surface *screen, int X1, int Y1, int Size, char Direction, Uint32 Color);
-void	PlaceShips(int, int = 0, int = 0, int = -1); // the int = 0's are default values
+void	PlaceShips(int, int = 0, int = 0, Submarine *target=NULL); // the int = 0's are default values
 inline void	DrawPixel(SDL_Surface *screen, int x, int y, Uint32 Color);
 inline void	DrawLine(SDL_Surface *screen, int X1, int Y1, int X2, int Y2, Uint32 Color);
 void	LoadScreen(int screen_to_load);
@@ -282,11 +283,11 @@ void	ResetWidgetFlags(void);
 inline int	RandInt(int to);
 void	MapIcon(int x, int y, int ShipType, int Friend, Uint32 color);
 void	DirectionalPointer(int X, int Y, int Heading, int speed, Uint32 Color);
-int		InBaffles(int observer, int target, int sensor);
+int	InBaffles(Submarine *observer, Submarine *target, int sensor);
 void	SoundEnvironment(void);
-float	Any_Detection(double Range, int ObserverShipId, int TargetShipId);
-float	Radar_Detection(double Range, int ObserverShipId, int TargetShipId);
-float	Esm_Detection(double Range, int ObserverShipId, int TargetShipId);
+float	Any_Detection(double Range, Submarine *observer, Submarine *target);
+float	Radar_Detection(double Range, Submarine *observer, Submarine *target);
+float	Esm_Detection(double Range, Submarine *observer, Submarine *target);
 // float	Sonar_Detection(double Range, int ObserverShipId, int TargetShipId);
 float   Sonar_Detection_New(double Range, Submarine *observer, Submarine *target);
 inline int		Clamp(int);
@@ -294,8 +295,8 @@ inline double	Clamp(double);
 Uint32	TmaTimer(Uint32 interval, void *param);
 Uint32	timerfunc(Uint32 interval, void *param);
 
-Submarine *Add_Torpedo(Submarine *all_torpedoes, Submarine *new_torpedo);
-Submarine *Remove_Torpedo(Submarine *all_torpedoes, Submarine *old_torpedo);
+Submarine *Add_Ship(Submarine *all_torpedoes, Submarine *new_torpedo);
+Submarine *Remove_Ship(Submarine *all_torpedoes, Submarine *old_torpedo);
 void Remove_Inactive_Ship(Submarine *victim);  // find and remove inactive ship
 
 #endif

@@ -25,20 +25,18 @@ Stack::Stack(){
 Stack::~Stack(){
 }
 
-void Stack::RegisterEvent(int direction, float signal, int sourceship){
+void Stack::RegisterEvent(int direction, float signal){
 
 	++counter;
 	stack[counter][0]=(float)direction;
 	stack[counter][1]=signal;
-	stack[counter][2]=(float)sourceship;
 
 }
 
-void Stack::GetEvent(int event, int &rdirection, float &rsignal, int &rsourceship){
+void Stack::GetEvent(int event, int &rdirection, float &rsignal){
 
 	rdirection=(int)stack[event][0];
 	rsignal=stack[event][1];
-	rsourceship=(int)stack[event][2];
 
 }
 
@@ -60,7 +58,7 @@ void Stack::AdvanceSonarHistory(){
 	counter=0;
 	stack[0][0]=0;
 	stack[0][1]=0;
-	stack[0][2]=0;
+	stack[0][2]=NULL;
 }
 
 

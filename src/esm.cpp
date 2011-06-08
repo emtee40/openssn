@@ -256,7 +256,7 @@ int Esm::getAntennaHeight(int Depth,int SeaState) const
     default: return(MastHeight - Depth - 67);
     }
 }
-bool Esm::isTargetVisible(int target, int TargetRange, int ObserverDepth,
+bool Esm::isTargetVisible(Submarine *target, int TargetRange, int ObserverDepth,
 			  int TargetHeight, bool TargetRadar, int SeaState)
 {
   // Determines if observer's esm can detect target radar.
@@ -280,7 +280,7 @@ bool Esm::isTargetVisible(int target, int TargetRange, int ObserverDepth,
 
   bool boolean = false;
   // we cannot detect subs on esm
-  if (Subs[target].Depth > 0.0)
+  if (target->Depth > 0.0)
        return false;
 
   CurrentAntennaHeight = getAntennaHeight(ObserverDepth,SeaState);
@@ -312,7 +312,7 @@ int Esm::getBearing(int TargetBearing, int ObserverDepth,
 
   return bearing;
 }
-int Esm::getSignalStrength(int Target, int TargetRange, int ObserverDepth,
+int Esm::getSignalStrength(Submarine *Target, int TargetRange, int ObserverDepth,
 			   int TargetHeight, bool TargetRadar,int SeaState)
 {
   // Returns the signal strength of the target radar.
@@ -357,7 +357,7 @@ int Esm::getEsmHorizon(int ObserverDepth, int TargetHeight, int SeaState)
   return EsmHorizon;
 }
 
-void Esm::DisplayContacts(int ships){	
+void Esm::DisplayContacts(){	
 	static char text[120];
 	char file1[] = "images/font.png";
 	char file2[] = "images/font.dat";
@@ -366,6 +366,8 @@ void Esm::DisplayContacts(int ships){
 	float radians;
 	float radians_old[8];
 	int bearing, range, depth;
+        Submarine *target;
+        int count;
 
 	// Note: Center of radar screen at (x,y) = (323,330)
 	// set dx = 144	dy = 144
@@ -377,21 +379,25 @@ void Esm::DisplayContacts(int ships){
 
 	if (!EsmStack.empty()) // Is there is data on the stack?
 	  { 
-	    for(int target=1; target<ships;target++)
+            // TODO: FIX THIS
+	    for(count=1; count<8;count++)
 	      {
-		radians_old[target] = EsmStack.pop();
+		radians_old[count] = EsmStack.pop();
 	    
 		// Clear Old Data from Heading Compass
-		x = int(326.0 + (460.0 - 326.0)*cos(1.57-radians_old[target]));
-		y = int(383.0 - (460.0 - 326.0)*sin(1.57-radians_old[target]));
+		x = int(326.0 + (460.0 - 326.0)*cos(1.57-radians_old[count]));
+		y = int(383.0 - (460.0 - 326.0)*sin(1.57-radians_old[count]));
 		DLine(screen, 326, 383, x, y, black);
 	      }
 	  }
 
-	for (int target=1; target<ships; target++){
-		bearing = (int)Subs[0].BearingToTarget(& (Subs[target]) );
-		range = (int)Subs[0].DistanceToTarget(& (Subs[target]) );
-		depth = (int)Subs[0].Depth;
+        target = Subs->next;
+        count = 0;
+	while (target)
+        {
+		bearing = (int)Subs->BearingToTarget(target);
+		range = (int)Subs->DistanceToTarget(target);
+		depth = (int)Subs->Depth;
 
 //		bearing = getBearing((int)Subs[0].BearingToTarget(Subs[target]), depth, 100, 3);
 		
@@ -399,19 +405,21 @@ void Esm::DisplayContacts(int ships){
 
 		if(isTargetVisible(target, range, depth,100, true, 3)) 
 		  {
+                    count++;
 		    // Plot a line at the correct bearing 	
 		    x = int(326.0 + (460.0 - 326.0)*cos(1.57-radians));
 		    y = int(383.0 - (460.0 - 326.0)*sin(1.57-radians));
 		    DLine(screen, 326, 383, x, y, orange);
 		    
-		    sprintf(text, "E %i  BEARING  %i   SS %i",target, bearing,
+		    sprintf(text, "BEARING  %i   SS %i", bearing,
 			    getSignalStrength(target, range,60,100,true,3));
-		    fnt.PutString(screen, 698, 300 + 11*target, text);
+		    fnt.PutString(screen, 698, 300 + 11*count, text);
 		    // Push the data on the stack
 		    EsmStack.push(radians);		    
 
 		  }
 
+            target = target->next;
 	}
 	SDL_UpdateRect(screen,0, 0, 0, 0);
 }

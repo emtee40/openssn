@@ -147,14 +147,14 @@ void AnBqq5::Sonar(bool center)
 
 {
 	Uint32 tracecolor; //We have to put the color somewhere
-	int direction, TargetId;
+	int direction;
 	float signal;
 
-	if (Subs[0].GetCount()>0){
+	if (Subs->GetCount()>0){
 	//Are there any sound events at this time index to worry about?
-		for (int event=1; event<=Subs[0].GetCount(); event++){
+		for (int event=1; event<=Subs->GetCount(); event++){
 		//If so step through the events.
-			Subs[0].GetEvent(event, direction, signal, TargetId);
+			Subs->GetEvent(event, direction, signal);
 			//TargetId not used now but maybe later in TMA
 
 			//visable mono color from 70 - 255
@@ -184,9 +184,9 @@ void AnBqq5::Sonar(bool center)
 		}
 	}
 	if (!center){
-		DPixel(sonarscreen, (int)Subs[0].Heading, 0, white); //plot our heading
+		DPixel(sonarscreen, (int)Subs->Heading, 0, white); //plot our heading
 	}else{
-		DPixel(sonarscreen, ReciprocalBearing((int)Subs[0].Heading),
+		DPixel(sonarscreen, ReciprocalBearing((int)Subs->Heading),
 		0, white); //plots our heading
 	}
 	AdvanceSonarDisplay(); //advance the screen.
@@ -246,7 +246,7 @@ void AnBqq5::UpdateDisplay(){
 	destination_rectangle.y=498; //define a rectangle on the screen and make it black
 	SDL_FillRect(screen, &destination_rectangle, black);
 	SDL_UpdateRects(screen, 1, &destination_rectangle);
-	tempint = (int)Subs[0].BearingToTarget(& (Subs[1]) );
+	tempint = (int)Subs->BearingToTarget( Subs->next);
 	sprintf(text, "%4i", tempint);
 	largeFont.PutString(screen, 840, 412, text);
 	deAngle = Subs[0].DEAngle(& (Subs[1]) );
@@ -270,14 +270,14 @@ void AnBqq5::TowedSonar(bool center)
 
 {
 	Uint32 tracecolor; //We have to put the color somewhere
-	int direction, ambiguous_direction, bearing, ambiguous_relative_bearing,TargetId;
+	int direction, ambiguous_direction, bearing, ambiguous_relative_bearing;
 	float signal;
 	int TB16_Count = TB16.GetCount();
 	if (TB16_Count > 0){
 	//Are there any sound events at this time index to worry about?
 		for (int event=1; event<=TB16_Count; event++){
 		//If so step through the events.
-			TB16.GetEvent(event, bearing, signal, TargetId);
+			TB16.GetEvent(event, bearing, signal);
 			ambiguous_relative_bearing = (int)TB16.BearingAmbiguity((float)bearing);
 			//TargetId not used now but maybe later in TMA
 			//visable mono color from 70 - 255
@@ -321,9 +321,9 @@ void AnBqq5::TowedSonar(bool center)
 		}
 	}
 	if (!center){
-		DPixel(towedarrayscreen, (int)Subs[0].Heading, 0, white); //plot our heading
+		DPixel(towedarrayscreen, (int)Subs->Heading, 0, white); //plot our heading
 	}else{
-		DPixel(towedarrayscreen, ReciprocalBearing((int)Subs[0].Heading),
+		DPixel(towedarrayscreen, ReciprocalBearing((int)Subs->Heading),
 		0, white); //plots our heading
 	}
 	AdvanceTB16Screen(); //advance the screen.
@@ -351,9 +351,9 @@ void AnBqq5::AdvanceSonarDisplay(){
 		bool sensordeaf = false;
 		int array_heading;
 		if(northcenter){
-			array_heading = (int)Subs[0].Heading;
+			array_heading = (int)Subs->Heading;
 		}else{
-			array_heading = ReciprocalBearing((int)Subs[0].Heading);
+			array_heading = ReciprocalBearing((int)Subs->Heading);
 		}
 		int recipbearing;
 		if (array_heading >= 180){
@@ -392,9 +392,9 @@ void AnBqq5::AdvanceSonarDisplay(){
 			bool sensordeaf = false;
 			int array_heading;
 			if(northcenter){
-				array_heading = (int)Subs[0].Heading;
+				array_heading = (int)Subs->Heading;
 			}else{
-				array_heading = ReciprocalBearing((int)Subs[0].Heading);
+				array_heading = ReciprocalBearing((int)Subs->Heading);
 			}
 			int recipbearing;
 			if (array_heading >= 180){
@@ -433,9 +433,9 @@ void AnBqq5::AdvanceSonarDisplay(){
 			bool sensordeaf = false;
 			int array_heading;
 			if(northcenter){
-				array_heading = (int)Subs[0].Heading;
+				array_heading = (int)Subs->Heading;
 			}else{
-				array_heading = ReciprocalBearing((int)Subs[0].Heading);
+				array_heading = ReciprocalBearing((int)Subs->Heading);
 			}
 			int recipbearing;
 			if (array_heading >= 180){
@@ -1121,13 +1121,13 @@ void AnBqq5::DisplayCursor()
 }
 void AnBqq5::UpdateCursor()
 {
-	int direction, TargetId, relative_bearing, temp;
+	int direction, relative_bearing, temp;
 	float signal;
-	if (Subs[0].GetCount()>0){
+	if (Subs->GetCount()>0){
 	//Are there any sound events at this time index to worry about?
-		for (int event=1; event<=Subs[0].GetCount(); event++){
+		for (int event=1; event<=Subs->GetCount(); event++){
 		//If so step through the events. 
-			Subs[0].GetEvent(event, direction, signal, TargetId);
+			Subs->GetEvent(event, direction, signal);
 			//Okay this used to go through each bearing one by one and
 			//check to see if there was a sonar contact. But this is slow..
 			//So we are now incrementing by 5 degrees to speed thing along

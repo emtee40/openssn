@@ -26,6 +26,7 @@ $Id: control.h,v 1.3 2003/04/14 05:51:03 mbridak Exp $
 
 class Control {
  public: 
+  Submarine *Subs;	
   
   SDL_Rect src, dest;
   
@@ -99,7 +100,6 @@ class Control {
   SDL_Surface *depthdownoff;
   SDL_Surface *depthdownon;
 
-  Submarine *Subs;	
   
   int x;
   int y;
