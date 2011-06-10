@@ -1,8 +1,8 @@
 CC = g++
 DEVCFLAGS = -Wall -g -D_GNU_SOURCE `sdl-config --cflags` 
-CFLAGS = -g -Wall `sdl-config --cflags` -Wno-write-strings # -DDEBUG
+CFLAGS = -g -Wall `sdl-config --cflags` -Wno-write-strings -DDEBUG
 LIBS = -lm -lSDL_gfx -lSDL_image `sdl-config --libs`
-OBJS = 	main.o sonar.o radar.o esm.o control.o submarine.o adcap.o coord.o stack.o contact.o towedarray.o targetmotionanalysis.o boatpositionlog.o dfont.o dstack.o message.o gameclock.o files.o
+OBJS = 	main.o sonar.o radar.o esm.o control.o submarine.o adcap.o coord.o stack.o contact.o towedarray.o targetmotionanalysis.o boatpositionlog.o dfont.o dstack.o message.o gameclock.o files.o mission.o
 SSN = ../openssn
 PREFIX ?= /usr
 DATADIR = $(PREFIX)/share/games/openssn

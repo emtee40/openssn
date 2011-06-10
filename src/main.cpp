@@ -40,6 +40,7 @@ $Id: main.cpp,v 1.28 2003/07/18 03:50:00 mbridak Exp $
 #include "towedarray.h"
 #include "targetmotionanalysis.h"
 #include "message.h"
+#include "mission.h"
 #include "sonar.h"
 #include "radar.h"
 #include "files.h"
@@ -1336,6 +1337,9 @@ void CreateShips(int mission_number){
             new_ship->Heading, new_ship->Depth);
      #endif
      new_ship->Load_Mission(mission_file);
+     #ifdef DEBUG
+     printf("Ship has mission flag: %d\n", new_ship->mission_status);
+     #endif
      sprintf(filename, "ships/class%d.shp", new_ship->ShipClass);
      ship_file = Find_Data_File(filename);
      new_ship->Load_Class(ship_file);
@@ -2110,6 +2114,9 @@ Uint32 timerfunc(Uint32 interval, void *param){
         Clock.UpdateTime();
         ShipHandeling();
         UpdateSensors();
+        // see if the mission is over
+        Check_Find(Subs);
+        my_mission_status = Mission_Status(Subs, my_mission_status);
         return interval;
 }
 
@@ -2836,7 +2843,7 @@ int main(int argc, char **argv){
 	timecompression = 1;
 	station = 2; //default station
 	ShowStation(station);
-	textline="OpenSSN VERSION 0.2";
+	textline="OpenSSN VERSION 0.4";
 	Message.post_message(textline);
 	textline="http://openssn.sourceforge.net";
 	Message.post_message(textline);
@@ -2844,6 +2851,7 @@ int main(int argc, char **argv){
 	sprintf(text, "[%i] ", timecompression);
 	fnt.PutString(screen, 933, 718, text);
 	quit = false; //reset loop exit flag
+        my_mission_status = MISSION_STARTED;
 	timer_id = SDL_AddTimer(1000, timerfunc, NULL);
 	timer_id2 = SDL_AddTimer(60000, TmaTimer, NULL);
 	timer1 = SDL_GetTicks();
@@ -3469,6 +3477,17 @@ int main(int argc, char **argv){
                    timer2 = SDL_GetTicks();
                 }
                 */
+                if (my_mission_status == MISSION_SUCCESS)
+                {
+                   printf("Mission completed successfully!\n");
+                   quit = true;
+                }
+                else if (my_mission_status == MISSION_FAILED)
+                {
+                   printf("Mission failed.\n");
+                   quit = true;
+                }
+
                 SDL_Delay(GAME_DELAY);
 		}   // end of main loop
         #ifdef DEBUG

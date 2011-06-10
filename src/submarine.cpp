@@ -561,11 +561,11 @@ int Submarine::Load_Mission(FILE *from_file)
 
     memset(line, '\0', 256);
     fgets(line, 256, from_file);
-    if (! strcasecmp(line, "sink") )
+    if (! strncasecmp(line, "sink", 4) )
         mission_status = MISSION_SINK;
-    else if (! strcasecmp(line, "find") )
+    else if (! strncasecmp(line, "find", 4) )
         mission_status = MISSION_FIND;
-    else if (! strcasecmp(line, "alive") )
+    else if (! strncasecmp(line, "alive", 5) )
         mission_status = MISSION_ALIVE;
     else
         mission_status = MISSION_NONE;

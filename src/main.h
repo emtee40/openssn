@@ -19,7 +19,7 @@ $Id: main.h,v 1.11 2003/07/18 03:50:00 mbridak Exp $
 #ifndef MAIN_H
 #define MAIN_H
 
-#define VERSION 0.2
+#define VERSION 0.4
 
 // delay between game loops
 #define GAME_DELAY 10
@@ -213,6 +213,7 @@ bool show_spherical_traces = true, northcenter = true, pause_game = false;
 bool assigntracker = false;
 Submarine *current_target = NULL;
 int update_weapons_screen = TRUE;
+int my_mission_status;
 
 GameClock Clock;
 // Submarine Subs[MAX_SUBS]; //Somewhere to put our little floating buddies.

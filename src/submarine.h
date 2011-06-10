@@ -19,6 +19,7 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 #ifndef SUBMARINE_H
 #define SUBMARINE_H
 
+#include <stdio.h>
 #include "coord.h"
 #include "stack.h"
 
