@@ -1,3 +1,5 @@
+  - Separated some ship-file/class file information.
+
   - Added basic mission parameters.
 
   - Targeting system now respects the new ship linked list format.

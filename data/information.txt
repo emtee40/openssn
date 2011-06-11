@@ -5,15 +5,13 @@ will be involved in a mission.
 
 The format for the ships files goes like this:
 
-Type Class Friend Speed Depth Heading Latitude Longitude SonarAngel 
+Type Class Friend Speed Depth Heading Latitude Longitude 
 
 Type determines submarine (0) or ship (1)
 Class must match to a class from the "ships" directory.
 Friend tells us which side the ship is on. Zero is a FOE, 1 is a Friend,
        2 is unknown and 3 is neutral.
 Speed is in knots, heading in degrees, depth is in feet.
-The sonar entry tells us the angle of sonar the ship has and this should
-be in or aorund the 70-120 range.
 
 The follwing example shows us two ships. The first is a friendly submarine
 traveling at 5 knots at 47 feet, due east. The second entry is a surface

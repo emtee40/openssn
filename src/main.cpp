@@ -1317,20 +1317,20 @@ void CreateShips(int mission_number){
         #ifdef DEBUG
         printf("Loaded: %s", line);
         #endif
-        sscanf(line, "%d %d %d %d %d %d %f %f %f",
+        sscanf(line, "%d %d %d %d %d %d %f %f",
                   &(new_ship->ShipType),
                   &(new_ship->ShipClass), &(new_ship->Friend),
                   &(new_ship->DesiredSpeed), &(new_ship->DesiredDepth),
                   &(new_ship->DesiredHeading), &(new_ship->Lat_TotalYards),
-                  &(new_ship->Lon_TotalYards), &(new_ship->PSCS) );
+                  &(new_ship->Lon_TotalYards)); // , &(new_ship->PSCS) );
 
      #ifdef DEBUG
-     printf("%d %d %d %d %d %d %f %f %f\n",
+     printf("%d %d %d %d %d %d %f %f\n",
                   (new_ship->ShipType),
                   (new_ship->ShipClass), (new_ship->Friend),
                   (new_ship->DesiredSpeed), (new_ship->DesiredDepth),
                   (new_ship->DesiredHeading), (new_ship->Lat_TotalYards),
-                  (new_ship->Lon_TotalYards), (new_ship->PSCS) );
+                  (new_ship->Lon_TotalYards)); // , (new_ship->PSCS) );
 
      #endif
      new_ship->Speed = new_ship->DesiredSpeed;

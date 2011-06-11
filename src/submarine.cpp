@@ -542,7 +542,7 @@ int Submarine::Load_Class(char *my_file)
        return FALSE;
 
     // load data
-    infile >> MaxSpeed >> MaxDepth >> Rudder >> TorpedosOnBoard >> hull_strength >> has_sonar >> ClassName;
+    infile >> MaxSpeed >> MaxDepth >> Rudder >> TorpedosOnBoard >> hull_strength >> has_sonar >> PSCS >> ClassName;
     infile.close();
     return TRUE;
 }

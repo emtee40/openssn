@@ -52,7 +52,7 @@ SDL_image
 Assuming the above libraries are installed, it should be possible to
 build OpenSSN with the following commands
 
-tar zxf openssn-0.3.tar.gz
+tar zxf openssn-0.4.tar.gz
 cd openssn/src
 make
 
