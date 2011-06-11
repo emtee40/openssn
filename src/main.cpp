@@ -435,6 +435,10 @@ void LoadScreen(int item){
 	case 6:
 		IMGFile = Load_Image("images/ESMScreen.png"); //fill the surface w/ the bmp
 		break;
+        case 7:
+                IMGFile = Load_Image("images/sub_surfacing.png"); break;
+        case 8:
+                IMGFile = Load_Image("images/sub_rising.png"); break;
 	default:
 		cerr << "Unknown screen item" << endl;
 		break;
@@ -3480,11 +3484,15 @@ int main(int argc, char **argv){
                 if (my_mission_status == MISSION_SUCCESS)
                 {
                    printf("Mission completed successfully!\n");
+                   LoadScreen(7);
+                   SDL_Delay(5000);
                    quit = true;
                 }
                 else if (my_mission_status == MISSION_FAILED)
                 {
                    printf("Mission failed.\n");
+                   LoadScreen(8);
+                   SDL_Delay(5000);
                    quit = true;
                 }
 
