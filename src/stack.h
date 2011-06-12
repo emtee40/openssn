@@ -28,15 +28,15 @@ public:
 	/** how many events for this second*/
 	int counter;
 	/** storage space */
-	float stack[20][2];
+	float stack[20][3];
 	/** Advance sound history, drop old events */
 	void AdvanceSonarHistory();
 	/** Place a sound event on in the Queue */
-	void RegisterEvent(int direction, float signalstrength);
+	void RegisterEvent(int direction, float signalstrength, int ship_type);
 	/** Get how many events are in the Queue for a particular second */
 	int  GetCount();
 	/** Get sound information */
-	void GetEvent(int event, int &Direction, float &SignalStrength);
+	void GetEvent(int event, int &Direction, float &SignalStrength, int &ship_type);
 	Stack();
 	~Stack();
 };

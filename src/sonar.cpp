@@ -149,16 +149,26 @@ void AnBqq5::Sonar(bool center)
 	Uint32 tracecolor; //We have to put the color somewhere
 	int direction;
 	float signal;
+        int ship_type;
 
 	if (Subs->GetCount()>0){
 	//Are there any sound events at this time index to worry about?
 		for (int event=1; event<=Subs->GetCount(); event++){
 		//If so step through the events.
-			Subs->GetEvent(event, direction, signal);
+			Subs->GetEvent(event, direction, signal, ship_type);
 			//TargetId not used now but maybe later in TMA
 
 			//visable mono color from 70 - 255
-			tracecolor=SDL_MapRGB(sonarscreen->format, 0,(int) (signal+flowandambientnoise), 0);
+                        switch(ship_type)
+                        {
+                          case TYPE_SHIP:
+			tracecolor=SDL_MapRGB(sonarscreen->format, 0,(int) (signal+flowandambientnoise), 0); break;
+                          case TYPE_TORPEDO:
+                          tracecolor=SDL_MapRGB(sonarscreen->format,(int) (signal+flowandambientnoise), 0, 0); break;
+                          case TYPE_SUB:
+                          default: 
+                          tracecolor=SDL_MapRGB(sonarscreen->format, 0, 0, (int) (signal+flowandambientnoise)); break;
+                         }
 			//Change brightness based on strength of signal
 			int tdirection = direction;
 			for(int xx = 1;xx < 6; xx++){
@@ -249,7 +259,7 @@ void AnBqq5::UpdateDisplay(){
 	tempint = (int)Subs->BearingToTarget( Subs->next);
 	sprintf(text, "%4i", tempint);
 	largeFont.PutString(screen, 840, 412, text);
-	deAngle = Subs[0].DEAngle(& (Subs[1]) );
+	deAngle = 0; // Subs[0].DEAngle(& (Subs[1]) );
 	if (deAngle > 0){
 		sprintf(text,"+%3.1f",deAngle);
 	}else{
@@ -271,17 +281,28 @@ void AnBqq5::TowedSonar(bool center)
 {
 	Uint32 tracecolor; //We have to put the color somewhere
 	int direction, ambiguous_direction, bearing, ambiguous_relative_bearing;
+        int ship_type;
 	float signal;
 	int TB16_Count = TB16.GetCount();
 	if (TB16_Count > 0){
 	//Are there any sound events at this time index to worry about?
 		for (int event=1; event<=TB16_Count; event++){
 		//If so step through the events.
-			TB16.GetEvent(event, bearing, signal);
+			TB16.GetEvent(event, bearing, signal, ship_type);
 			ambiguous_relative_bearing = (int)TB16.BearingAmbiguity((float)bearing);
 			//TargetId not used now but maybe later in TMA
 			//visable mono color from 70 - 255
-			tracecolor=SDL_MapRGB(towedarrayscreen->format, 0,(int)(signal+flowandambientnoise), 0);
+                        switch(ship_type)
+                        {
+                          case TYPE_SHIP:
+                        tracecolor=SDL_MapRGB(sonarscreen->format, 0,(int) (signal+flowandambientnoise), 0); break;
+                          case TYPE_TORPEDO:
+                          tracecolor=SDL_MapRGB(sonarscreen->format,(int) (signal+flowandambientnoise), 0, 0); break;
+                          case TYPE_SUB:
+                          default:
+                          tracecolor=SDL_MapRGB(sonarscreen->format, 0, 0, (int) (signal+flowandambientnoise)); break;
+                         }
+
 			//Change brightness based on strength of signal
 			for(int xx = 1;xx < 6; xx++){
 				direction = bearing;
@@ -334,6 +355,7 @@ void AnBqq5::AdvanceSonarDisplay(){
 	SDL_Rect source_rectangle;
 	static int count = 0;
 	static int count2 = 0;
+        int my_noise;
 	Uint32 noisecolor;
 	// move the minute display down
 	source_rectangle.x = 0; //sonar screen minus last line
@@ -366,7 +388,9 @@ void AnBqq5::AdvanceSonarDisplay(){
 		int relative_bearing = bearing_to_target - recipbearing;
 		if(relative_bearing > 150 && relative_bearing < 210) sensordeaf = true;
 		if (!sensordeaf){	
-			noisecolor=SDL_MapRGB(sonarscreen->format, 0,(int) fabs((flowandambientnoise - RandInt(40))) , 0);
+			// noisecolor=SDL_MapRGB(sonarscreen->format, 0,(int) fabs((flowandambientnoise - RandInt(40))) , 0);
+                        my_noise = (int) fabs( (flowandambientnoise - RandInt(40) ) ) / 2;
+                        noisecolor=SDL_MapRGB(sonarscreen->format, my_noise, my_noise, my_noise);
 			DPixel(sonarscreen, nbp, 0, noisecolor);
 		}
 		else{
@@ -407,7 +431,9 @@ void AnBqq5::AdvanceSonarDisplay(){
 			int relative_bearing = bearing_to_target - recipbearing;
 			if(relative_bearing > 150 && relative_bearing < 210) sensordeaf = true;		
 			if (!sensordeaf){	
-				noisecolor=SDL_MapRGB(sonarscreen->format, 0,(int) fabs((flowandambientnoise - RandInt(40))) , 0);
+				// noisecolor=SDL_MapRGB(sonarscreen->format, 0,(int) fabs((flowandambientnoise - RandInt(40))) , 0);
+                        my_noise = (int) fabs( (flowandambientnoise - RandInt(40) ) ) / 2;
+                        noisecolor = SDL_MapRGB(sonarscreen->format, my_noise, my_noise, my_noise);
 				DPixel(sonarscreen, nbp, 70, noisecolor);
 			}
 			else{
@@ -448,7 +474,10 @@ void AnBqq5::AdvanceSonarDisplay(){
 			int relative_bearing = bearing_to_target - recipbearing;
 			if(relative_bearing > 150 && relative_bearing < 210) sensordeaf = true;			
 			if (!sensordeaf){	
-				noisecolor=SDL_MapRGB(sonarscreen->format, 0,(int) fabs((flowandambientnoise - RandInt(40))) , 0);
+				// noisecolor=SDL_MapRGB(sonarscreen->format, 0,(int) fabs((flowandambientnoise - RandInt(40))) , 0);
+
+                        my_noise = (int) fabs( (flowandambientnoise - RandInt(40) ) ) / 2;
+                        noisecolor = SDL_MapRGB(sonarscreen->format, my_noise, my_noise, my_noise);
 				DPixel(sonarscreen, nbp, 140, noisecolor);
 			}
 			else{
@@ -471,6 +500,7 @@ void AnBqq5::AdvanceTB16Screen()
 	static int count = 0;
 	static int count2 = 0;
 	Uint32 noisecolor;
+        int my_noise;
 
 // move the minute display down
 
@@ -507,7 +537,9 @@ void AnBqq5::AdvanceTB16Screen()
 			int relative_bearing = bearing_to_target - array_heading;
 			if(relative_bearing > 150 && relative_bearing < 210) sensordeaf = true;
 			if(!sensordeaf){
-				noisecolor=SDL_MapRGB(towedarrayscreen->format, 0,(int) fabs((flowandambientnoise - RandInt(40))), 0);
+				// noisecolor=SDL_MapRGB(towedarrayscreen->format, 0,(int) fabs((flowandambientnoise - RandInt(40))), 0);
+                        my_noise = (int) fabs( (flowandambientnoise - RandInt(40) ) ) / 2;
+                        noisecolor = SDL_MapRGB(towedarrayscreen->format, my_noise, my_noise, my_noise);
 				DPixel(towedarrayscreen, nbp, 0, noisecolor);
 			}
 			else{
@@ -549,7 +581,9 @@ void AnBqq5::AdvanceTB16Screen()
 				int relative_bearing = bearing_to_target - array_heading;
 				if(relative_bearing > 150 && relative_bearing < 210) sensordeaf = true;
 				if(!sensordeaf){
-					noisecolor=SDL_MapRGB(towedarrayscreen->format, 0,(int) fabs((flowandambientnoise - RandInt(40))), 0);
+					// noisecolor=SDL_MapRGB(towedarrayscreen->format, 0,(int) fabs((flowandambientnoise - RandInt(40))), 0);
+                        my_noise = (int) fabs( (flowandambientnoise - RandInt(40) ) ) / 2;
+                        noisecolor = SDL_MapRGB(towedarrayscreen->format, my_noise, my_noise, my_noise);
 					DPixel(towedarrayscreen, nbp, 70, noisecolor);
 				}
 				else{
@@ -589,7 +623,9 @@ void AnBqq5::AdvanceTB16Screen()
 				int relative_bearing = bearing_to_target - array_heading;
 				if(relative_bearing > 150 && relative_bearing < 210) sensordeaf = true;
 				if(!sensordeaf){
-					noisecolor=SDL_MapRGB(towedarrayscreen->format, 0,(int) fabs((flowandambientnoise - RandInt(40))), 0);
+					// noisecolor=SDL_MapRGB(towedarrayscreen->format, 0,(int) fabs((flowandambientnoise - RandInt(40))), 0);
+                        my_noise = (int) fabs( (flowandambientnoise - RandInt(40) ) ) / 2;
+                        noisecolor = SDL_MapRGB(towedarrayscreen->format, my_noise, my_noise, my_noise);
 					DPixel(towedarrayscreen, nbp, 140, noisecolor);
 				}
 				else{
@@ -1122,12 +1158,13 @@ void AnBqq5::DisplayCursor()
 void AnBqq5::UpdateCursor()
 {
 	int direction, relative_bearing, temp;
+        int ship_type;
 	float signal;
 	if (Subs->GetCount()>0){
 	//Are there any sound events at this time index to worry about?
 		for (int event=1; event<=Subs->GetCount(); event++){
 		//If so step through the events. 
-			Subs->GetEvent(event, direction, signal);
+			Subs->GetEvent(event, direction, signal, ship_type);
 			//Okay this used to go through each bearing one by one and
 			//check to see if there was a sonar contact. But this is slow..
 			//So we are now incrementing by 5 degrees to speed thing along

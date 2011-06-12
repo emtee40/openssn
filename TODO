@@ -1,12 +1,11 @@
 AI stuff
   Warships should hunt enemies.
   Warships should fire at enemies.
+  Torpedoes should be confused by noisemakers.
 
-Torpedo stuff
-  Add torpedoes to waterfall display(s)
-
-Using towed array should restrict speed.
-Maybe put all ships/subs/torpedoes in one list?
+Active sonar
+Maybe we should be able to cut the towed array
+Clear up bearing info on sonar screen
 
 Add thermal layer?
 

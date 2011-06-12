@@ -155,6 +155,8 @@ double Submarine::BearingToTarget(Submarine *Target){
 	double latdif=0, londif=0, bearing = 0; //atan() needs doubles
 	//LatLonDifference(observer, target, &latdif, &londif);
 
+        if (! Target)
+           return 0;
 	if (Lat_TotalYards > Target->Lat_TotalYards){
 		latdif = Lat_TotalYards - Target->Lat_TotalYards;
 	}
@@ -205,6 +207,9 @@ double Submarine::BearingToTarget(Submarine *Target){
 double Submarine::DistanceToTarget(Submarine *Target){
 	double latdif = 0, londif = 0; //sqrt needs doubles
 	//LatLonDifference( observer,  target,  &latdif,  &londif );
+
+        if (! Target)
+            return 0;
 
 	if (Lat_TotalYards > Target->Lat_TotalYards){
 		latdif = Lat_TotalYards - Target->Lat_TotalYards;
@@ -797,6 +802,8 @@ int Submarine::Ship_AI(Submarine *all_torpedoes)
        torpedo = all_torpedoes;
        while (torpedo)
        {
+           if (torpedo->ShipType == TYPE_TORPEDO)
+           {
            can_hear_torpedo = Can_Hear(torpedo);
            distance = DistanceToTarget(torpedo);
            if ( (can_hear_torpedo) && (distance < (10 * MILES_TO_YARDS) ) )
@@ -809,6 +816,7 @@ int Submarine::Ship_AI(Submarine *all_torpedoes)
                DesiredSpeed = MaxSpeed;
                return TRUE;
            }
+           }   // end of this really is a torp
            torpedo = torpedo->next;
       }
       // if we got this far we cannot hear a torpedo coming at us
@@ -848,6 +856,8 @@ int Submarine::Sub_AI(Submarine *all_torpedoes)
        torpedo = all_torpedoes;
        while (torpedo)
        {
+           if (torpedo->ShipType == TYPE_TORPEDO)
+           {
            can_hear_torpedo = Can_Hear(torpedo);
            distance = DistanceToTarget(torpedo);
            if ( (can_hear_torpedo) && (distance < (10 * MILES_TO_YARDS) ) )
@@ -865,6 +875,7 @@ int Submarine::Sub_AI(Submarine *all_torpedoes)
                   DesiredDepth = PERISCOPE_DEPTH;
                return TRUE;
            }
+           }   // end of this is a torpedo
            torpedo = torpedo->next;
       }
       // if we got this far we cannot hear a torpedo coming at us

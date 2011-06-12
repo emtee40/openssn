@@ -1,3 +1,20 @@
+  - Towed sonar array limits sub's maximum speed.
+
+  - Crew now gives feedback about extending/reteiving towed array.
+
+  - Sonar display now adds more colour contrast to different types
+    of signals. Surface ships are green, submarines blue and torpedoes
+    are red.
+
+  - Torpedoes show up on sonar.
+
+  - Created new mission
+
+  - Missions can now be accessed using the -m flag on the command line.
+
+
+========== openssn-0.4 released June 11, 2011 =========
+
   - Separated some ship-file/class file information.
 
   - Added basic mission parameters.

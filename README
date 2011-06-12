@@ -71,10 +71,11 @@ The game can be run with plain
 
 The following command line parameters are recognized:
 
--w	Run in windowed mode, this is the default
--f	Run in full screen
--v	Display version number and exit
--h	Display help and exit
+-w		Run in windowed mode, this is the default
+-f		Run in full screen
+-v		Display version number and exit
+-h		Display help and exit
+-m <mission> 	Load a specific mission
 
 
 

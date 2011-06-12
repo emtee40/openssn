@@ -1075,6 +1075,13 @@ void ShipHandeling(){
            EsmStation.LowerMast();
            RadarStation.LowerMast();
        }
+       // if array is out, limit speed
+       if (TB16.GetLength() > 0)
+       {
+            int max_speed = Subs->MaxSpeed / 2;
+            if (Subs->Speed > max_speed)
+               Subs->Speed = max_speed;
+       }
 
         ship = Subs;
 	while (ship)
@@ -1811,6 +1818,7 @@ void SoundEnvironment(){
 	int bearing;
 	double Range;
         Submarine *target;
+        int line = FALSE;
 
 	//loop through each ship and let them listen
 	//for the other ships...
@@ -1835,7 +1843,7 @@ void SoundEnvironment(){
                         printf("Heard you, adding to list.\n");
                         #endif
 				bearing = (int)Subs->BearingToTarget(target);  //Change me to float for better tma
-				Subs->RegisterEvent(bearing,signal);
+				Subs->RegisterEvent(bearing,signal,target->ShipType);
                                 // printf("Adding target %d to list.\n", target);
                                 Subs->Add_Target(target, signal);
 			}
@@ -1851,7 +1859,7 @@ void SoundEnvironment(){
                         signal = Sonar_Detection_New(Range, Subs, target);
 			if (signal){ // Are we audible?
 				bearing = (int)TB16.BearingToTarget(target->Lat_TotalYards, target->Lon_TotalYards);  //Change me to float for better tma
-				TB16.RegisterEvent(bearing,signal);
+				TB16.RegisterEvent(bearing,signal, target->ShipType);
                                 // printf("Adding target %d to list.\n", target);
                                 Subs->Add_Target(target, signal);
 			}
@@ -1861,6 +1869,11 @@ void SoundEnvironment(){
                         }
 		}
             target = target->next;
+            if ( (!target) && (! line) )
+            {
+               target = torpedoes;
+               line = TRUE;
+            }
 	}
 }
 
@@ -2762,6 +2775,7 @@ int main(int argc, char **argv){
 	char file2[] = "data/font.dat";
 	char file3[] = "images/largefont.png";
 	char file4[] = "data/largefont.dat";
+        int mission_number = 0;
 	SDL_Event event; //a typedef to hold events
 	drawsonar = 0; // draw the sonar flag
 	drawmap = 1; // draw the map flag
@@ -2776,9 +2790,12 @@ int main(int argc, char **argv){
 	srand(time(NULL)); //Seed the random generator
 
 	//Process commandline options.
-	sprintf(text,"vwfkh");
+	sprintf(text,"m:vwfkh");
 	while ((option_choice = getopt(argc, argv, text)) != -1){
 		switch (option_choice){
+                        case 'm':
+                               mission_number = atoi(optarg);
+                               break;
 			case 'w': //they passed the '-w' flag.
 				full_screen = false;
 				break;
@@ -2794,6 +2811,7 @@ int main(int argc, char **argv){
                                 return 0;
 			case 'h':
 				cout << "Usage:" << endl
+                                << "-m <mission> select specific mission." << endl
                                 << "-f For full screen mode." << endl
 				<< "-w For Windowed Mode." << endl
                                 << "-v For version." << endl
@@ -2807,7 +2825,7 @@ int main(int argc, char **argv){
 		}
 	}
 	SetupScreen(full_screen);
-	CreateShips(0);
+	CreateShips(mission_number);
 	Tma.InitGraphics();
 	SonarStation.InitGraphics();
 //	msg Message;
@@ -3249,13 +3267,19 @@ int main(int argc, char **argv){
 				case EXTENDARRAY:
 					TB16.Extend();
 					SonarStation.DisplaySonarWidgets();
+                                        Message.post_message("Extending sonar array.");
+                                        Message.display_message();
 					break;
 				case RETRACTARRAY:
 					TB16.ReelIn();
 					SonarStation.DisplaySonarWidgets();
+                                        Message.post_message("Retrieving sonar array.");
+                                        Message.display_message();
 					break;
 				case STOPWINCH:
 					SonarStation.StopWinch();
+                                        Message.post_message("Stopping sonar array.");
+                                        Message.display_message();
 					break;
 				case ASSIGNTRACKER:
 					SonarStation.ToggleAssignTracker();
