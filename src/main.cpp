@@ -1091,9 +1091,9 @@ void ShipHandeling(){
                 if (ship != Subs)
                 {
                   if (ship->ShipType == TYPE_SUB)
-                    ship->Sub_AI(torpedoes);
+                    torpedoes = ship->Sub_AI(Subs, torpedoes);
                   else if (ship->ShipType == TYPE_SHIP)
-                    ship->Ship_AI(torpedoes);
+                    ship->Ship_AI(Subs, torpedoes);
                 }
 		ship->Handeling();	//Steer, Change Depth etc...
                 ship = ship->next;
@@ -1114,6 +1114,9 @@ void ShipHandeling(){
            if (status == OUT_OF_FUEL)
            {
                temp_torp = my_torp->next;
+               if (current_target == my_torp)
+                 current_target = NULL;
+               Subs->Cancel_Target(my_torp);
                torpedoes = Remove_Ship(torpedoes, my_torp);
                my_torp = temp_torp;
                Message.post_message("A torpedo ran out of fuel.");
@@ -1123,11 +1126,18 @@ void ShipHandeling(){
            {
                int target_status;
                // damage target
-               target_status = my_torp->target->Take_Damage();
-               if (target_status == DAMAGE_SINK)
+               // we should always have a target, but just in case...
+               if (my_torp->target)
                {
-                   Remove_Inactive_Ship(my_torp->target);
+                  target_status = my_torp->target->Take_Damage();
+                  if (target_status == DAMAGE_SINK)
+                  {
+                     Remove_Inactive_Ship(my_torp->target);
+                  }
                }
+               if (current_target == my_torp)
+                  current_target = NULL;
+               Subs->Cancel_Target(my_torp);
                temp_torp = my_torp->next;
                torpedoes = Remove_Ship(torpedoes, my_torp);
                my_torp = temp_torp;
@@ -3443,6 +3453,7 @@ int main(int argc, char **argv){
                                             if (new_torpedo)
                                             {
                                                 new_torpedo->Friend = FRIEND;
+                                                new_torpedo->owner = Subs;
                                                 torpedoes = Add_Ship(torpedoes, new_torpedo);
                                                 Message.post_message("Noise maker launched!");
                                                 Message.display_message();
@@ -3461,6 +3472,7 @@ int main(int argc, char **argv){
                                               if (new_torpedo)
                                               {
                                                   new_torpedo->Friend = FRIEND;
+                                                  new_torpedo->owner = Subs;
                                                   torpedoes = Add_Ship(torpedoes, new_torpedo);
                                                   Message.post_message("Torpedo launched!");
                                                   Message.display_message();

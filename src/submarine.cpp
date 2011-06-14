@@ -23,6 +23,8 @@ $Id: submarine.cpp,v 1.6 2003/04/14 05:51:04 mbridak Exp $
 #include <stdlib.h>
 #include <string.h>
 #include "submarine.h"
+#include "files.h"
+
 using namespace std;
 
 Submarine::Submarine(){
@@ -94,6 +96,7 @@ void Submarine::Init()
            torpedo_tube[index] = TUBE_EMPTY;
         next = NULL;
         target = NULL;
+        owner = NULL;
         fuel_remaining = INT_MAX; 
         hull_strength = 1;
         has_sonar = 1;
@@ -303,18 +306,21 @@ void Submarine::Handeling(){
 
 	// AmountOfChange = (Rudder * Speed) * 0.012;
         AmountOfChange = (Rudder * Speed) * 0.025;
+        #ifdef DEBUG
+        printf("Rudder change %f\n", AmountOfChange);
+        #endif
 	if (Heading > DesiredHeading){
 		if ((Heading - DesiredHeading) < 180){
 			Heading = Heading - AmountOfChange;
 			if ((Heading < DesiredHeading) &&
-			((DesiredHeading - Heading) < 2)){
+			((DesiredHeading - Heading) < AmountOfChange)){
 				Heading = (float)DesiredHeading;
 			}
 		}
 		else{
 			Heading = Heading + AmountOfChange;
 			if ((Heading > DesiredHeading) &&
-			((Heading - DesiredHeading) < 2)){
+			((Heading - DesiredHeading) < AmountOfChange)){
 				Heading = (float)DesiredHeading;
 			}
 		}
@@ -324,14 +330,14 @@ void Submarine::Handeling(){
 			if ((DesiredHeading - Heading) < 180){
 				Heading += AmountOfChange;
 				if ((Heading > DesiredHeading) &&
-				((Heading - DesiredHeading) < 2)){
+				((Heading - DesiredHeading) < AmountOfChange)){
 					Heading = (float)DesiredHeading;
 				}
 			}
 			else{
 				Heading = Heading - AmountOfChange;
 				if ((Heading < DesiredHeading) &&
-				((DesiredHeading - Heading) < 2)){
+				((DesiredHeading - Heading) < AmountOfChange)){
 					Heading = (float)DesiredHeading;
 				}
 			}
@@ -786,7 +792,7 @@ int Submarine::Torpedo_AI()
 // and make the occasional turn.
 // Note: Later we will add hunting, running and shooting at stuff here.
 // This function returns TRUE
-int Submarine::Ship_AI(Submarine *all_torpedoes)
+int Submarine::Ship_AI(Submarine *all_ships, Submarine *all_torpedoes)
 {
    int change;
    Submarine *torpedo;
@@ -840,13 +846,15 @@ int Submarine::Ship_AI(Submarine *all_torpedoes)
 // This function tells us what AI submarines will do.
 // Right now they just make the occasional turn. Later we
 // will add depth/speed and combat changed in here.
-int Submarine::Sub_AI(Submarine *all_torpedoes)
+Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
 {
    int change;
    Submarine *torpedo;
    int can_hear_torpedo;
    double distance;
    int bearing;
+   Submarine *target, *my_torpedoes;
+   int status;
 
    // most important thing we can do is run away from torpedoes
    if (has_sonar)
@@ -873,11 +881,47 @@ int Submarine::Sub_AI(Submarine *all_torpedoes)
                   DesiredDepth = MaxDepth;
                else if (torpedo->Depth > Depth)  // below us
                   DesiredDepth = PERISCOPE_DEPTH;
-               return TRUE;
+               return all_torpedoes;
            }
            }   // end of this is a torpedo
            torpedo = torpedo->next;
       }
+
+      // see if we can hear a nearby enemy to shoot at
+      target = Have_Enemy_Target(all_ships);
+      if (target)
+      {
+          torpedo_tube[0] = TUBE_TORPEDO;
+          status = Use_Tube(FIRE_TUBE, 0);
+          if (status == TUBE_ERROR_FIRE_SUCCESS)
+          {
+              char *ship_file, filename[] = "ships/class5.shp";
+              ship_file = Find_Data_File(filename);
+              torpedo = Fire_Tube(target, ship_file );
+              if ( (ship_file) && (ship_file != filename) )
+                   free(ship_file);
+              if (torpedo)
+              {
+                 torpedo->Friend = Friend;
+                 torpedo->owner = this;
+                 // all_torpedoes = Add_Ship(all_torpedoes, torpedo);
+                 if (! all_torpedoes)
+                    return torpedo;
+                 my_torpedoes = all_torpedoes;
+                 while (my_torpedoes)
+                 {
+                     if (my_torpedoes->next)
+                        my_torpedoes = my_torpedoes->next;
+                     else
+                     {
+                       my_torpedoes->next = torpedo;
+                       return all_torpedoes;
+                     }
+                 }
+              }
+          }
+      }
+
       // if we got this far we cannot hear a torpedo coming at us
       if (Speed == MaxSpeed)
          DesiredSpeed = MaxSpeed / 2;
@@ -891,7 +935,7 @@ int Submarine::Sub_AI(Submarine *all_torpedoes)
      if (DesiredHeading >= 360)
        DesiredHeading = DesiredHeading % 360;
    }
-   return TRUE;
+   return all_torpedoes;
 }
 
 
@@ -940,4 +984,65 @@ int Submarine::Take_Damage()
      return DAMAGE_OK;
 }
 
+
+
+// This function counts how many torpedoes we have active
+// in the water (that we fired).
+int Submarine::Count_Torpedoes(Submarine *all_torp)
+{
+    int count = 0;
+    Submarine *torp = all_torp;
+
+    while (torp)
+    {
+       if (torp->owner == this)
+         count++;
+       torp = torp->next;
+    }
+    return count;
+}
+   
+
+// This function checks the list of ships to see if we have any enemies
+// to shoot at.
+// To get results, we must have torpedoes on board,
+// We must be able to hear them clearly.
+// They must be an enemy (Friend must be opposite of our FOE or FRIEND).
+// In the case of multiple matches, the closest target is returned.
+Submarine *Submarine::Have_Enemy_Target(Submarine *all_ships)
+{
+    Submarine *current, *min = NULL;
+    int current_distance, min_distance = INT_MAX;
+    int making_noise;
+
+    // can we shoot?
+    if (TorpedosOnBoard < 1)
+        return NULL;
+    // do we even have enemies?
+    if ( (Friend != FRIEND) && (Friend != FOE) )
+        return NULL;
+
+    current = all_ships;
+    while (current)
+    {
+       if ( ( (current->Friend == FOE) && (Friend == FRIEND) ) ||
+            ( (current->Friend == FRIEND) && (Friend == FOE) ) )
+       {
+           // we do not like this ship, are they closer than our current min?
+           current_distance = DistanceToTarget(current);
+           if (current_distance < min_distance)
+           {
+               // they are close, can we hear them?
+               making_noise = Can_Hear(current); 
+               if (making_noise)
+               {
+                   min = current;
+                   min_distance = current_distance;
+               }
+           } 
+       }
+       current = current->next;
+    }
+    return min;
+}
 

@@ -2,6 +2,7 @@ AI stuff
   Warships should hunt enemies.
   Warships should fire at enemies.
   Torpedoes should be confused by noisemakers.
+  AI warships should carry noisemakers
 
 Active sonar
 Maybe we should be able to cut the towed array

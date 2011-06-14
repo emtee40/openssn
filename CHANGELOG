@@ -1,3 +1,7 @@
+  - Losing a torpedo target no longer causes crash.
+
+  - Created top-level make file for easier access.
+
   - Towed sonar array limits sub's maximum speed.
 
   - Crew now gives feedback about extending/reteiving towed array.

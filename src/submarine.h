@@ -102,6 +102,8 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 #define MILES_TO_YARDS 1760
 #define PERISCOPE_DEPTH 50
 
+#define MAX_TORPEDOES_FIRED 2
+
 
 /**
   *@author Michael Bridak
@@ -165,6 +167,7 @@ public:
                              // later for ships
         Submarine *target;   // for torpedoes
         Target *last_target;
+        Submarine *owner;     // torpedoes are owned by ships/subs
         int fuel_remaining;  // mostly for torpedos, 
                              // but maybe for electric subs later
         
@@ -190,10 +193,14 @@ public:
         Submarine *Fire_Tube(Submarine *target, char *ship_file);
         int Can_Hear(Submarine *target);
         int Torpedo_AI();
-        int Ship_AI(Submarine *all_torpedoes);  // figure out what to do with surface ships
-        int Sub_AI(Submarine *all_torpedoes);   // like ship AI in 3D
+        // figure out what to do with surface ships
+        int Ship_AI(Submarine *all_ships, Submarine *all_torpedoes);  
+        // like ship AI in 3D
+        Submarine *Sub_AI(Submarine *all_ships, Submarine *all_torpedoes);   
         int Check_Status();         // see if our torpedo is ok
         int Take_Damage();         // we were hit!
+        int Count_Torpedoes(Submarine *all_torpedoes); // how many have I fired?
+        Submarine *Have_Enemy_Target(Submarine *all_ships);
 };
 
 #endif
