@@ -1093,7 +1093,7 @@ void ShipHandeling(){
                   if (ship->ShipType == TYPE_SUB)
                     torpedoes = ship->Sub_AI(Subs, torpedoes);
                   else if (ship->ShipType == TYPE_SHIP)
-                    ship->Ship_AI(Subs, torpedoes);
+                    torpedoes = ship->Ship_AI(Subs, torpedoes);
                 }
 		ship->Handeling();	//Steer, Change Depth etc...
                 ship = ship->next;
@@ -1132,6 +1132,8 @@ void ShipHandeling(){
                   target_status = my_torp->target->Take_Damage();
                   if (target_status == DAMAGE_SINK)
                   {
+                     if (my_torp->target == player)
+                       player = NULL;
                      Remove_Inactive_Ship(my_torp->target);
                   }
                }
@@ -1184,7 +1186,7 @@ void Remove_Inactive_Ship(Submarine *victim)
     }
 
     Subs->last_target = NULL;
-    Remove_Ship(Subs, victim);
+    Subs = Remove_Ship(Subs, victim);
     if (victim == current_target)
        current_target = NULL;
 }
@@ -1387,6 +1389,7 @@ void CreateShips(int mission_number){
       RadarStation.Subs = Subs;
       EsmStation.Subs = Subs;
       ControlStation.Subs = Subs;
+      player = Subs;
   }
 }
 
@@ -2140,10 +2143,15 @@ Uint32 timerfunc(Uint32 interval, void *param){
         #endif
         Clock.UpdateTime();
         ShipHandeling();
-        UpdateSensors();
-        // see if the mission is over
-        Check_Find(Subs);
-        my_mission_status = Mission_Status(Subs, my_mission_status);
+        if (player)
+        {
+           UpdateSensors();
+           // see if the mission is over
+           Check_Find(Subs);
+           my_mission_status = Mission_Status(Subs, my_mission_status);
+        }  // player is dead, we should end the mission
+        else
+           my_mission_status = MISSION_FAILED;
         return interval;
 }
 

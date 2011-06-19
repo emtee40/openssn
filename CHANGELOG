@@ -1,3 +1,5 @@
+  - If the player's sub is destoryed, the game should now end gracefully.
+
   - Losing a torpedo target no longer causes crash.
 
   - Created top-level make file for easier access.

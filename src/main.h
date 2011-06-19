@@ -218,6 +218,7 @@ int my_mission_status;
 GameClock Clock;
 // Submarine Subs[MAX_SUBS]; //Somewhere to put our little floating buddies.
 Submarine *Subs = NULL;   // all subs, ships 
+Submarine *player = NULL;
 Contact Contacts[MAX_SUBS]; //Workable contacts.
 Submarine *torpedoes;   // a linked-list of torpedoes
 TowedArray TB16;

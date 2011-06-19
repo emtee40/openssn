@@ -85,7 +85,6 @@ void AnBqq5::ClearSonarData(){  //when the display is switched from north center
 inline void AnBqq5::DPixel(SDL_Surface *screen, int x, int y, Uint32 color)
 {
 	//this only works for 16bpp screens
-
 	//place the pixel on the screen
 	Uint16 *pixel_location;
 	pixel_location = (Uint16 *)screen->pixels + y*screen->pitch/2 + x;

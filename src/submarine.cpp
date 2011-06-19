@@ -792,13 +792,13 @@ int Submarine::Torpedo_AI()
 // and make the occasional turn.
 // Note: Later we will add hunting, running and shooting at stuff here.
 // This function returns TRUE
-int Submarine::Ship_AI(Submarine *all_ships, Submarine *all_torpedoes)
+Submarine *Submarine::Ship_AI(Submarine *all_ships, Submarine *all_torpedoes)
 {
    int change;
-   Submarine *torpedo;
+   Submarine *torpedo, *my_torpedoes, *target;
    int can_hear_torpedo;
    double distance;
-   int bearing;
+   int bearing, status;
 
    // most important thing we can do is run away from torpedoes
    if (has_sonar)
@@ -820,76 +820,16 @@ int Submarine::Ship_AI(Submarine *all_ships, Submarine *all_torpedoes)
                   bearing = bearing % 360;
                DesiredHeading = bearing;
                DesiredSpeed = MaxSpeed;
-               return TRUE;
-           }
-           }   // end of this really is a torp
-           torpedo = torpedo->next;
-      }
-      // if we got this far we cannot hear a torpedo coming at us
-      if (Speed == MaxSpeed)
-         DesiredSpeed = MaxSpeed / 2;
-   }
-
-   // nothing is going on, we have a 1/100 chance of making a turn
-   change = rand() % CHANCE_COURSE;
-   if (! change)
-   {
-      DesiredHeading = Heading + ((rand() % 180) - 90);
-      if (DesiredHeading >= 360)
-        DesiredHeading = DesiredHeading % 360;
-   }
-
-   return TRUE;
-}
-
-
-// This function tells us what AI submarines will do.
-// Right now they just make the occasional turn. Later we
-// will add depth/speed and combat changed in here.
-Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
-{
-   int change;
-   Submarine *torpedo;
-   int can_hear_torpedo;
-   double distance;
-   int bearing;
-   Submarine *target, *my_torpedoes;
-   int status;
-
-   // most important thing we can do is run away from torpedoes
-   if (has_sonar)
-   {
-       // go through all torpedoes and see if any of them
-       // chasing us
-       torpedo = all_torpedoes;
-       while (torpedo)
-       {
-           if (torpedo->ShipType == TYPE_TORPEDO)
-           {
-           can_hear_torpedo = Can_Hear(torpedo);
-           distance = DistanceToTarget(torpedo);
-           if ( (can_hear_torpedo) && (distance < (10 * MILES_TO_YARDS) ) )
-           {
-               bearing = (int) BearingToTarget(torpedo);
-               bearing += 180;
-               if (bearing >= 360)
-                  bearing = bearing % 360;
-               DesiredHeading = bearing;
-               DesiredSpeed = MaxSpeed;
-               // subs are dive too
-               if (torpedo->Depth <= Depth)  // it is above us
-                  DesiredDepth = MaxDepth;
-               else if (torpedo->Depth > Depth)  // below us
-                  DesiredDepth = PERISCOPE_DEPTH;
                return all_torpedoes;
            }
-           }   // end of this is a torpedo
+           }   // end of this really is a torp
            torpedo = torpedo->next;
       }
 
       // see if we can hear a nearby enemy to shoot at
       target = Have_Enemy_Target(all_ships);
-      if (target)
+      if ( (target) && (TorpedosOnBoard > 0) &&
+           (Count_Torpedoes(all_torpedoes) < MAX_FIRED_TORPEDOES) )
       {
           torpedo_tube[0] = TUBE_TORPEDO;
           status = Use_Tube(FIRE_TUBE, 0);
@@ -919,12 +859,115 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
                      }
                  }
               }
+              TorpedosOnBoard--;
           }
       }
 
       // if we got this far we cannot hear a torpedo coming at us
       if (Speed == MaxSpeed)
          DesiredSpeed = MaxSpeed / 2;
+   }
+
+   // nothing is going on, we have a 1/100 chance of making a turn
+   change = rand() % CHANCE_COURSE;
+   if (! change)
+   {
+      DesiredHeading = Heading + ((rand() % 180) - 90);
+      if (DesiredHeading >= 360)
+        DesiredHeading = DesiredHeading % 360;
+   }
+
+   return all_torpedoes;
+}
+
+
+// This function tells us what AI submarines will do.
+// Right now they just make the occasional turn. Later we
+// will add depth/speed and combat changed in here.
+Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
+{
+   int change;
+   Submarine *torpedo;
+   int can_hear_torpedo;
+   double distance;
+   int bearing;
+   Submarine *target, *my_torpedoes;
+   int status;
+
+   // most important thing we can do is run away from torpedoes
+   if (has_sonar)
+   {
+       // go through all torpedoes and see if any of them
+       // chasing us
+       torpedo = all_torpedoes;
+       while (torpedo)
+       {
+           if (torpedo->ShipType == TYPE_TORPEDO)
+           {
+           can_hear_torpedo = Can_Hear(torpedo);
+           distance = DistanceToTarget(torpedo);
+           // if we can hear a torpedo, it is close and it is aimed at us
+           // then we run
+           if ( (can_hear_torpedo) && (torpedo->target == this) &&
+                (distance < (MAX_TORPEDO_RANGE * MILES_TO_YARDS) ) )
+           {
+               bearing = (int) BearingToTarget(torpedo);
+               bearing += 180;
+               if (bearing >= 360)
+                  bearing = bearing % 360;
+               DesiredHeading = bearing;
+               DesiredSpeed = MaxSpeed;
+               // subs are dive too
+               if (torpedo->Depth <= Depth)  // it is above us
+                  DesiredDepth = MaxDepth;
+               else if (torpedo->Depth > Depth)  // below us
+                  DesiredDepth = PERISCOPE_DEPTH;
+               return all_torpedoes;
+           }
+           }   // end of this is a torpedo
+           torpedo = torpedo->next;
+        }
+
+      // see if we can hear a nearby enemy to shoot at
+      target = Have_Enemy_Target(all_ships);
+      if ( (target) && (TorpedosOnBoard > 0) && 
+           (Count_Torpedoes(all_torpedoes) < MAX_FIRED_TORPEDOES) )
+      {
+          torpedo_tube[0] = TUBE_TORPEDO;
+          status = Use_Tube(FIRE_TUBE, 0);
+          if (status == TUBE_ERROR_FIRE_SUCCESS)
+          {
+              char *ship_file, filename[] = "ships/class5.shp";
+              ship_file = Find_Data_File(filename);
+              torpedo = Fire_Tube(target, ship_file );
+              if ( (ship_file) && (ship_file != filename) )
+                   free(ship_file);
+              if (torpedo)
+              {
+                 torpedo->Friend = Friend;
+                 torpedo->owner = this;
+                 // all_torpedoes = Add_Ship(all_torpedoes, torpedo);
+                 if (! all_torpedoes)
+                    return torpedo;
+                 my_torpedoes = all_torpedoes;
+                 while (my_torpedoes)
+                 {
+                     if (my_torpedoes->next)
+                        my_torpedoes = my_torpedoes->next;
+                     else
+                     {
+                       my_torpedoes->next = torpedo;
+                       return all_torpedoes;
+                     }
+                 }
+              }
+              TorpedosOnBoard--;
+          }
+      }
+
+      // if we got this far we cannot hear a torpedo coming at us
+      if (Speed == MaxSpeed)
+         DesiredSpeed = MaxSpeed / 3;
    }
 
    // got nothing to do, but perhaps change course

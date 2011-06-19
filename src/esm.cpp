@@ -32,7 +32,7 @@ $Id: esm.cpp,v 1.5 2003/04/14 05:51:03 mbridak Exp $
 #include <iostream>
 using namespace std;
 
-DStack EsmStack(6);
+DStack EsmStack(20);
 
 
 Esm::Esm(Submarine *temp):Subs(temp)

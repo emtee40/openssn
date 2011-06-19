@@ -83,7 +83,7 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 
 #define TORPEDO_FUEL 600
 #define HITTING_RANGE 50
-
+#define MAX_FIRED_TORPEDOES 2  // max one ship can fire at a time
 #define OUT_OF_FUEL 1
 #define HIT_TARGET 2
 #define STATUS_OK 3
@@ -103,7 +103,7 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 #define PERISCOPE_DEPTH 50
 
 #define MAX_TORPEDOES_FIRED 2
-
+#define MAX_TORPEDO_RANGE 8
 
 /**
   *@author Michael Bridak
@@ -194,7 +194,7 @@ public:
         int Can_Hear(Submarine *target);
         int Torpedo_AI();
         // figure out what to do with surface ships
-        int Ship_AI(Submarine *all_ships, Submarine *all_torpedoes);  
+        Submarine *Ship_AI(Submarine *all_ships, Submarine *all_torpedoes);  
         // like ship AI in 3D
         Submarine *Sub_AI(Submarine *all_ships, Submarine *all_torpedoes);   
         int Check_Status();         // see if our torpedo is ok
