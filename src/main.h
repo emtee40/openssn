@@ -258,6 +258,7 @@ void	PositionCursor(int, int);
 void	ClearScreen(void);
 void    Display_Target(void);
 void	DrawMap(void);
+/*
 void	DrawPixel(SDL_Surface *screen, int x, int y, Uint32 Color);
 void	DrawLine(SDL_Surface *screen, int X1, int Y1, int X2, int Y2, Uint32 Color);
 void	DrawArc(SDL_Surface *screen, int X1, int Y1, int Radius, int Theta1, int Theta2, Uint32 Color);
@@ -266,9 +267,10 @@ void	DrawDiamond(SDL_Surface *screen, int X1, int Y1, int Size, char Direction, 
 void	DrawBox(SDL_Surface *screen, int X1, int Y1, int Size, char Direction, Uint32 Color);
 void    DrawRectangle(SDL_Surface *screen, int x1, int y1, int x2, int y2, Uint32 Color);
 void	DrawCross(SDL_Surface *screen, int X1, int Y1, int Size, char Direction, Uint32 Color);
+*/
 void	PlaceShips(int, int = 0, int = 0, Submarine *target=NULL); // the int = 0's are default values
-inline void	DrawPixel(SDL_Surface *screen, int x, int y, Uint32 Color);
-inline void	DrawLine(SDL_Surface *screen, int X1, int Y1, int X2, int Y2, Uint32 Color);
+// inline void	DrawPixel(SDL_Surface *screen, int x, int y, Uint32 Color);
+// inline void	DrawLine(SDL_Surface *screen, int X1, int Y1, int X2, int Y2, Uint32 Color);
 void	LoadScreen(int screen_to_load);
 void	ShowStation(int station);
 void	DisplaySonar();

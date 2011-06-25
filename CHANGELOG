@@ -1,3 +1,11 @@
+  - Moved primative drawing functions to draw.h, draw.cpp from
+    main.h, main.cpp. This allows us to draw things in other
+    modules, like the menu.
+
+  - Created Menu module for displaying and working woth the main menu.
+
+  - Sonar screen now shows angle and direction to target.
+
   - If the player's sub is destoryed, the game should now end gracefully.
 
   - Losing a torpedo target no longer causes crash.

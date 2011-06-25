@@ -239,7 +239,7 @@ void AnBqq5::DisplaySonar(){
 
 }
 
-void AnBqq5::UpdateDisplay(){
+void AnBqq5::UpdateDisplay(Submarine *current_target){
 	SDL_Rect destination_rectangle;
 	static char text[120];
 	char filename[] = "images/largefont.png";
@@ -255,16 +255,19 @@ void AnBqq5::UpdateDisplay(){
 	destination_rectangle.y=498; //define a rectangle on the screen and make it black
 	SDL_FillRect(screen, &destination_rectangle, black);
 	SDL_UpdateRects(screen, 1, &destination_rectangle);
-	tempint = (int)Subs->BearingToTarget( Subs->next);
-	sprintf(text, "%4i", tempint);
-	largeFont.PutString(screen, 840, 412, text);
-	deAngle = 0; // Subs[0].DEAngle(& (Subs[1]) );
-	if (deAngle > 0){
+        if (current_target)
+        {
+	  tempint = (int)Subs->BearingToTarget( current_target );
+	  sprintf(text, "%4i", tempint);
+	  largeFont.PutString(screen, 840, 412, text);
+	  Subs->DEAngle( current_target );
+	  if (deAngle > 0){
 		sprintf(text,"+%3.1f",deAngle);
-	}else{
+  	  }else{
 		sprintf(text,"%3.1f",deAngle);
-	}
-	largeFont.PutString(screen, 840, 498, text);
+	  }
+	  largeFont.PutString(screen, 840, 498, text);
+        }
 }
 
 void AnBqq5::TowedSonar(bool center)

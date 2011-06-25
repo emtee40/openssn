@@ -35,10 +35,12 @@ $Id: main.cpp,v 1.28 2003/07/18 03:50:00 mbridak Exp $
 #include "SDL/SDL_image.h"
 #include <SDL/SDL_thread.h>
 #include "dfont.h"
+#include "draw.h"
 #include "gameclock.h"
 #include "submarine.h"
 #include "towedarray.h"
 #include "targetmotionanalysis.h"
+#include "menu.h"
 #include "message.h"
 #include "mission.h"
 #include "sonar.h"
@@ -191,6 +193,7 @@ void DirectionalPointer(int x, int y, int heading, int speed,Uint32 color){
 	DrawLine(screen, x, y, (int)destinationx, (int)destinationy, color);
 }
 
+/*
 inline void DrawPixel(SDL_Surface *screen, int x, int y, Uint32 color){
 	//this only works for 16bpp screens
 	//are we outside the screen?????
@@ -402,7 +405,7 @@ void DrawCross(SDL_Surface *screen, int X1, int Y1, int Size, char Direction, Ui
 	  DrawLine(screen, xc+size/2, yc+size/2, xc+size, yc+size/2, Color);
 	}
 }
-
+*/
 
 void LoadScreen(int item){
 	//Loads a PN file into an SDL surface then
@@ -439,6 +442,8 @@ void LoadScreen(int item){
                 IMGFile = Load_Image("images/sub_surfacing.png"); break;
         case 8:
                 IMGFile = Load_Image("images/sub_rising.png"); break;
+        case 9:
+                IMGFile = Load_Image("images/sub_menu.png"); break;
 	default:
 		cerr << "Unknown screen item" << endl;
 		break;
@@ -1420,7 +1425,7 @@ void UpdateDisplay(){
 		DrawMap(); // fix me to do something useful!
 	}
 	if (drawsonar){
-		SonarStation.UpdateDisplay();
+		SonarStation.UpdateDisplay(current_target);
 	}
 	if (drawtma){
 		DisplayTMA();

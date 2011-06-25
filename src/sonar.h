@@ -50,7 +50,7 @@ public:
 	/**	The Main entery point to do a gross update of all the Sonar
 		stations sub screen. */
 
-	void UpdateDisplay();
+	void UpdateDisplay(Submarine *target);
 	void ClearSonarData();
 
 	void TowedSonar(bool center);
