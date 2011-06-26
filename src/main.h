@@ -19,7 +19,7 @@ $Id: main.h,v 1.11 2003/07/18 03:50:00 mbridak Exp $
 #ifndef MAIN_H
 #define MAIN_H
 
-#define VERSION 0.4
+#define VERSION 0.5
 
 // delay between game loops
 #define GAME_DELAY 10

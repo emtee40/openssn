@@ -2848,7 +2848,7 @@ int main(int argc, char **argv){
 		}
 	}
 	SetupScreen(full_screen);
-	CreateShips(mission_number);
+	// CreateShips(mission_number);
 	Tma.InitGraphics();
 	SonarStation.InitGraphics();
 //	msg Message;
@@ -2878,11 +2878,15 @@ int main(int argc, char **argv){
 		}
 	}
         */
+	quit = false; //reset loop exit flag
 	//LoadWidgets(); //load up the buttons
         LoadScreen(9);
         // main menu stuff goes here
-        Main_Menu(&mission_number, screen);
-
+        status = Main_Menu(&mission_number, screen);
+        if (status == ACTION_QUIT)
+          quit = true;
+        
+        CreateShips(mission_number);
 	SDL_Rect rectangle;
 	rectangle.x = 0;
 	rectangle.y = 0;
@@ -2892,14 +2896,13 @@ int main(int argc, char **argv){
 	timecompression = 1;
 	station = 2; //default station
 	ShowStation(station);
-	textline="OpenSSN VERSION 0.4";
+	textline="OpenSSN VERSION 0.5";
 	Message.post_message(textline);
 	textline="http://openssn.sourceforge.net";
 	Message.post_message(textline);
 	Message.display_message();
 	sprintf(text, "[%i] ", timecompression);
 	fnt.PutString(screen, 933, 718, text);
-	quit = false; //reset loop exit flag
         my_mission_status = MISSION_STARTED;
 	timer_id = SDL_AddTimer(1000, timerfunc, NULL);
 	timer_id2 = SDL_AddTimer(60000, TmaTimer, NULL);

@@ -1,3 +1,9 @@
+============ openssn-0.5 released June 26, 2011 ==========
+
+  - Main menu can now select and launch missions.
+
+  - Added new drawing function CircleFill()
+
   - Game now displays main menu with interactive buttons.
 
   - We should only need to find data files once, then the files module

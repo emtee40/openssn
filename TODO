@@ -1,5 +1,3 @@
-Main menu (background, buttons, missions stuff, respond to input)
-
 
 AI stuff
   Warships should hunt enemies.
@@ -9,7 +7,6 @@ AI stuff
 
 Active sonar
 Maybe we should be able to cut the towed array
-Clean up center panel of sonar and remove noise on right.
 
 Add thermal layer?
 

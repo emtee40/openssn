@@ -182,6 +182,20 @@ void DrawRectangle(SDL_Surface *screen, int x1, int y1, int x2, int y2, Uint32 c
 }
 
 
+void FillRectangle(SDL_Surface *screen, int x1, int y1, int x2, int y2, Uint32 color)
+{
+   int x, y;
+
+   for (y = y1; y <= y2; y++)
+   {
+      for (x = x1; x <= x2; x++)
+      {
+         DrawPixel(screen, x, y, color);
+      }
+   }
+}
+
+
  
 void DrawCross(SDL_Surface *screen, int X1, int Y1, int Size, char Direction, Uint32 Color){
 

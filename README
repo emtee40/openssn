@@ -5,9 +5,9 @@ OpenSSN is a submarine simulation (subsim) which tries to emulate
 the behaviour of modern submarines. The player is placed in command
 of a submarine and is able to move about in a deep ocean environment.
 
-At this time there is no combat in OpenSSN, but combat missions are
-planned for future releases.
-
+Combat missions are now being added to OpenSSN, and ships with
+sonar will run from torpedoes and, if they can detect the player,
+will return fire.
 
 
 
@@ -57,7 +57,7 @@ SDL_image
 Assuming the above libraries are installed, it should be possible to
 build OpenSSN with the following commands
 
-tar zxf openssn-0.4.tar.gz
+tar zxf openssn-0.5.tar.gz
 cd openssn
 make
 
