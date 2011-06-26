@@ -85,11 +85,25 @@ void DrawArc(SDL_Surface *screen, int X1, int Y1, int Radius, int Theta1, int Th
 void DrawCircle(SDL_Surface *screen, int X1, int Y1, int Radius, Uint32 Color){
 
 //Draw a circle  at (X1,Y1) of a given radius using specified Color.
+/*
         int xc, yc, radius;
         xc = X1;
         yc = Y1;
         radius = Radius;
-        DrawArc(screen, xc, yc, radius, 0, 360, Color);
+*/
+        DrawArc(screen, X1, Y1, Radius, 0, 360, Color);
+}
+
+
+void FillCircle(SDL_Surface *screen, int X1, int Y1, int Radius, Uint32 Color)
+{
+   int my_radius;
+   my_radius = Radius;
+   while (my_radius > 1)
+   {
+       DrawCircle(screen, X1, Y1, my_radius, Color);
+       my_radius--;
+   }
 }
 
 void DrawDiamond(SDL_Surface *screen, int X1, int Y1, int Size, char Direction, Uint32 Color){

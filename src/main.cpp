@@ -2879,6 +2879,10 @@ int main(int argc, char **argv){
 	}
         */
 	//LoadWidgets(); //load up the buttons
+        LoadScreen(9);
+        // main menu stuff goes here
+        Main_Menu(&mission_number, screen);
+
 	SDL_Rect rectangle;
 	rectangle.x = 0;
 	rectangle.y = 0;

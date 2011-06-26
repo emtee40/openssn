@@ -8,13 +8,15 @@
 #include <SDL/SDL_thread.h>
 
 
-inline void DrawPixel(SDL_Surface *screen, int x, int y, Uint32 color);
+void DrawPixel(SDL_Surface *screen, int x, int y, Uint32 color);
 
 void DrawLine(SDL_Surface *screen, int X1, int Y1, int X2, int Y2, Uint32 Color);
 
 void DrawArc(SDL_Surface *screen, int X1, int Y1, int Radius, int Theta1, int Theta2, Uint32 Color);
 
 void DrawCircle(SDL_Surface *screen, int X1, int Y1, int Radius, Uint32 Color);
+
+void FillCircle(SDL_Surface *screen, int X1, int Y1, int Radius, Uint32 Color);
 
 void DrawDiamond(SDL_Surface *screen, int X1, int Y1, int Size, char Direction, Uint32 Color);
 

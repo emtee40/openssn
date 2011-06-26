@@ -1,3 +1,8 @@
+  - Game now displays main menu with interactive buttons.
+
+  - We should only need to find data files once, then the files module
+    remembers their location.
+
   - Moved primative drawing functions to draw.h, draw.cpp from
     main.h, main.cpp. This allows us to draw things in other
     modules, like the menu.

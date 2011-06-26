@@ -4,6 +4,7 @@
 #include "SDL/SDL_image.h"
 #include "files.h"
 
+static char *data_dir = NULL;
 
 // Find a file's full path based on the name of a file
 char *Find_Data_File(char *filename)
@@ -15,11 +16,19 @@ char *Find_Data_File(char *filename)
    if (! location)
       return filename;
 
+   // maybe we already know the directory and don't have to search
+   if (data_dir) 
+   {
+      sprintf(location, "%s/%s", data_dir, filename);
+      return location;
+   }
+
    sprintf(location, "/usr/local/share/games/openssn/%s", filename);
    my_file = fopen(location, "r");
    if (my_file)
    {
        fclose(my_file);
+       data_dir = "/usr/local/share/games/openssn";
        return location;
    }
 
@@ -28,9 +37,11 @@ char *Find_Data_File(char *filename)
    if (my_file)
    {
       fclose(my_file);
+      data_dir = "/usr/share/games/openssn";
       return location;
    }
-   
+
+   data_dir = ".";  
    return filename;
 }
 
