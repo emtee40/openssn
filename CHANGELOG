@@ -1,3 +1,25 @@
+  - Player is now warned if torpedoes are coming toward
+    the player's submarine.
+
+  - When torpedoes cannot hear their target, they will try
+    to find a new one.
+
+  - The game now searches for data files more effeciently by looking
+    in the preset DATADIR, which is based on PREFIX. See the Makefile.
+
+  - Simplified version detection. Value is now stored in top-level
+    makefile.
+
+  - Added "ships" directory to Makefile's install section.
+
+  - Updated src/Makefile and Makefile to remove duplicate effort.
+
+  - Added Makefile.windows to ease cross-platform builds. Added
+    target "make windows" to top-level make file.
+
+  - Fixed some compiler errors/warnings to make game more cross-platform
+    friendly. 
+
 ============ openssn-0.5 released June 26, 2011 ==========
 
   - Main menu can now select and launch missions.

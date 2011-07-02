@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
-#include "SDL/SDL.h"
-#include "SDL/SDL_image.h"
+#include <SDL/SDL.h>
+#include <SDL/SDL_image.h>
 #include "files.h"
 
 static char *data_dir = NULL;
@@ -23,6 +23,20 @@ char *Find_Data_File(char *filename)
       return location;
    }
 
+   sprintf(location, "%s/%s", DATADIR, filename);
+   my_file = fopen(location, "r");
+   if (my_file)
+   {
+     fclose(my_file);
+     data_dir = DATADIR;
+     return location;
+   }
+
+   /*
+   This is the old way of guessing one location at a time. Now we
+   can use the DATADIR definition to make sure we check the correct
+   place.
+   
    sprintf(location, "/usr/local/share/games/openssn/%s", filename);
    my_file = fopen(location, "r");
    if (my_file)
@@ -40,6 +54,7 @@ char *Find_Data_File(char *filename)
       data_dir = "/usr/share/games/openssn";
       return location;
    }
+   */
 
    data_dir = ".";  
    return filename;

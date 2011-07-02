@@ -1,9 +1,11 @@
 
 AI stuff
+  There should be different types of AI (passive and agressive)
   Warships should hunt enemies.
   Torpedoes should be confused by noisemakers.
   AI warships should carry noisemakers
-  If a torpedo loses its target, it should try to find a new one.
+
+Add sounds
 
 Active sonar
 Maybe we should be able to cut the towed array

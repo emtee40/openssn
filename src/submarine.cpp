@@ -555,6 +555,8 @@ int Submarine::Load_Class(char *my_file)
     // load data
     infile >> MaxSpeed >> MaxDepth >> Rudder >> TorpedosOnBoard >> hull_strength >> has_sonar >> PSCS >> ClassName;
     infile.close();
+    // if we carry torpedoes, we also carry noisemakers
+    NoiseMakers = TorpedosOnBoard / 2;
     return TRUE;
 }
 
@@ -694,7 +696,8 @@ Submarine *Submarine::Fire_Tube(Submarine *target, char *ship_file)
    my_torp->Speed = Speed;
    my_torp->DesiredSpeed = my_torp->MaxSpeed;
    my_torp->ShipType = TYPE_TORPEDO;
-   my_torp->Friend = FOE;
+   // my_torp->Friend = FOE;
+   my_torp->Friend = Friend;
    return my_torp;
 }
 
@@ -762,26 +765,46 @@ int Submarine::Can_Hear(Submarine *target)
 // If we do have a target, and we can hear it, this will adjust the
 // torpedo's desired heading and desired depth to match the target.
 // The function returns TRUE.
-int Submarine::Torpedo_AI()
+int Submarine::Torpedo_AI(Submarine *all_subs)
 {
-   int can_hear_target;
+   int can_hear_target = FALSE;
+   Submarine *my_sub;
 
-   if (! target)
-      return TRUE;
+   // if (! target)
+   //    return TRUE;
 
    // check to see if we can hear the target
-   can_hear_target = Can_Hear(target);
+   if (target)
+      can_hear_target = Can_Hear(target);
+   // aim for our target if we have one
    if (can_hear_target)
    {
      DesiredHeading = BearingToTarget(target);
      DesiredDepth = target->Depth;
      DesiredSpeed = MaxSpeed;
+     return TRUE;
    }
-   // what if we can't hear the target, go into search mode
-   else
+
+   // when we delevop active sonar, that should go here
+   // as a backup to passive sonar
+
+   // we cannot hear our target, see if we can detect a new one
+   target = NULL;
+   my_sub = all_subs;
+   while ( (my_sub) && (! target) )
+   {  
+      // aim for the first thing we hear 
+      if ( (my_sub->Friend != Friend) && ( Can_Hear(my_sub) ) )
+         target = my_sub;
+      else
+         my_sub = my_sub->next; 
+   }
+
+   // what if we can't hear any target, go into search mode
+   if (! target)
    {
-      DesiredHeading = Heading + 90;
-      DesiredSpeed = MaxSpeed / 2;
+       DesiredHeading = Heading + 90;
+       DesiredSpeed = MaxSpeed / 2;
    }
    return TRUE;
 }
@@ -791,7 +814,7 @@ int Submarine::Torpedo_AI()
 // ships. By default a surface ships just wanders around
 // and make the occasional turn.
 // Note: Later we will add hunting, running and shooting at stuff here.
-// This function returns TRUE
+// This function returns the torpedoes
 Submarine *Submarine::Ship_AI(Submarine *all_ships, Submarine *all_torpedoes)
 {
    int change;
@@ -884,6 +907,7 @@ Submarine *Submarine::Ship_AI(Submarine *all_ships, Submarine *all_torpedoes)
 // This function tells us what AI submarines will do.
 // Right now they just make the occasional turn. Later we
 // will add depth/speed and combat changed in here.
+// This function returns a link to all torpedoes.
 Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
 {
    int change;
@@ -919,9 +943,10 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
                DesiredSpeed = MaxSpeed;
                // subs are dive too
                if (torpedo->Depth <= Depth)  // it is above us
-                  DesiredDepth = MaxDepth;
+                   DesiredDepth = MaxDepth;
                else if (torpedo->Depth > Depth)  // below us
-                  DesiredDepth = PERISCOPE_DEPTH;
+                   DesiredDepth = PERISCOPE_DEPTH;
+               
                return all_torpedoes;
            }
            }   // end of this is a torpedo

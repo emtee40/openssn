@@ -1,8 +1,7 @@
 #ifndef FILES_HEADER_FILE__
 #define FILES_HEADER_FILE__
-#include "SDL/SDL.h"
-#include "SDL/SDL_image.h"
 
+#include <SDL.h>
 
 // Find the full path of a file based on its name.
 // The return value should be freed UNLESS the return

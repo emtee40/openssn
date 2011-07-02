@@ -192,7 +192,7 @@ public:
 
         Submarine *Fire_Tube(Submarine *target, char *ship_file);
         int Can_Hear(Submarine *target);
-        int Torpedo_AI();
+        int Torpedo_AI(Submarine *all_subs);
         // figure out what to do with surface ships
         Submarine *Ship_AI(Submarine *all_ships, Submarine *all_torpedoes);  
         // like ship AI in 3D

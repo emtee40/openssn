@@ -32,7 +32,7 @@ $Id: main.cpp,v 1.28 2003/07/18 03:50:00 mbridak Exp $
 #include <SDL.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
-#include "SDL/SDL_image.h"
+// #include "SDL/SDL_image.h"
 #include <SDL/SDL_thread.h>
 #include "dfont.h"
 #include "draw.h"
@@ -1111,8 +1111,15 @@ void ShipHandeling(){
         my_torp = torpedoes;
         while (my_torp)
         {
+           // check to see if this torpedo is chasing the player
+           if ( (my_torp->target == player) && 
+                (my_torp->fuel_remaining == (TORPEDO_FUEL - 30)) )
+           {
+               Message.post_message("Torpedo coming our way!");
+               Message.display_message();
+           }
            my_torp->UpdateLatLon();  
-           my_torp->Torpedo_AI();   // see where we should be going
+           my_torp->Torpedo_AI(Subs);   // see where we should be going
            my_torp->Handeling();    // change heading and depth
            status = my_torp->Check_Status();  // see if we ran into something
                                               // or we are out of fuel
@@ -1640,7 +1647,7 @@ void PlaceShips(int scale, int change_scrollx, int change_scrolly, Submarine *cu
                }
                MapIcon(x, y, (int)a_torp->ShipType, (int)a_torp->Friend, color); 
            }   // within map limits
-             
+          
            a_torp = a_torp->next;
         }  // end of displaying torpedoes
 }
@@ -2896,8 +2903,9 @@ int main(int argc, char **argv){
 	timecompression = 1;
 	station = 2; //default station
 	ShowStation(station);
-	textline="OpenSSN VERSION 0.5";
-	Message.post_message(textline);
+	// textline="OpenSSN VERSION 0.5";
+        sprintf(text, "OpenSSN version %2.1f", VERSION);
+	Message.post_message(text);
 	textline="http://openssn.sourceforge.net";
 	Message.post_message(textline);
 	Message.display_message();
@@ -3573,5 +3581,6 @@ int main(int argc, char **argv){
         printf("Killing SDL\n");
         #endif
 	SDL_Quit();
+        return 0;   // just to make the compiler happy
 }
 
