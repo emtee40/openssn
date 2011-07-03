@@ -21,6 +21,7 @@ $Id: towedarray.cpp,v 1.3 2003/04/14 05:51:04 mbridak Exp $
 
 TowedArray::TowedArray(){
 	length = 0;
+        cut = FALSE;
 }
 TowedArray::TowedArray(double latitude, double longitude){
 	for (int counter=0; counter<100; counter--){
@@ -28,6 +29,7 @@ TowedArray::TowedArray(double latitude, double longitude){
 		longitude_array[counter] =  longitude;
 	}
 	length = 0;
+        cut = FALSE;
 }
 TowedArray::~TowedArray(){
 }
@@ -47,6 +49,18 @@ void TowedArray::Stop(){
 }
 void TowedArray::ReelIn(){
 	winch = 2;
+}
+int TowedArray::CutArray()
+{
+    // if the array is already cut or reeled in, we can't cut it
+    if (cut)
+       return FALSE;
+    if (length == 0)
+       return FALSE;
+    cut = TRUE;
+    length = 0;
+    winch = 0;
+    return TRUE;
 }
 int TowedArray::GetLength(){
 return (int)length;

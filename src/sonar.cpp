@@ -847,6 +847,17 @@ void AnBqq5::LoadWidgets(){
 	}
 	SDL_FreeSurface(temp);
 
+        temp = Load_Image("images/cutarray.png");
+        if (temp != NULL)
+            cutarray = SDL_DisplayFormat(temp);
+        if (! cutarray)
+        {
+           cerr << "Error loading cutarray.png in LoadWidgets()" << endl
+                << SDL_GetError() << endl;
+                SDL_Quit();
+                exit(9);
+        }
+
 	temp = Load_Image("images/assigntrackeroff.png");
 	if(temp != NULL) assigntrackerwidget[0] = SDL_DisplayFormat(temp);
 	if ( assigntrackerwidget[0] == NULL ) { // Are we screwed??
@@ -981,6 +992,13 @@ void AnBqq5::DisplaySonarWidgets(){
 		destination_rectangle.w = lowercrtoff->w;//width of button
 		SDL_BlitSurface(lowercrtoff, NULL, screen, &destination_rectangle); // Do the Blit..
 		SDL_UpdateRects(screen, 1, &destination_rectangle); //Show the screen...
+                destination_rectangle.x = 520;
+                destination_rectangle.y = 590;
+                destination_rectangle.h = cutarray->h;
+                destination_rectangle.w = cutarray->w;
+                SDL_BlitSurface(cutarray, NULL, screen, &destination_rectangle);
+                SDL_UpdateRects(screen, 1, &destination_rectangle);
+
 		destination_rectangle.x = 567;
 		destination_rectangle.y = 590;
 		destination_rectangle.h = tb16winchoff->h; //height &

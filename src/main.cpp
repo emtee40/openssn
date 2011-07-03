@@ -2597,6 +2597,14 @@ int HandleInput(SDL_Event &event, int &mousex, int &mousey){
 						break;
 					}
 				}
+                                if(mousex > 520 && mousex < 567)
+                                {
+                                    if (mousey > 590 && mousey < 638)
+                                    {
+                                       return CUTARRAY;
+                                       break;
+                                    }
+                                }
 				if(mousex >569  && mousex < 614){
 					if(mousey > 593 && mousey < 638){
 						return STOPWINCH;
@@ -3314,6 +3322,15 @@ int main(int argc, char **argv){
                                         Message.post_message("Retrieving sonar array.");
                                         Message.display_message();
 					break;
+                                case CUTARRAY:
+                                        status = TB16.CutArray();
+                                        SonarStation.DisplaySonarWidgets();
+                                        if (status)
+                                           Message.post_message("Cut towed array.");
+                                        else
+                                           Message.post_message("Cannot cut array.");
+                                        Message.display_message();
+                                        break;
 				case STOPWINCH:
 					SonarStation.StopWinch();
                                         Message.post_message("Stopping sonar array.");
@@ -3468,23 +3485,40 @@ int main(int argc, char **argv){
 					ControlStation.DisplayWidgets();
 					break;
                                 case USE_TUBE:
+                                        // check to see if we already have too
+                                        // many items out there
+                                        status = player->Count_Torpedoes(torpedoes);
+                                        status += player->Count_Noisemakers(torpedoes);
+                                        if (status > 8)
+                                        {
+                                            Message.post_message("Tracking computer full, Captain.");
+                                            Message.display_message();
+                                            break;
+                                        }
                                         // load, fire or unload a tube
                                         status = Subs->Use_Tube(tube_action, tube_to_use);
                                         if (status == TUBE_ERROR_FIRE_NOISEMAKER)
                                         {
-                                            Submarine *new_torpedo;
-                                            char *ship_file, filename[] = "ships/class5.shp";
+                                            Submarine *new_torpedo, *my_torp;
+                                            char *ship_file, filename[] = "ships/class6.shp";
                                             ship_file = Find_Data_File(filename);
                                             new_torpedo = Subs->Fire_Tube(NULL, ship_file);
                                             if ( (ship_file) && (ship_file != filename) )
                                                 free(ship_file);
                                             if (new_torpedo)
                                             {
-                                                new_torpedo->Friend = FRIEND;
-                                                new_torpedo->owner = Subs;
+                                                new_torpedo->Friend = player->Friend;
+                                                new_torpedo->owner = player;
                                                 torpedoes = Add_Ship(torpedoes, new_torpedo);
                                                 Message.post_message("Noise maker launched!");
                                                 Message.display_message();
+                                                my_torp = torpedoes;
+                                                while (my_torp)
+                                                {
+                                                     if (my_torp->target == player)
+                                                        my_torp->Is_Distracted_By_Noisemaker(new_torpedo);
+                                                     my_torp = my_torp->next;
+                                                }
                                             }
                                         }
                                         else if ( (status == TUBE_ERROR_FIRE_SUCCESS) && (current_target) )

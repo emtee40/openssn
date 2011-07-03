@@ -822,12 +822,13 @@ Submarine *Submarine::Ship_AI(Submarine *all_ships, Submarine *all_torpedoes)
    int can_hear_torpedo;
    double distance;
    int bearing, status;
+   int found;
 
    // most important thing we can do is run away from torpedoes
    if (has_sonar)
    {
        // go through all torpedoes and see if any of them
-       // chasing us
+       // are chasing us
        torpedo = all_torpedoes;
        while (torpedo)
        {
@@ -837,6 +838,7 @@ Submarine *Submarine::Ship_AI(Submarine *all_ships, Submarine *all_torpedoes)
            distance = DistanceToTarget(torpedo);
            if ( (can_hear_torpedo) && (distance < (10 * MILES_TO_YARDS) ) )
            {
+               all_torpedoes = Launch_Noisemaker(all_torpedoes, torpedo);
                bearing = (int) BearingToTarget(torpedo);
                bearing += 180;
                if (bearing >= 360)
@@ -871,18 +873,21 @@ Submarine *Submarine::Ship_AI(Submarine *all_ships, Submarine *all_torpedoes)
                  if (! all_torpedoes)
                     return torpedo;
                  my_torpedoes = all_torpedoes;
-                 while (my_torpedoes)
+                 found = FALSE;
+                 while ( (! found) && (my_torpedoes) )
                  {
                      if (my_torpedoes->next)
                         my_torpedoes = my_torpedoes->next;
                      else
                      {
                        my_torpedoes->next = torpedo;
-                       return all_torpedoes;
+                       found = TRUE;
+                       // return all_torpedoes;
                      }
                  }
               }
               TorpedosOnBoard--;
+              return all_torpedoes;
           }
       }
 
@@ -916,7 +921,7 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
    double distance;
    int bearing;
    Submarine *target, *my_torpedoes;
-   int status;
+   int status, found;
 
    // most important thing we can do is run away from torpedoes
    if (has_sonar)
@@ -935,6 +940,7 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
            if ( (can_hear_torpedo) && (torpedo->target == this) &&
                 (distance < (MAX_TORPEDO_RANGE * MILES_TO_YARDS) ) )
            {
+               all_torpedoes = Launch_Noisemaker(all_torpedoes, torpedo);
                bearing = (int) BearingToTarget(torpedo);
                bearing += 180;
                if (bearing >= 360)
@@ -973,20 +979,26 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
                  torpedo->owner = this;
                  // all_torpedoes = Add_Ship(all_torpedoes, torpedo);
                  if (! all_torpedoes)
-                    return torpedo;
-                 my_torpedoes = all_torpedoes;
-                 while (my_torpedoes)
+                    all_torpedoes = torpedo;
+                 else
                  {
-                     if (my_torpedoes->next)
-                        my_torpedoes = my_torpedoes->next;
-                     else
-                     {
-                       my_torpedoes->next = torpedo;
-                       return all_torpedoes;
-                     }
-                 }
+                   my_torpedoes = all_torpedoes;
+                   found = FALSE;
+                   while ( (! found) && (my_torpedoes) )
+                   {
+                       if (my_torpedoes->next)
+                          my_torpedoes = my_torpedoes->next;
+                       else
+                       {
+                         my_torpedoes->next = torpedo;
+                         found = TRUE;
+                         // return all_torpedoes;
+                       }
+                   }
+                  }  // add torpedo to list 
               }
               TorpedosOnBoard--;
+              return all_torpedoes;
           }
       }
 
@@ -1063,12 +1075,29 @@ int Submarine::Count_Torpedoes(Submarine *all_torp)
 
     while (torp)
     {
-       if (torp->owner == this)
+       if ( (torp->owner == this) && (torp->ShipType == TYPE_TORPEDO) )
          count++;
        torp = torp->next;
     }
     return count;
 }
+
+
+// This function counts how many noisemakers we have in the water
+int Submarine::Count_Noisemakers(Submarine *all_noise)
+{
+   int count = 0;
+   Submarine *noise = all_noise;
+
+   while (noise)
+   {
+      if ( (noise->owner == this) && (noise->ShipType == TYPE_NOISEMAKER) )
+         count++;
+      noise = noise->next;
+   }
+   return count;
+}
+
    
 
 // This function checks the list of ships to see if we have any enemies
@@ -1114,3 +1143,99 @@ Submarine *Submarine::Have_Enemy_Target(Submarine *all_ships)
     return min;
 }
 
+
+
+
+// This function is only to be used by the AI. Here we assume
+// we are being chased by a torpedo. We check to see how many
+// noisemakers we have in the water. If it is less than the max
+// number, we launch a noisemaker.
+// This function returns a pointer to all torpedoes/noisemakers
+Submarine *Submarine::Launch_Noisemaker(Submarine *all_noisemakers, Submarine *chased_by)
+{
+    int existing_noisemakers;
+    Submarine *new_noisemaker, *my_noise;
+    int status, found;
+
+    if ( (! chased_by) || (! all_noisemakers) )
+        return NULL;    // shouldn't happen, but just in case
+
+    // do we have a noisemaker?
+    if (NoiseMakers < 1)
+       return all_noisemakers;
+
+    // see if we are allowed to fire any more
+    existing_noisemakers = Count_Noisemakers(all_noisemakers);
+    if (existing_noisemakers > MAX_NOISEMAKERS_FIRED)
+       return all_noisemakers;
+
+    // we are allowd to launch one
+    torpedo_tube[0] = TUBE_NOISEMAKER;
+    status = Use_Tube(FIRE_TUBE, 0);
+    if (status == TUBE_ERROR_FIRE_NOISEMAKER)
+    {
+        char *ship_file, filename[] = "ships/class6.shp";
+        ship_file = Find_Data_File(filename);
+        new_noisemaker = Fire_Tube(NULL, ship_file );
+        if ( (ship_file) && (ship_file != filename) )
+             free(ship_file);
+        if (new_noisemaker)
+        {
+           new_noisemaker->Friend = Friend;
+           new_noisemaker->owner = this;
+           if (! all_noisemakers)
+                 all_noisemakers = new_noisemaker;
+           else
+           {
+             my_noise = all_noisemakers;
+             found = FALSE;
+             while ( (!found) && (my_noise) )
+             {
+                 if (my_noise->next)
+                     my_noise = my_noise->next;
+                 else
+                 {
+                   my_noise->next = new_noisemaker;
+                   found = TRUE;
+                   // return all_noisemakers;
+                 }
+              }   
+            }   // end of add noisemaker to list  
+         }   // created new noisemaker
+     }  // status
+    NoiseMakers--;
+    new_noisemaker->DesiredHeading = chased_by->DesiredHeading;
+    chased_by->Is_Distracted_By_Noisemaker(new_noisemaker);
+    return all_noisemakers;
+}
+
+
+
+
+// This function checks to see if the torpedo will get distracted
+// by a given noisemaker
+// Returns TRUE if distracted and FALSE if not. In the case where
+// the torpedo is distracted, its target variable is reset
+// to chase the noisemaker
+int Submarine::Is_Distracted_By_Noisemaker(Submarine *noisemaker)
+{
+     int chance;
+
+     if (! noisemaker)   // this should not happen, but just in case
+        return FALSE;
+
+     chance = rand() % DISTRACTED_CHANCE;
+     if (! chance)
+     {
+         target = noisemaker;
+         return TRUE;
+         #ifdef DEBUG
+         printf("Torpedo going off course to chase noisemaker.\n");
+         #endif
+     }
+
+     #ifdef DEBUG
+     printf("Torpedo was not distracted by noisemaker.\n");
+     #endif
+     return FALSE;
+}

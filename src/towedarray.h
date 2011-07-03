@@ -21,6 +21,13 @@ $Id: towedarray.h,v 1.3 2003/04/14 05:52:40 mbridak Exp $
 
 #include "stack.h"
 
+#ifndef TRUE
+#define TRUE 1
+#endif
+#ifndef FALSE
+#define FALSE 0
+#endif
+
 /**
   *@author Michael Bridak
   */
@@ -34,6 +41,7 @@ public:
 	void Extend();
 	void Stop();
 	void ReelIn();
+        int CutArray();    // cut the rope and let it go
 	int GetLength();
 	void OperateWinch();
 	void ReturnLatLon(double &latitude, double &longitude);
@@ -43,8 +51,9 @@ public:
 	float CalcBearing(double observer_latitude, double observer_longitude ,double target_latitude,double target_longitude);
 	double RangeToTarget(double target_latitude, double target_longitude);
 	double latitude_array[100], longitude_array[100];
-	float length;
-	int winch;
+	float length;  // how far out is the array?
+	int winch;   // is the array going out or coming in or stopped?
+        int cut;     // did we cut the array?
 };
 
 #endif

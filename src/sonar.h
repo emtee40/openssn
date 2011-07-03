@@ -166,6 +166,7 @@ private:
 	SDL_Surface *tb16winchon;
 	SDL_Surface *extendtb16[2];
 	SDL_Surface *retracttb16[2];
+        SDL_Surface *cutarray;
 	SDL_Surface *assigntrackerwidget[2];
 	SDL_Surface *tracker1[2];
 	SDL_Surface *tracker2[2];

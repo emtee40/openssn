@@ -1,9 +1,8 @@
+Make Stack more flexible, it's a fixed-length array.
 
 AI stuff
   There should be different types of AI (passive and agressive)
   Warships should hunt enemies.
-  Torpedoes should be confused by noisemakers.
-  AI warships should carry noisemakers
 
 Add sounds
 

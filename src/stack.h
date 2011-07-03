@@ -23,12 +23,14 @@ $Id: stack.h,v 1.4 2003/04/14 05:51:04 mbridak Exp $
   *@author Michael Bridak
   */
 
+#define MAX_STACK 80
+
 class Stack {
 public:
 	/** how many events for this second*/
 	int counter;
 	/** storage space */
-	float stack[20][3];
+	float stack[MAX_STACK][3];
 	/** Advance sound history, drop old events */
 	void AdvanceSonarHistory();
 	/** Place a sound event on in the Queue */

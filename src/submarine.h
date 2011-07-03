@@ -103,7 +103,11 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 #define PERISCOPE_DEPTH 50
 
 #define MAX_TORPEDOES_FIRED 2
+#define MAX_NOISEMAKERS_FIRED 1
 #define MAX_TORPEDO_RANGE 8
+
+#define DISTRACTED_CHANCE 4   // 1 in 4 chance a torpedo will chase noisemaker
+
 
 /**
   *@author Michael Bridak
@@ -200,7 +204,10 @@ public:
         int Check_Status();         // see if our torpedo is ok
         int Take_Damage();         // we were hit!
         int Count_Torpedoes(Submarine *all_torpedoes); // how many have I fired?
+        int Count_Noisemakers(Submarine *all_noise); // how many have I launched?
         Submarine *Have_Enemy_Target(Submarine *all_ships);
+        Submarine *Launch_Noisemaker(Submarine *all_torpedoes, Submarine *chased_by);  // AI function
+        int Is_Distracted_By_Noisemaker(Submarine *noisemaker);  // is this torpedo distracted?
 };
 
 #endif
