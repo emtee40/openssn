@@ -99,8 +99,10 @@ void Submarine::Init()
         owner = NULL;
         fuel_remaining = INT_MAX; 
         hull_strength = 1;
-        has_sonar = 1;
+        has_sonar = TRUE;
         mission_status = MISSION_NONE;
+        mood = MOOD_PASSIVE;
+        convoy_course_change = CONVOY_CHANGE_COURSE;
 }
 
 
@@ -676,6 +678,7 @@ Submarine *Submarine::Fire_Tube(Submarine *target, char *ship_file)
        // set heading and desired depth
        my_torp->DesiredHeading = my_torp->Heading = BearingToTarget(target);
        my_torp->DesiredDepth = target->Depth;
+       my_torp->ShipType = TYPE_TORPEDO;
    }
    else // no target, noisemaker
    {
@@ -683,7 +686,7 @@ Submarine *Submarine::Fire_Tube(Submarine *target, char *ship_file)
        // set random heading
        my_torp->Heading = rand() % 360;
        my_torp->DesiredHeading = my_torp->Heading;
-       
+       my_torp->ShipType = TYPE_NOISEMAKER;
    }
    // set current position 
    my_torp->Lat_TotalYards = Lat_TotalYards;
@@ -695,7 +698,7 @@ Submarine *Submarine::Fire_Tube(Submarine *target, char *ship_file)
    // set speed and desired speed
    my_torp->Speed = Speed;
    my_torp->DesiredSpeed = my_torp->MaxSpeed;
-   my_torp->ShipType = TYPE_TORPEDO;
+   // my_torp->ShipType = TYPE_TORPEDO;
    // my_torp->Friend = FOE;
    my_torp->Friend = Friend;
    return my_torp;
@@ -845,6 +848,8 @@ Submarine *Submarine::Ship_AI(Submarine *all_ships, Submarine *all_torpedoes)
                   bearing = bearing % 360;
                DesiredHeading = bearing;
                DesiredSpeed = MaxSpeed;
+               if (mood == MOOD_CONVOY)
+                   mood = MOOD_PASSIVE;
                return all_torpedoes;
            }
            }   // end of this really is a torp
@@ -853,9 +858,13 @@ Submarine *Submarine::Ship_AI(Submarine *all_ships, Submarine *all_torpedoes)
 
       // see if we can hear a nearby enemy to shoot at
       target = Have_Enemy_Target(all_ships);
+      int count = Count_Torpedoes(all_torpedoes);
       if ( (target) && (TorpedosOnBoard > 0) &&
-           (Count_Torpedoes(all_torpedoes) < MAX_FIRED_TORPEDOES) )
+           (count < MAX_TORPEDOES_FIRED) )
       {
+          #ifdef DEBUG
+          printf("Firing with %d torpedoes.\n", count);
+          #endif
           torpedo_tube[0] = TUBE_TORPEDO;
           status = Use_Tube(FIRE_TUBE, 0);
           if (status == TUBE_ERROR_FIRE_SUCCESS)
@@ -896,13 +905,29 @@ Submarine *Submarine::Ship_AI(Submarine *all_ships, Submarine *all_torpedoes)
          DesiredSpeed = MaxSpeed / 2;
    }
 
-   // nothing is going on, we have a 1/100 chance of making a turn
-   change = rand() % CHANCE_COURSE;
-   if (! change)
+   // when traveling in convoy, we change course once every
+   // ... twenty minutes?
+   if (mood == MOOD_CONVOY)
    {
-      DesiredHeading = Heading + ((rand() % 180) - 90);
-      if (DesiredHeading >= 360)
-        DesiredHeading = DesiredHeading % 360;
+      convoy_course_change--;
+      if (! convoy_course_change)
+      {
+          convoy_course_change = CONVOY_CHANGE_COURSE;
+          DesiredHeading += 90;
+          if (DesiredHeading >= 360)
+              DesiredHeading = DesiredHeading % 360;
+      }
+   }
+   // nothing is going on, we have a 1/100 chance of making a turn
+   else
+   {
+     change = rand() % CHANCE_COURSE;
+     if (! change)
+     {
+        DesiredHeading = Heading + ((rand() % 180) - 90);
+        if (DesiredHeading >= 360)
+           DesiredHeading = DesiredHeading % 360;
+     }
    }
 
    return all_torpedoes;
@@ -952,7 +977,8 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
                    DesiredDepth = MaxDepth;
                else if (torpedo->Depth > Depth)  // below us
                    DesiredDepth = PERISCOPE_DEPTH;
-               
+               if (mood == MOOD_CONVOY)
+                  mood = MOOD_PASSIVE;
                return all_torpedoes;
            }
            }   // end of this is a torpedo
@@ -961,9 +987,13 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
 
       // see if we can hear a nearby enemy to shoot at
       target = Have_Enemy_Target(all_ships);
+      int count = Count_Torpedoes(all_torpedoes);
       if ( (target) && (TorpedosOnBoard > 0) && 
-           (Count_Torpedoes(all_torpedoes) < MAX_FIRED_TORPEDOES) )
+           (count < MAX_TORPEDOES_FIRED) )
       {
+          #ifdef DEBUG
+          printf("Firing with %d torpedoes.\n", count);
+          #endif
           torpedo_tube[0] = TUBE_TORPEDO;
           status = Use_Tube(FIRE_TUBE, 0);
           if (status == TUBE_ERROR_FIRE_SUCCESS)
@@ -1007,13 +1037,29 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
          DesiredSpeed = MaxSpeed / 3;
    }
 
-   // got nothing to do, but perhaps change course
-   change = rand() % CHANCE_COURSE;
-   if (! change)
+   
+   // when traveling in convoy, we change course once every
+   // ... twenty minutes?
+   if (mood == MOOD_CONVOY)
    {
-     DesiredHeading = Heading + ( (rand() % 100) - 90);
-     if (DesiredHeading >= 360)
-       DesiredHeading = DesiredHeading % 360;
+      convoy_course_change--;
+      if (! convoy_course_change)
+      {
+          convoy_course_change = CONVOY_CHANGE_COURSE;
+          DesiredHeading += 90;
+          if (DesiredHeading >= 360)
+              DesiredHeading = DesiredHeading % 360;
+      }
+   }
+   else   // got nothing to do, but perhaps change course
+   {
+     change = rand() % CHANCE_COURSE;
+     if (! change)
+     {
+       DesiredHeading = Heading + ( (rand() % 100) - 90);
+       if (DesiredHeading >= 360)
+         DesiredHeading = DesiredHeading % 360;
+     }
    }
    return all_torpedoes;
 }
@@ -1079,6 +1125,9 @@ int Submarine::Count_Torpedoes(Submarine *all_torp)
          count++;
        torp = torp->next;
     }
+    #ifdef DEBUG
+    printf("We have %d TORPEDOES in the water\n", count);
+    #endif
     return count;
 }
 
@@ -1095,6 +1144,9 @@ int Submarine::Count_Noisemakers(Submarine *all_noise)
          count++;
       noise = noise->next;
    }
+   #ifdef DEBUG
+   printf("We have %d NOISEMAKERS in the water\n", count);
+   #endif
    return count;
 }
 
@@ -1166,7 +1218,7 @@ Submarine *Submarine::Launch_Noisemaker(Submarine *all_noisemakers, Submarine *c
 
     // see if we are allowed to fire any more
     existing_noisemakers = Count_Noisemakers(all_noisemakers);
-    if (existing_noisemakers > MAX_NOISEMAKERS_FIRED)
+    if (existing_noisemakers >= MAX_NOISEMAKERS_FIRED)
        return all_noisemakers;
 
     // we are allowd to launch one

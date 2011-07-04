@@ -1354,14 +1354,22 @@ void CreateShips(int mission_number){
                   &(new_ship->DesiredSpeed), &(new_ship->DesiredDepth),
                   &(new_ship->DesiredHeading), &(new_ship->Lat_TotalYards),
                   &(new_ship->Lon_TotalYards)); // , &(new_ship->PSCS) );
+        // check mood
+        if ( strcasestr(line, "convoy") )
+            new_ship->mood = MOOD_CONVOY;
+        else if ( strcasestr(line, "passive") )
+            new_ship->mood = MOOD_PASSIVE;
+        else if ( strcasestr(line, "attack") )
+            new_ship->mood = MOOD_ATTACK;
 
      #ifdef DEBUG
-     printf("%d %d %d %d %d %d %f %f\n",
+     printf("%d %d %d %d %d %d %f %f %d\n",
                   (new_ship->ShipType),
                   (new_ship->ShipClass), (new_ship->Friend),
                   (new_ship->DesiredSpeed), (new_ship->DesiredDepth),
                   (new_ship->DesiredHeading), (new_ship->Lat_TotalYards),
-                  (new_ship->Lon_TotalYards)); // , (new_ship->PSCS) );
+                  (new_ship->Lon_TotalYards), new_ship->mood); 
+                  // , (new_ship->PSCS) );
 
      #endif
      new_ship->Speed = new_ship->DesiredSpeed;
@@ -3311,15 +3319,25 @@ int main(int argc, char **argv){
 					}
 					break;
 				case EXTENDARRAY:
-					TB16.Extend();
-					SonarStation.DisplaySonarWidgets();
-                                        Message.post_message("Extending sonar array.");
+					status = TB16.Extend();
+                                        if (status)
+                                        {
+					  SonarStation.DisplaySonarWidgets();
+                                          Message.post_message("Extending sonar array.");
+                                        }
+                                        else
+                                           Message.post_message("Unable to extend array.");
                                         Message.display_message();
 					break;
 				case RETRACTARRAY:
-					TB16.ReelIn();
-					SonarStation.DisplaySonarWidgets();
-                                        Message.post_message("Retrieving sonar array.");
+					status = TB16.ReelIn();
+                                        if (status)
+                                        {
+					  SonarStation.DisplaySonarWidgets();
+                                          Message.post_message("Retrieving sonar array.");
+                                        }
+                                        else
+                                          Message.post_message("Unable to retrieve array.");
                                         Message.display_message();
 					break;
                                 case CUTARRAY:
@@ -3489,7 +3507,7 @@ int main(int argc, char **argv){
                                         // many items out there
                                         status = player->Count_Torpedoes(torpedoes);
                                         status += player->Count_Noisemakers(torpedoes);
-                                        if (status > 8)
+                                        if (status >= MAX_PLAYER_WEAPONS)
                                         {
                                             Message.post_message("Tracking computer full, Captain.");
                                             Message.display_message();

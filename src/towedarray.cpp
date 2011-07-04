@@ -41,14 +41,24 @@ void TowedArray::RecordPos(double latitude, double longitude){
 	latitude_array[0] = latitude;
 	longitude_array[0] = longitude;
 }
-void TowedArray::Extend(){
-	winch = 1;
+int TowedArray::Extend(){
+        if (! cut)
+        {
+	   winch = 1;
+           return TRUE;
+        }
+        return FALSE;
 }
 void TowedArray::Stop(){
 	winch = 0;
 }
-void TowedArray::ReelIn(){
+int TowedArray::ReelIn(){
+    if (! cut)
+    {
 	winch = 2;
+        return TRUE;
+    }
+    return FALSE;
 }
 int TowedArray::CutArray()
 {

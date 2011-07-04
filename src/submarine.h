@@ -83,7 +83,6 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 
 #define TORPEDO_FUEL 600
 #define HITTING_RANGE 50
-#define MAX_FIRED_TORPEDOES 2  // max one ship can fire at a time
 #define OUT_OF_FUEL 1
 #define HIT_TARGET 2
 #define STATUS_OK 3
@@ -102,12 +101,19 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 #define MILES_TO_YARDS 1760
 #define PERISCOPE_DEPTH 50
 
-#define MAX_TORPEDOES_FIRED 2
+#define MAX_TORPEDOES_FIRED 1
 #define MAX_NOISEMAKERS_FIRED 1
+#define MAX_PLAYER_WEAPONS 6
 #define MAX_TORPEDO_RANGE 8
 
 #define DISTRACTED_CHANCE 4   // 1 in 4 chance a torpedo will chase noisemaker
 
+// types of behaviour
+#define MOOD_ATTACK 1
+#define MOOD_PASSIVE 2
+#define MOOD_CONVOY 3
+
+#define CONVOY_CHANGE_COURSE 1200
 
 /**
   *@author Michael Bridak
@@ -166,6 +172,8 @@ public:
         int hull_strength;
         int mission_status;
         int has_sonar;
+        int mood;
+        int convoy_course_change;
         int torpedo_tube[MAX_TUBES];
         Submarine *next;     // also for torpedos, though could be used
                              // later for ships

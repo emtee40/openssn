@@ -38,9 +38,9 @@ public:
 	TowedArray(double, double);
 	~TowedArray();
 	void RecordPos(double lat, double lon);
-	void Extend();
+	int Extend();
 	void Stop();
-	void ReelIn();
+	int ReelIn();
         int CutArray();    // cut the rope and let it go
 	int GetLength();
 	void OperateWinch();

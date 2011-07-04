@@ -1,9 +1,15 @@
+  - Ships in a convoy will no longer wander off randomly.
+
+  - Once towed array is cut a new array cannot be extended.
+
+  - Added new mission.
+
   - Player can now cut the towed sonar array to avoid
     speed limitation.
 
-  - Player is now limited to eight launches at a time.
+  - Player is now limited to six launches at a time.
 
-  - Fixed crash issue with stack.
+  - Fixed crash issue with stack module.
 
   - Noisemakers now distract torpedoes (sometimes).
 
