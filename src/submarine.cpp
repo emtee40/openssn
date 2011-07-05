@@ -710,7 +710,6 @@ Submarine *Submarine::Fire_Tube(Submarine *target, char *ship_file)
 // It returns TRUE if we can hear it and FALSE if we can not.
 int Submarine::Can_Hear(Submarine *target)
 {
-
         float Range = DistanceToTarget(target);
         float NauticalMiles = (float)Range / 2000.0;
         float HisPassiveSonarCrosssection = target->PSCS;
@@ -729,6 +728,8 @@ int Submarine::Can_Hear(Submarine *target)
 
         if (ShipType == TYPE_TORPEDO)
             minimum_sound *= 2.5;
+        else if (ShipType == TYPE_SHIP)
+            minimum_sound *= 1.75;
 
         if (target->Speed <= 5.0){
              EffectiveTargetSpeed = 0.0;
@@ -751,6 +752,10 @@ int Submarine::Can_Hear(Submarine *target)
         TargetNoise = HisPassiveSonarCrosssection +
         ((NoiseFromSpeed * EffectiveTargetSpeed) + BasisNoiseLevel);
         value = TargetNoise - (20.0 * log10(NauticalMiles) + 1.1 * NauticalMiles) - Lbp;
+        #ifdef AIDEBUG
+        printf("Our noise: %f Target Noise: %f Value: %f\n",
+                TotalNoise, TargetNoise, value);
+        #endif
         // if (!observer)
         //      SonarStation.flowandambientnoise = (Lbp - 34);
         if (value > minimum_sound){
@@ -775,6 +780,9 @@ int Submarine::Torpedo_AI(Submarine *all_subs)
 
    // if (! target)
    //    return TRUE;
+   // Noisemakers should run at full speed in a straight line
+   if (ShipType == TYPE_NOISEMAKER)
+       return TRUE;
 
    // check to see if we can hear the target
    if (target)
@@ -818,6 +826,7 @@ int Submarine::Torpedo_AI(Submarine *all_subs)
 // and make the occasional turn.
 // Note: Later we will add hunting, running and shooting at stuff here.
 // This function returns the torpedoes
+/*
 Submarine *Submarine::Ship_AI(Submarine *all_ships, Submarine *all_torpedoes)
 {
    int change;
@@ -833,14 +842,16 @@ Submarine *Submarine::Ship_AI(Submarine *all_ships, Submarine *all_torpedoes)
        // go through all torpedoes and see if any of them
        // are chasing us
        torpedo = all_torpedoes;
-       while (torpedo)
+       while (torpedo) 
        {
-           if (torpedo->ShipType == TYPE_TORPEDO)
+           if (torpedo->ShipType == TYPE_TORPEDO) 
            {
            can_hear_torpedo = Can_Hear(torpedo);
            distance = DistanceToTarget(torpedo);
-           if ( (can_hear_torpedo) && (distance < (10 * MILES_TO_YARDS) ) )
+           if ( (torpedo->target == this) && (can_hear_torpedo) && 
+                (distance < (10 * MILES_TO_YARDS) ) )
            {
+               status = (DesiredSpeed == MaxSpeed);
                all_torpedoes = Launch_Noisemaker(all_torpedoes, torpedo);
                bearing = (int) BearingToTarget(torpedo);
                bearing += 180;
@@ -850,7 +861,8 @@ Submarine *Submarine::Ship_AI(Submarine *all_ships, Submarine *all_torpedoes)
                DesiredSpeed = MaxSpeed;
                if (mood == MOOD_CONVOY)
                    mood = MOOD_PASSIVE;
-               return all_torpedoes;
+               if (! status)
+                 return all_torpedoes;
            }
            }   // end of this really is a torp
            torpedo = torpedo->next;
@@ -932,7 +944,7 @@ Submarine *Submarine::Ship_AI(Submarine *all_ships, Submarine *all_torpedoes)
 
    return all_torpedoes;
 }
-
+*/
 
 // This function tells us what AI submarines will do.
 // Right now they just make the occasional turn. Later we
@@ -951,12 +963,15 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
    // most important thing we can do is run away from torpedoes
    if (has_sonar)
    {
+       #ifdef AIDEBUG
+       printf("We have sonar.\n");
+       #endif
        // go through all torpedoes and see if any of them
        // chasing us
        torpedo = all_torpedoes;
-       while (torpedo)
+       while (torpedo) 
        {
-           if (torpedo->ShipType == TYPE_TORPEDO)
+           if (torpedo->ShipType == TYPE_TORPEDO) 
            {
            can_hear_torpedo = Can_Hear(torpedo);
            distance = DistanceToTarget(torpedo);
@@ -965,6 +980,7 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
            if ( (can_hear_torpedo) && (torpedo->target == this) &&
                 (distance < (MAX_TORPEDO_RANGE * MILES_TO_YARDS) ) )
            {
+               status = (DesiredSpeed == MaxSpeed);
                all_torpedoes = Launch_Noisemaker(all_torpedoes, torpedo);
                bearing = (int) BearingToTarget(torpedo);
                bearing += 180;
@@ -973,25 +989,35 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
                DesiredHeading = bearing;
                DesiredSpeed = MaxSpeed;
                // subs are dive too
-               if (torpedo->Depth <= Depth)  // it is above us
-                   DesiredDepth = MaxDepth;
-               else if (torpedo->Depth > Depth)  // below us
-                   DesiredDepth = PERISCOPE_DEPTH;
+               if (ShipType == TYPE_SUB)
+               {
+                 if (torpedo->Depth <= Depth)  // it is above us
+                     DesiredDepth = MaxDepth;
+                 else if (torpedo->Depth > Depth)  // below us
+                     DesiredDepth = PERISCOPE_DEPTH;
+               }
                if (mood == MOOD_CONVOY)
                   mood = MOOD_PASSIVE;
-               return all_torpedoes;
+               if (! status)
+                  return all_torpedoes;
            }
            }   // end of this is a torpedo
            torpedo = torpedo->next;
         }
 
+      #ifdef AIDEBUG
+      printf("Checking for targets.\n");
+      #endif
       // see if we can hear a nearby enemy to shoot at
       target = Have_Enemy_Target(all_ships);
+      #ifdef AIDEBUG
+      if (target) printf("Found enemy.\n");
+      #endif
       int count = Count_Torpedoes(all_torpedoes);
       if ( (target) && (TorpedosOnBoard > 0) && 
            (count < MAX_TORPEDOES_FIRED) )
       {
-          #ifdef DEBUG
+          #ifdef AIDEBUG
           printf("Firing with %d torpedoes.\n", count);
           #endif
           torpedo_tube[0] = TUBE_TORPEDO;
@@ -1005,9 +1031,13 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
                    free(ship_file);
               if (torpedo)
               {
+                 #ifdef AIDEBUG
+                 printf("Successfully fired torpedo.\n");
+                 #endif
                  torpedo->Friend = Friend;
                  torpedo->owner = this;
                  // all_torpedoes = Add_Ship(all_torpedoes, torpedo);
+                 // add torpedo to linked list
                  if (! all_torpedoes)
                     all_torpedoes = torpedo;
                  else
@@ -1028,6 +1058,9 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
                   }  // add torpedo to list 
               }
               TorpedosOnBoard--;
+              #ifdef AIDEBUG
+              printf("I have %d torpedoes left.\n", TorpedosOnBoard);
+              #endif
               return all_torpedoes;
           }
       }
@@ -1177,14 +1210,23 @@ Submarine *Submarine::Have_Enemy_Target(Submarine *all_ships)
        if ( ( (current->Friend == FOE) && (Friend == FRIEND) ) ||
             ( (current->Friend == FRIEND) && (Friend == FOE) ) )
        {
+           #ifdef AIDEBUG
+           printf("Examining enemy ship.\n");
+           #endif
            // we do not like this ship, are they closer than our current min?
            current_distance = DistanceToTarget(current);
            if (current_distance < min_distance)
            {
+               #ifdef AIDEBUG
+               printf("Within range to become target.\n");
+               #endif
                // they are close, can we hear them?
                making_noise = Can_Hear(current); 
                if (making_noise)
                {
+                   #ifdef AIDEBUG
+                   printf("We can hear this ship. Make it the target.\n");
+                   #endif
                    min = current;
                    min_distance = current_distance;
                }

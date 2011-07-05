@@ -1,10 +1,9 @@
-Fix X11 resource unavailable crash (?)
+Fix X11 resource unavailable crash 
 Make Stack more flexible, it's a fixed-length array.
-Show noisemakers on map and sonar
 
 AI stuff
   Convoy ships should scatter when an attack begins
-  There should be different types of AI (convoy, passive and agressive)
+  There should be different types of AI (convoy, passive and aggressive)
   Warships should hunt enemies.
 
 Add sounds

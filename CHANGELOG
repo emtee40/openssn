@@ -1,3 +1,13 @@
+  - Noisemakers run in straight line at full speed.
+    They used to circle slowly.
+
+  - Noisemakers appear on tactical map.
+
+  - Added AIDEBUG flag to help figure out what the AI is thinking.
+    It's much less verbose than plain DEBUG.
+
+  - AI subs/ships should only run from torpedoes aimed at them.
+
   - Ships in a convoy will no longer wander off randomly.
 
   - Once towed array is cut a new array cannot be extended.

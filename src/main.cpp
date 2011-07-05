@@ -175,6 +175,10 @@ void MapIcon(int x, int y, int ShipType, int Friend, Uint32 color){
       DrawDiamond(screen, x, y, 7, 'B', color);
       DrawLine(screen, x, y-5, x, y, color);
   }
+  else if (ShipType == TYPE_NOISEMAKER)
+  {
+      DrawBox(screen, x, y, 7, 'B', color);
+  }
 }
 
 
@@ -1095,10 +1099,13 @@ void ShipHandeling(){
                 // see what the AI wants to do
                 if (ship != Subs)
                 {
+                  /*
                   if (ship->ShipType == TYPE_SUB)
                     torpedoes = ship->Sub_AI(Subs, torpedoes);
                   else if (ship->ShipType == TYPE_SHIP)
                     torpedoes = ship->Ship_AI(Subs, torpedoes);
+                  */
+                   torpedoes = ship->Sub_AI(Subs, torpedoes);
                 }
 		ship->Handeling();	//Steer, Change Depth etc...
                 ship = ship->next;
