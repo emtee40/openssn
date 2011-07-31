@@ -216,6 +216,7 @@ bool assigntracker = false;
 Submarine *current_target = NULL;
 int update_weapons_screen = TRUE;
 int my_mission_status;
+int should_update_everything = TRUE;
 
 GameClock Clock;
 // Submarine Subs[MAX_SUBS]; //Somewhere to put our little floating buddies.

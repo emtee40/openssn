@@ -83,6 +83,7 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 
 #define TORPEDO_FUEL 600
 #define HITTING_RANGE 50
+#define HITTING_DEPTH 25
 #define OUT_OF_FUEL 1
 #define HIT_TARGET 2
 #define STATUS_OK 3

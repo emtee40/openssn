@@ -1132,13 +1132,16 @@ void ShipHandeling(){
                                               // or we are out of fuel
            if (status == OUT_OF_FUEL)
            {
+               if (my_torp->ShipType == TYPE_TORPEDO)
+                  Message.post_message("A torpedo ran out of fuel.");
+               else
+                  Message.post_message("Noisemaker stopped running.");
                temp_torp = my_torp->next;
                if (current_target == my_torp)
                  current_target = NULL;
                Subs->Cancel_Target(my_torp);
                torpedoes = Remove_Ship(torpedoes, my_torp);
                my_torp = temp_torp;
-               Message.post_message("A torpedo ran out of fuel.");
                Message.display_message();
            }
            else if (status == HIT_TARGET)
@@ -2164,7 +2167,14 @@ This is our callback function to handle
 time critical Functions
 **************************************************/
 Uint32 timerfunc(Uint32 interval, void *param){
-        param = NULL;
+
+   should_update_everything = TRUE;
+   return interval;
+}
+
+int Update_Everything()
+{
+        // param = NULL;
         #ifdef DEBUG
         printf("In timer function\n");
         #endif
@@ -2179,7 +2189,7 @@ Uint32 timerfunc(Uint32 interval, void *param){
         }  // player is dead, we should end the mission
         else
            my_mission_status = MISSION_FAILED;
-        return interval;
+        return TRUE;
 }
 
 
@@ -3604,6 +3614,11 @@ int main(int argc, char **argv){
                    timer2 = SDL_GetTicks();
                 }
                 */
+                if (should_update_everything)
+                {
+                     should_update_everything = FALSE;
+                     Update_Everything();
+                }
                 if (my_mission_status == MISSION_SUCCESS)
                 {
                    printf("Mission completed successfully!\n");

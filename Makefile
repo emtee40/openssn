@@ -4,7 +4,7 @@ DATADIR = $(PREFIX)/share/games/openssn
 VERSION = 0.6
 
 all:
-	$(MAKE) VERSION=$(VERSION) PREFIX=\"$(PREFIX)\" -C src
+	$(MAKE) VERSION=$(VERSION) PREFIX=$(PREFIX) -C src
 
 clean:
 	rm -f src/*.o $(SSN)

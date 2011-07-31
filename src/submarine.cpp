@@ -1109,6 +1109,7 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
 int Submarine::Check_Status()
 {
    double range;
+   double delta_depth;
 
    // first see if we ran out of fuel
    fuel_remaining--;
@@ -1118,7 +1119,8 @@ int Submarine::Check_Status()
    if (target)
    {
       range = DistanceToTarget(target);
-      if (range < HITTING_RANGE)
+      delta_depth = fabs(target->Depth - Depth);
+      if ( (range < HITTING_RANGE) && (delta_depth < HITTING_DEPTH) )
          return HIT_TARGET;
    }
 
