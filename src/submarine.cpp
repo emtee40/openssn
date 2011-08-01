@@ -103,6 +103,7 @@ void Submarine::Init()
         mission_status = MISSION_NONE;
         mood = MOOD_PASSIVE;
         convoy_course_change = CONVOY_CHANGE_COURSE;
+        radio_message = RADIO_NONE;
 }
 
 
@@ -1092,8 +1093,27 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
        DesiredHeading = Heading + ( (rand() % 100) - 90);
        if (DesiredHeading >= 360)
          DesiredHeading = DesiredHeading % 360;
+       DesiredSpeed = MaxSpeed / 3;
      }
    }
+
+   // check for radio message
+   if ( (ShipType == TYPE_SHIP) && (radio_message) )
+   {
+       if ( (radio_message == RADIO_UNDER_ATTACK) && (mood == MOOD_CONVOY) )
+       {
+           if (TorpedosOnBoard)
+             mood = MOOD_ATTACK;
+           else
+           {
+             mood = MOOD_PASSIVE;
+             DesiredHeading = rand() % 360;
+           }
+           DesiredSpeed = MaxSpeed;
+       }
+   }
+   radio_message = RADIO_NONE;
+
    return all_torpedoes;
 }
 
@@ -1335,3 +1355,26 @@ int Submarine::Is_Distracted_By_Noisemaker(Submarine *noisemaker)
      #endif
      return FALSE;
 }
+
+
+
+// This function sends a radio signal to all other ships of the same
+// nationality.
+// Thefunction returns TRUE
+int Submarine::Radio_Signal(Submarine *all_ships, int my_signal)
+{
+   Submarine *current_ship;
+
+   current_ship = all_ships;
+   while (current_ship)
+   {
+       if ( (current_ship->Friend == Friend) &&
+            (current_ship->ShipType == TYPE_SHIP) )
+          current_ship->radio_message = my_signal;
+       
+       current_ship = current_ship->next;
+    }
+
+   return TRUE;
+}
+

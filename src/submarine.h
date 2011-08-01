@@ -116,6 +116,14 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 
 #define CONVOY_CHANGE_COURSE 1200
 
+// radio messages for surface ships
+#define RADIO_NONE 0
+#define RADIO_UNDER_ATTACK 1
+// maybe add impending attack, detected sub, reform convoy...
+
+
+
+
 /**
   *@author Michael Bridak
   */
@@ -175,6 +183,7 @@ public:
         int has_sonar;
         int mood;
         int convoy_course_change;
+        int radio_message;
         int torpedo_tube[MAX_TUBES];
         Submarine *next;     // also for torpedos, though could be used
                              // later for ships
@@ -217,6 +226,7 @@ public:
         Submarine *Have_Enemy_Target(Submarine *all_ships);
         Submarine *Launch_Noisemaker(Submarine *all_torpedoes, Submarine *chased_by);  // AI function
         int Is_Distracted_By_Noisemaker(Submarine *noisemaker);  // is this torpedo distracted?
+        int Radio_Signal(Submarine *all_ships, int my_signal);
 };
 
 #endif

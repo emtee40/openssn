@@ -1151,6 +1151,12 @@ void ShipHandeling(){
                // we should always have a target, but just in case...
                if (my_torp->target)
                {
+                  // radio warning to others
+                  if ( (my_torp->target->ShipType == TYPE_SHIP) &&
+                       (my_torp->target->mood == MOOD_CONVOY) )
+                  {
+                      my_torp->target->Radio_Signal(Subs, RADIO_UNDER_ATTACK);
+                  }
                   target_status = my_torp->target->Take_Damage();
                   if (target_status == DAMAGE_SINK)
                   {
