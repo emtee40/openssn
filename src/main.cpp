@@ -1486,8 +1486,8 @@ void Display_Target()
    float range;
    double bearing;
 
-   if (! current_target)
-      return;
+   // if (! current_target)
+   //   return;
 
    // make empty box to the side of the screen
    rectangle.x = 120;
@@ -1495,7 +1495,9 @@ void Display_Target()
    rectangle.w = 200;
    rectangle.h = 160;
    SDL_FillRect(screen, &rectangle, black);
- 
+
+   if (current_target)
+   { 
    // fill in data
    sprintf(buffer, "   Target");
    fnt.PutString(screen, 150, 400, buffer);
@@ -1520,7 +1522,7 @@ void Display_Target()
 
    sprintf(buffer, "Type: %s", current_target->ClassName );
    fnt.PutString(screen, 140, 484, buffer);
-
+   }   // end of valid target
    SDL_UpdateRects(screen, 1, &rectangle); 
 }
 

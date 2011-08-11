@@ -470,6 +470,9 @@ void Submarine::Cancel_Target(Submarine *old_sub)
          else   // first item in the list
            targets = (Target *) my_target->next;
 
+         my_target->next = NULL;
+         if (my_target == last_target)
+            last_target = NULL;
          free(my_target);
          found = TRUE;
        }
@@ -726,6 +729,20 @@ int Submarine::Can_Hear(Submarine *target)
         float value;
         float SeaState = 3.0; // Anyone want to model the weather.
         float minimum_sound = -45.0;
+
+        // sanity check
+        if (! target)
+           return FALSE;
+
+        /* There is a special case here. If the listener is a surface
+           ship then they have radar. Thus the listener can always
+           detect anything on or above the surface.
+        */
+        if (ShipType == TYPE_SHIP)
+        {
+           if (target->Depth <= 0)
+              return TRUE;
+        }
 
         if (ShipType == TYPE_TORPEDO)
             minimum_sound *= 2.5;
