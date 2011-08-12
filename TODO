@@ -1,10 +1,7 @@
-Fix X11 resource unavailable crash 
 Make Stack more flexible, it's a fixed-length array.
 
 AI stuff
-  Convoy ships should scatter when an attack begins
-  There should be different types of AI (convoy, passive and aggressive)
-  Warships should hunt enemies.
+  Warships should hunt enemies. And origins of torpedoes
 
 Add sounds
 

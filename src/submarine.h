@@ -119,6 +119,7 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 // radio messages for surface ships
 #define RADIO_NONE 0
 #define RADIO_UNDER_ATTACK 1
+#define RADIO_HEAR_TORPEDO 2
 // maybe add impending attack, detected sub, reform convoy...
 
 

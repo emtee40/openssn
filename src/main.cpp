@@ -1894,7 +1894,16 @@ void SoundEnvironment(){
                         printf("Heard you, adding to list.\n");
                         #endif
 				bearing = (int)Subs->BearingToTarget(target);  //Change me to float for better tma
-				Subs->RegisterEvent(bearing,signal,target->ShipType);
+                                // this weird check prevents us from
+                                // erasing sonar data with radar/esm data
+                                if ( (signal == 1.0) || (signal == 2.0) )
+                                {
+                                    float temp_signal;
+                                    temp_signal = Sonar_Detection_New(Range, Subs, target);
+				    Subs->RegisterEvent(bearing,temp_signal,target->ShipType);
+                                }
+                                else
+                                   Subs->RegisterEvent(bearing, signal, target->ShipType);
                                 // printf("Adding target %d to list.\n", target);
                                 Subs->Add_Target(target, signal);
 			}

@@ -1019,6 +1019,16 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
                if (! status)
                   return all_torpedoes;
            }
+           // we hear a torpedo but it is not coming after us
+           else if ( (can_hear_torpedo) && (TorpedosOnBoard) )
+           {
+                if (ShipType == TYPE_SHIP)
+                    mood = MOOD_ATTACK;
+           }
+          
+           if ( (can_hear_torpedo) && (ShipType == TYPE_SHIP) )
+              Radio_Signal(all_ships, RADIO_HEAR_TORPEDO);
+
            }   // end of this is a torpedo
            torpedo = torpedo->next;
         }
@@ -1032,9 +1042,14 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
       if (target) printf("Found enemy.\n");
       #endif
       int count = Count_Torpedoes(all_torpedoes);
-      if ( (target) && (TorpedosOnBoard > 0) && 
-           (count < MAX_TORPEDOES_FIRED) )
+      if ( (target) && (TorpedosOnBoard > 0) ) 
+           // (count < MAX_TORPEDOES_FIRED) )
       {
+          int target_range = DistanceToTarget(target);
+
+          if ( (count < MAX_TORPEDOES_FIRED) && 
+               (target_range < MAX_TORPEDO_RANGE) )
+          {
           #ifdef AIDEBUG
           printf("Firing with %d torpedoes.\n", count);
           #endif
@@ -1080,8 +1095,18 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
               printf("I have %d torpedoes left.\n", TorpedosOnBoard);
               #endif
               return all_torpedoes;
+          }   // torpedo firing was successful
+          }   // can fire torpedo at target in range
+        
+          else if (mood == MOOD_ATTACK)   // we hear an enemy, but can't fire yet
+          {
+             DesiredHeading = BearingToTarget(target); 
+             DesiredSpeed = (MaxSpeed / 2) + (rand() % 5) - 2;
+             if (ShipType == TYPE_SUB)
+                DesiredDepth = target->Depth;
           }
       }
+      
 
       // if we got this far we cannot hear a torpedo coming at us
       if (Speed == MaxSpeed)
@@ -1128,16 +1153,23 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
            }
            DesiredSpeed = MaxSpeed;
        }
+       else if ( (radio_message == RADIO_HEAR_TORPEDO) && (mood == MOOD_CONVOY) )
+       {
+           if (TorpedosOnBoard)
+              mood = MOOD_ATTACK;
+           else
+              mood = MOOD_PASSIVE;
+       }
    }
    radio_message = RADIO_NONE;
 
    return all_torpedoes;
-}
+}  // end of Sub_AI
 
 
 
 
-// Thisfunction checks on our torpedo to see how it
+// This function checks on our torpedo to see how it
 // is doing. If it has hit its target, we return HIT_TARGET.
 // If we run out of fuel, we return OUT_OF_FUEL. Otherwise
 // we return STATUS_OK.
@@ -1377,7 +1409,7 @@ int Submarine::Is_Distracted_By_Noisemaker(Submarine *noisemaker)
 
 // This function sends a radio signal to all other ships of the same
 // nationality.
-// Thefunction returns TRUE
+// The function returns TRUE
 int Submarine::Radio_Signal(Submarine *all_ships, int my_signal)
 {
    Submarine *current_ship;

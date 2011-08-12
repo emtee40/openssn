@@ -1,3 +1,34 @@
+  - Sonar display is no longer erased by ESM or radar data.
+
+  - Ships with sonar now warn other ships about torpedoes in
+    the water.
+
+  - Game should remain stable if a torpedo we are tracking
+    explodes or runs out of fuel.
+
+  - Surface ships with radar should be able to detect anything on
+    or above the surface.
+
+  - Ships running from torpedoes will now eventually change course
+    and slow down if no more torpedoes are detected.
+
+  - Ships in a convoy now react when one of them is hit.
+    Merchants scatter.
+
+  - Moved update functions out of timer function to avoid
+    overlap if too much is going on. Instead timer function now
+    sets a flag to let us know we should update.
+    This should fix the X11 crashes.
+
+  - Torpedoes must be at the proper depth to strike a target.
+
+  - Game now properly reports torpedoes and noisemakers
+    running out of fuel.
+
+============ openssn-0.6 released July 5, 2011 ==========
+
+  - Fixed Makefile path error.
+
   - Noisemakers run in straight line at full speed.
     They used to circle slowly.
 
