@@ -117,6 +117,7 @@ $Id: main.h,v 1.11 2003/07/18 03:50:00 mbridak Exp $
 #define		WHICHTUBE 70
 #define		USE_TUBE 71
 #define		CUTARRAY 72
+#define         SEND_PING 73
 
 //globals
 

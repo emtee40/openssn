@@ -22,7 +22,7 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 #include <stdio.h>
 #include "coord.h"
 #include "stack.h"
-
+#include "towedarray.h"
 
 #ifndef TRUE
 #define TRUE 1
@@ -45,6 +45,8 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 
 #define CONTACT_SOLID 100
 #define CONTACT_WEAK 25
+#define CONTACT_PING 5
+#define PING_NOISE 200
 
 #define CLASS_NAME_SIZE 32
 #define CLASS_LOSANGELES 1
@@ -186,6 +188,8 @@ public:
         int convoy_course_change;
         int radio_message;
         int torpedo_tube[MAX_TUBES];
+        int pinging;       // are we using active sonar?
+
         Submarine *next;     // also for torpedos, though could be used
                              // later for ships
         Submarine *target;   // for torpedoes
@@ -228,6 +232,8 @@ public:
         Submarine *Launch_Noisemaker(Submarine *all_torpedoes, Submarine *chased_by);  // AI function
         int Is_Distracted_By_Noisemaker(Submarine *noisemaker);  // is this torpedo distracted?
         int Radio_Signal(Submarine *all_ships, int my_signal);
+        int Send_Ping(Submarine *all_ships);
+        int InBaffles(Submarine *target, int sensor, TowedArray *TB16);
 };
 
 #endif

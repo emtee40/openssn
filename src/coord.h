@@ -19,6 +19,8 @@ $Id: coord.h,v 1.5 2003/04/14 05:51:03 mbridak Exp $
 #ifndef COORD_H
 #define COORD_H
 
+#define MAP_MIN 0
+#define MAP_MAX 300000
 
 /**
   *@author Michael Bridak

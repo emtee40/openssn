@@ -38,9 +38,9 @@ void Coord::UpdateLatLon()
 	}
 	if ((Heading < 270) && (Heading > 90)){
 		Lon_TotalYards = Lon_TotalYards - amountofchange;
-		if (Lon_TotalYards < 0){
-			Lon_TotalYards = 0;
-		}
+		// if (Lon_TotalYards < 0){
+		//	Lon_TotalYards = 0;
+		// }
 	}
 	amountofchange = (Speed * 0.555) * LatitudePercent;
 	if ((Heading <= 359) && (Heading > 180)){
@@ -48,10 +48,36 @@ void Coord::UpdateLatLon()
 	}
 	if ((Heading > 0) && (Heading < 180)){
 		Lat_TotalYards = Lat_TotalYards - amountofchange;
-		if (Lat_TotalYards < 0){
-			Lat_TotalYards = 0;
-		}
+		// if (Lat_TotalYards < 0){
+		//	Lat_TotalYards = 0;
+		// }
 	}
+
+        // Important, we need to keep the ships on the map.
+        // The map is in the upp-erleft corner of the quad so
+        // higher numbers are up and to the left.
+        if (Lon_TotalYards < MAP_MIN)
+        {
+            Lon_TotalYards = MAP_MIN;
+            Heading = 0;
+        }
+        else if (Lon_TotalYards > MAP_MAX)
+        {
+             Lon_TotalYards = MAP_MAX;
+             Heading = 180;
+        }
+        if (Lat_TotalYards < MAP_MIN)
+        {
+            Lat_TotalYards = MAP_MIN;
+            Heading = 270;
+        }
+        else if (Lat_TotalYards > MAP_MAX)
+        {
+            Lat_TotalYards = MAP_MAX;
+            Heading = 90;
+        }
+ 
+        
 /*
 	Lon_Degrees = (int)Lon_TotalYards / 120000;
 	Lon_Minutes = ((int)Lon_TotalYards - (Lon_Degrees *120000)) / 2000;

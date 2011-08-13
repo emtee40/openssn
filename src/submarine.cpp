@@ -104,6 +104,7 @@ void Submarine::Init()
         mood = MOOD_PASSIVE;
         convoy_course_change = CONVOY_CHANGE_COURSE;
         radio_message = RADIO_NONE;
+        pinging = FALSE;
 }
 
 
@@ -117,6 +118,8 @@ float Submarine::RadiatedNoise(){
 
 	CheckForCavitation();
 	value = PSCS + (unit * CavitationFlag) + (((CheckNegSpeed(Speed)>4.9)*multiplier) * CheckNegSpeed(Speed));
+        if (pinging)
+          value += PING_NOISE;
 	return value;
 }
 
@@ -268,8 +271,9 @@ float Submarine::DEAngle(Submarine *Target){
 
 void Submarine::Handeling(){
 
-	//This is where we change the ships characteristics based on the desired variables
-	//First we'll do depth
+	// This is where we change the ships characteristics 
+        // based on the desired variables
+	// First we'll do depth
 
 	float UpBubble; //The greater the amount the faster the change.
 	float DownBubble;
@@ -369,6 +373,7 @@ void Submarine::Handeling(){
 		Speed -= 0.45;
 		if (Speed < DesiredSpeed) Speed=DesiredSpeed; // Did we slow too much?
 	}
+
 }
 
 
@@ -384,6 +389,8 @@ int Submarine::Add_Target(Submarine *new_sub, float signal_strength)
    if (signal_strength == 2.0)
       add_contact = CONTACT_SOLID;
    else if (signal_strength == 1.0)
+      add_contact = CONTACT_WEAK;
+   else if (signal_strength == CONTACT_PING)
       add_contact = CONTACT_WEAK;
    else
       add_contact = 1;
@@ -402,8 +409,15 @@ int Submarine::Add_Target(Submarine *new_sub, float signal_strength)
    }   // end of looking for existing target
 
    if (found)
-   {
-      my_target->contact_strength += add_contact;   
+   { 
+      if ( (signal_strength == CONTACT_PING) && 
+           (my_target->contact_strength < CONTACT_WEAK) )
+         my_target->contact_strength = CONTACT_WEAK + 2;
+      else if (signal_strength == CONTACT_PING)
+         my_target->contact_strength = my_target->contact_strength;
+      else
+         my_target->contact_strength += add_contact;
+ 
       if (my_target->contact_strength > CONTACT_SOLID)
          my_target->contact_strength = CONTACT_SOLID;
       return TRUE;
@@ -1425,5 +1439,92 @@ int Submarine::Radio_Signal(Submarine *all_ships, int my_signal)
     }
 
    return TRUE;
+}
+
+
+// This function sends out a ping signal. We should then be
+// able to "see" any ships/subs in front of us.
+// This function does not detect aircraft (for obvious reasons)
+// and sets "pinging" to true, which means we will be very
+// noisy for a while.
+int Submarine::Send_Ping(Submarine *all_ships)
+{
+   Submarine *current;
+   int status;
+
+   // some craft do not have sonar
+   if (! has_sonar)
+      return FALSE;
+
+   pinging = 2;
+   current = all_ships;
+   while (current)
+   {
+       if (current != this)
+       {
+          status = ! ( InBaffles(current, 1, NULL) );
+          if (status)
+          {
+             // got return signal from ping
+             Add_Target(current, CONTACT_PING);
+             
+          }
+       }
+       current = current->next;
+   }   
+
+   return TRUE;
+}
+
+
+
+/*********************************************
+        This function will return if a target is in
+        the observers Baffles and therefore not
+        detectable. Values for 'int sensor' are 1 for
+        spherical array, 2 for towed array, 3 for port
+        hull array and 4 for starboard hull array.
+
+        Might want to move the calculations of the
+        baffle angles to the Coord class so they don't
+        have to be calculated all the time.
+*********************************************/
+int Submarine::InBaffles(Submarine *target, int sensor, TowedArray *TB16)
+{
+        int array_heading;
+        int relative_bearing;
+        int sensordeaf=1;
+        int bearing_to_target;
+
+        switch(sensor){
+                case 1: //Spherical
+                        sensordeaf = 0;
+                        array_heading = (int)Heading;
+                        bearing_to_target = (int)BearingToTarget( target);
+                        if(array_heading > bearing_to_target) bearing_to_target += 360;
+                        relative_bearing = bearing_to_target - array_heading;
+                        if(relative_bearing > 150 && relative_bearing < 210) sensordeaf = 1;
+                        if (target == this) sensordeaf = 1;
+                        break;
+                case 2: //Towed
+                        if (! TB16)
+                           sensordeaf = TRUE;
+                        else
+                        {
+                          sensordeaf = 0;
+                          array_heading = (int)TB16->ReturnHeading();
+                          bearing_to_target = (int)TB16->BearingToTarget(target->Lat_TotalYards, target->Lon_TotalYards);
+                          if(array_heading > bearing_to_target) bearing_to_target += 360;
+                          relative_bearing = bearing_to_target - array_heading;
+                          if(relative_bearing < 30 || relative_bearing > 330) sensordeaf = 1;
+                        }
+                        break;
+
+                case 3: //port hull
+                case 4: //sb hull
+                default:
+                        break;
+        }
+        return sensordeaf;
 }
 

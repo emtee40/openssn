@@ -49,6 +49,7 @@ $Id: main.cpp,v 1.28 2003/07/18 03:50:00 mbridak Exp $
 #include "esm.h"
 #include "control.h"
 #include "main.h"
+#include "sound.h"
 #include <fstream>
 #include <cstdlib>
 #include <iomanip>
@@ -57,10 +58,8 @@ using namespace std;
 //#######GRAPHIC PRIMITIVES#############
 void SetupScreen(bool full_screen){
 	//Initialize the screen and some default colors
-	//string name = "LinuxSSN 0.0pre_alpha.2.8";
 
-
-	if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER) < 0 ) {
+	if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO) < 0 ) {
 		cerr << "Couldn't initialize SDL: " << SDL_GetError() << endl;
 		exit(1);
 	}
@@ -95,6 +94,7 @@ void SetupScreen(bool full_screen){
         dark_grey = SDL_MapRGB(screen->format, 100, 100, 100);
 	// mapcolor = SDL_MapRGB(screen->format, 130, 201, 225);
         mapcolor = SDL_MapRGB(screen->format, 10, 10, 100);
+        Init_Audio();
 }
 
 void MapIcon(int x, int y, int ShipType, int Friend, Uint32 color){
@@ -196,220 +196,6 @@ void DirectionalPointer(int x, int y, int heading, int speed,Uint32 color){
 	destinationy = (-1) * (cos(var1) * speed) + y; 
 	DrawLine(screen, x, y, (int)destinationx, (int)destinationy, color);
 }
-
-/*
-inline void DrawPixel(SDL_Surface *screen, int x, int y, Uint32 color){
-	//this only works for 16bpp screens
-	//are we outside the screen?????
-	//If we are bail out now before it's too late!
-
-	if (x > 1023 || x < 0 || y > 759 || y < 0) {
-		return;
-	}
-
-	//place the pixel on the screen
-	Uint16 *pixel_location;
-	pixel_location = (Uint16 *)screen->pixels + y*screen->pitch/2 + x;
-	*pixel_location = color;
-}
-
-void DrawLine(SDL_Surface *screen, int X1, int Y1, int X2, int Y2, Uint32 Color){
-
-//don't even ask me about this stuff All I know is it works
-//and thats ALL I care about...
-
-	int dx,dy,sdx,sdy,py,px,x,y;
-	dx = X2 - X1;
-	dy = Y2 - Y1;
-	if (dx < 0) sdx = -1;
-	else sdx = 1;
-	if (dy < 0) sdy = -1;
-	else sdy = 1;
-	dx = sdx * dx + 1;
-	dy = sdy * dy + 1;
-	x = 0;
-	y = 0;
-	px = X1;
-	py = Y1;
-	if (dx >= dy){
-		for (int x = 0; x < dx; x++){
-			DrawPixel(screen, px, py, Color);
-			y = y + dy;
-			if (y >= dx){
-				y = y - dx;
-				py = py + sdy;
-			}
-			px = px + sdx;
-		}
-	}else{
-		for (int y = 0; y < dy; y++){
-			DrawPixel(screen, px, py, Color);
-			x = x + dx;
-			if (x >= dy){
-				x = x - dy;
-				px = px + sdx;
-			}
-			py = py + sdy;
-		}
-	}
-}
-
-
-void DrawArc(SDL_Surface *screen, int X1, int Y1, int Radius, int Theta1, int Theta2, Uint32 Color){
-
-//Draw an arc  at (X1,Y1) of a given radius from theta1 to theta2 using specified Color.
-	int x, y, xc, yc, radius;
-	int theta, theta1, theta2;
-	xc = X1;
-	yc = Y1;
-	radius = Radius;
-	theta1 = Theta1;
-	theta2 = Theta2;
-
-	for(theta=theta1;theta<=theta2;theta+=5) {
-	  x = xc + int(radius*cos(theta*3.14/180.0));
-	  y = yc - int(radius*sin(theta*3.14/180.0));
-	  DrawPixel(screen, x, y, Color);
-	}
-}
-
-void DrawCircle(SDL_Surface *screen, int X1, int Y1, int Radius, Uint32 Color){
-
-//Draw a circle  at (X1,Y1) of a given radius using specified Color.
-	int xc, yc, radius;
-	xc = X1;
-	yc = Y1;
-	radius = Radius;
-	DrawArc(screen, xc, yc, radius, 0, 360, Color);
-}
-
-void DrawDiamond(SDL_Surface *screen, int X1, int Y1, int Size, char Direction, Uint32 Color){
-
-  //Draw a diamond  at (X1,Y1) of Size using specified Color.
-  // Direction: T = Top, B = Bottom, F = Full
-	int xc, yc;
-	int size;
-	char direction;
-	xc = X1;
-	yc = Y1;
-	size = Size;
-	direction = Direction;
-
-	switch(direction){
-
-	case 'B':
-	  DrawLine(screen, xc-size, yc, xc, yc+size, Color); //bottomleft
-	  DrawLine(screen, xc+size, yc, xc, yc+size, Color); //bottomright
-	  break;
-
-	case 'T':
-	  DrawLine(screen, xc, yc-size, xc-size, yc, Color); //topleft
-	  DrawLine(screen, xc, yc-size, xc+size, yc, Color); //topright
-	  break;
-
-	default:
-	DrawLine(screen, xc-size, yc, xc, yc+size, Color); //bottomleft
-	DrawLine(screen, xc+size, yc, xc, yc+size, Color); //bottomright
-	DrawLine(screen, xc, yc-size, xc-size, yc, Color); //topleft
-	DrawLine(screen, xc, yc-size, xc+size, yc, Color); //topright
-	}
-}
-
-void DrawBox(SDL_Surface *screen, int X1, int Y1, int Size, char Direction, Uint32 Color){
-
-  //Draw a Box  at (X1,Y1) of Size using specified Color.
-  // Direction: T = Top, B = Bottom, F = Full
-	int xc, yc;
-	int size;
-	char direction;
-	xc = X1;
-	yc = Y1;
-	size = Size;
-	direction = Direction;
-
-	switch(direction){
-
-	case 'T':
-	  DrawLine(screen, xc-size, yc-size, xc-size, yc, Color);
-	  DrawLine(screen, xc-size, yc-size, xc+size, yc-size, Color);
-	  DrawLine(screen, xc+size, yc-size, xc+size, yc, Color);
-	  break;
-
-	case 'B':
-	  DrawLine(screen, xc-size, yc, xc-size, yc+size, Color);
-	  DrawLine(screen, xc-size, yc+size, xc+size, yc+size, Color);
-	  DrawLine(screen, xc+size, yc, xc+size, yc+size, Color);
-	  break;
-
-	default:
-	DrawLine(screen, xc-size, yc-size, xc+size, yc-size, Color);
-	DrawLine(screen, xc+size, yc-size, xc+size, yc+size, Color);
-	DrawLine(screen, xc-size, yc-size, xc-size, yc+size, Color);
-	DrawLine(screen, xc-size, yc+size, xc+size, yc+size, Color);
-	}
-}
-
-
-void DrawRectangle(SDL_Surface *screen, int x1, int y1, int x2, int y2, Uint32 color)
-{
-   DrawLine(screen, x1, y1, x1, y2, color);
-   DrawLine(screen, x1, y1, x2, y1, color);
-   DrawLine(screen, x1, y2, x2, y2, color);
-   DrawLine(screen, x2, y1, x2, y2, color);
-}
-
-
- 
-void DrawCross(SDL_Surface *screen, int X1, int Y1, int Size, char Direction, Uint32 Color){
-
-  //Draw a Cross  at (X1,Y1) of Size using specified Color.
-  // Direction: T = Top, B = Bottom, F = Full
-	int xc, yc;
-	int size;
-	char direction;
-	xc = X1;
-	yc = Y1;
-	size = Size;
-	direction = Direction;
-
-	switch(direction){
-
-	case 'T':
-	  DrawLine(screen, xc-size, yc-size/2, xc-size, yc, Color);
-	  DrawLine(screen, xc+size, yc-size/2, xc+size, yc, Color);
-	  DrawLine(screen, xc-size/2, yc-size, xc+size/2, yc-size, Color);
-	  DrawLine(screen, xc-size/2, yc-size, xc-size/2, yc-size/2, Color);
-	  DrawLine(screen, xc+size/2, yc-size, xc+size/2, yc-size/2, Color);
-	  DrawLine(screen, xc+size/2, yc-size/2, xc+size, yc-size/2, Color);
-	  DrawLine(screen, xc-size, yc-size/2, xc-size/2, yc-size/2, Color);
-	  break;
-
-	case 'B':
-	  DrawLine(screen, xc-size, yc, xc-size, yc+size/2, Color);
-	  DrawLine(screen, xc+size, yc, xc+size, yc+size/2, Color);
-	  DrawLine(screen, xc-size/2, yc+size, xc+size/2, yc+size, Color);
-	  DrawLine(screen, xc-size/2, yc+size/2, xc-size/2, yc+size, Color);
-	  DrawLine(screen, xc+size/2, yc+size/2, xc+size/2, yc+size, Color);
-	  DrawLine(screen, xc-size, yc+size/2, xc-size/2, yc+size/2, Color);
-	  DrawLine(screen, xc+size/2, yc+size/2, xc+size, yc+size/2, Color);
-	  break;
-
-	default:
-	  DrawLine(screen, xc-size, yc-size/2, xc-size, yc+size/2, Color);
-	  DrawLine(screen, xc+size, yc-size/2, xc+size, yc+size/2, Color);
-	  DrawLine(screen, xc-size/2, yc-size, xc+size/2, yc-size, Color);
-	  DrawLine(screen, xc-size/2, yc+size, xc+size/2, yc+size, Color);
-	  DrawLine(screen, xc-size/2, yc-size, xc-size/2, yc-size/2, Color);
-	  DrawLine(screen, xc-size/2, yc+size/2, xc-size/2, yc+size, Color);
-	  DrawLine(screen, xc+size/2, yc-size, xc+size/2, yc-size/2, Color);
-	  DrawLine(screen, xc+size/2, yc+size/2, xc+size/2, yc+size, Color);
-	  DrawLine(screen, xc-size, yc+size/2, xc-size/2, yc+size/2, Color);
-	  DrawLine(screen, xc+size/2, yc-size/2, xc+size, yc-size/2, Color);
-	  DrawLine(screen, xc-size, yc-size/2, xc-size/2, yc-size/2, Color);
-	  DrawLine(screen, xc+size/2, yc+size/2, xc+size, yc+size/2, Color);
-	}
-}
-*/
 
 void LoadScreen(int item){
 	//Loads a PN file into an SDL surface then
@@ -1108,6 +894,10 @@ void ShipHandeling(){
                    torpedoes = ship->Sub_AI(Subs, torpedoes);
                 }
 		ship->Handeling();	//Steer, Change Depth etc...
+
+                // we were pinging, but it fades quickly
+                if (ship->pinging > 0)
+                   ship->pinging--;
                 ship = ship->next;
 	}
 	for (int x = 0; x < MAX_SUBS; x++){
@@ -1885,7 +1675,7 @@ void SoundEnvironment(){
           #ifdef DEBUG
           printf("Checking if we can hear other ships.\n");
           #endif
-		if (!InBaffles(Subs, target, 1)){ //I'm not deaf?
+		if (! player->InBaffles(target, 1, &TB16)){ //I'm not deaf?
 			Range = CalculateRange(target, Subs);
 			float signal;
 			signal = Any_Detection(Range, Subs, target);
@@ -1912,7 +1702,7 @@ void SoundEnvironment(){
                           Subs->Remove_Target(target);
                         }
 		}
-		if (!InBaffles(Subs, target, 2) && TB16.GetLength() >240){ // do the same for towed array
+		else if (! player->InBaffles(target, 2, &TB16) && TB16.GetLength() >240){ // do the same for towed array
 			Range = TB16.RangeToTarget(target->Lat_TotalYards, target->Lon_TotalYards);
 			float signal;
 			// signal = Sonar_Detection(Range, 0, target);
@@ -1928,6 +1718,9 @@ void SoundEnvironment(){
                           Subs->Remove_Target(target);
                         }
 		}
+                else   // can't hear target with either sonar device
+                  Subs->Remove_Target(target);
+
             target = target->next;
             if ( (!target) && (! line) )
             {
@@ -1937,7 +1730,6 @@ void SoundEnvironment(){
 	}
 }
 
-int InBaffles(Submarine *observer, Submarine *target, int sensor){
 /*********************************************
 	This function will return if a target is in
 	the observers Baffles and therefore not
@@ -1949,6 +1741,11 @@ int InBaffles(Submarine *observer, Submarine *target, int sensor){
 	baffle angles to the Coord class so they don't
 	have to be calculated all the time.
 *********************************************/
+/*
+Moving InBaffles to the Submarine class to keep things cleaner.
+-- Jesse
+
+int InBaffles(Submarine *observer, Submarine *target, int sensor){
 	int array_heading;
 	int relative_bearing;
 	int sensordeaf=1;
@@ -1979,6 +1776,7 @@ int InBaffles(Submarine *observer, Submarine *target, int sensor){
 	}
 	return sensordeaf;
 }
+*/
 
 
 void DisplayTMA(int xoffset,int yoffset){
@@ -2826,7 +2624,8 @@ int HandleInput(SDL_Event &event, int &mousex, int &mousey){
                                 case SDLK_6:
                                          tube_to_use = 5;
                                          return USE_TUBE;
-
+                                case SDLK_g:
+                                        return SEND_PING;
 				default:	
 					return 0;
 					break;
@@ -3536,6 +3335,11 @@ int main(int argc, char **argv){
 					ControlStation.ToggleBEMER();
 					ControlStation.DisplayWidgets();
 					break;
+                                case SEND_PING:
+                                        player->Send_Ping(Subs);
+                                        Message.post_message("Sending active ping, sir.");
+                                        Message.display_message();
+                                        break;
                                 case USE_TUBE:
                                         // check to see if we already have too
                                         // many items out there
@@ -3671,6 +3475,7 @@ int main(int argc, char **argv){
         #ifdef DEBUG
         printf("Killing SDL\n");
         #endif
+        Clean_Up_Audio();
 	SDL_Quit();
         return 0;   // just to make the compiler happy
 }

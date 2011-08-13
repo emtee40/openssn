@@ -1,3 +1,10 @@
+  - Added active sonar for player.
+
+  - Ships and subs should now remain within the map boarders.
+
+  - Sonar contacts now get stronger/weaker properly. Moved InBaffles
+    check to the Submarine class to make it modular.
+
   - Sonar display is no longer erased by ESM or radar data.
 
   - Ships with sonar now warn other ships about torpedoes in
