@@ -991,6 +991,7 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
    int bearing;
    Submarine *target, *my_torpedoes;
    int status, found;
+   int action = 0;     // 1 = running, 2 = chasing
 
    // most important thing we can do is run away from torpedoes
    if (has_sonar)
@@ -1001,7 +1002,8 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
        // go through all torpedoes and see if any of them
        // chasing us
        torpedo = all_torpedoes;
-       while (torpedo) 
+       status = FALSE;   // make sure we only run away form one torpedo
+       while ( (torpedo) && (! status) )
        {
            if (torpedo->ShipType == TYPE_TORPEDO) 
            {
@@ -1012,7 +1014,7 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
            if ( (can_hear_torpedo) && (torpedo->target == this) &&
                 (distance < (MAX_TORPEDO_RANGE * MILES_TO_YARDS) ) )
            {
-               status = (DesiredSpeed == MaxSpeed);
+               // status = (DesiredSpeed == MaxSpeed);
                all_torpedoes = Launch_Noisemaker(all_torpedoes, torpedo);
                bearing = (int) BearingToTarget(torpedo);
                bearing += 180;
@@ -1030,8 +1032,10 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
                }
                if (mood == MOOD_CONVOY)
                   mood = MOOD_PASSIVE;
-               if (! status)
-                  return all_torpedoes;
+               // if (! status)
+               //   return all_torpedoes;
+               action = 1;  // running
+               status = TRUE;
            }
            // we hear a torpedo but it is not coming after us
            else if ( (can_hear_torpedo) && (TorpedosOnBoard) )
@@ -1060,9 +1064,12 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
            // (count < MAX_TORPEDOES_FIRED) )
       {
           int target_range = DistanceToTarget(target);
-
+          target_range *= YARDS_TO_MILES;
+          #ifdef AIDEBUG
+          printf("Checking range %d\n", target_range);
+          #endif
           if ( (count < MAX_TORPEDOES_FIRED) && 
-               (target_range < MAX_TORPEDO_RANGE) )
+               (target_range < (MAX_TORPEDO_RANGE / 3)) )
           {
           #ifdef AIDEBUG
           printf("Firing with %d torpedoes.\n", count);
@@ -1118,12 +1125,13 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
              DesiredSpeed = (MaxSpeed / 2) + (rand() % 5) - 2;
              if (ShipType == TYPE_SUB)
                 DesiredDepth = target->Depth;
+             action = 2;
           }
       }
       
 
       // if we got this far we cannot hear a torpedo coming at us
-      if (Speed == MaxSpeed)
+      if ( (Speed == MaxSpeed) && (! action) )
          DesiredSpeed = MaxSpeed / 3;
    }
 

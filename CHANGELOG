@@ -1,3 +1,11 @@
+  - Added click button for active sonar.
+
+  - Torpedo room buttons looks more torpedo-like.
+
+  - Ships will run from torpedoes, even if they are chasing/attacking.
+
+  - Ships now fire torpedoes at ships they are chasing.
+
   - Added active sonar for player.
 
   - Ships and subs should now remain within the map boarders.

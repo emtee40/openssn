@@ -855,7 +855,18 @@ void AnBqq5::LoadWidgets(){
            cerr << "Error loading cutarray.png in LoadWidgets()" << endl
                 << SDL_GetError() << endl;
                 SDL_Quit();
-                exit(9);
+                exit(0);
+        }
+
+        temp = Load_Image("images/ping_button.png");
+        if (temp != NULL)
+            sendping = SDL_DisplayFormat(temp);
+        if (! sendping)
+        {
+           cerr << "Error loading ping_button.png in LoadWidgets()" << endl
+                << SDL_GetError() << endl;
+                SDL_Quit();
+                exit(0);
         }
 
 	temp = Load_Image("images/assigntrackeroff.png");
@@ -997,6 +1008,13 @@ void AnBqq5::DisplaySonarWidgets(){
                 destination_rectangle.h = cutarray->h;
                 destination_rectangle.w = cutarray->w;
                 SDL_BlitSurface(cutarray, NULL, screen, &destination_rectangle);
+                SDL_UpdateRects(screen, 1, &destination_rectangle);
+
+                destination_rectangle.x = 472;
+                destination_rectangle.y = 590;
+                destination_rectangle.h = sendping->h;
+                destination_rectangle.w = sendping->w;
+                SDL_BlitSurface(sendping, NULL, screen, &destination_rectangle);
                 SDL_UpdateRects(screen, 1, &destination_rectangle);
 
 		destination_rectangle.x = 567;

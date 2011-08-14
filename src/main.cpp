@@ -2437,6 +2437,11 @@ int HandleInput(SDL_Event &event, int &mousex, int &mousey){
 						break;
 					}
 				}
+                                if (mousex > 472 && mousex < 520)
+                                {
+                                    if (mousey > 590 && mousey < 638)
+                                       return SEND_PING;
+                                }
                                 if(mousex > 520 && mousex < 567)
                                 {
                                     if (mousey > 590 && mousey < 638)
