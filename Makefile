@@ -17,10 +17,12 @@ install: all
 	mkdir -p $(DATADIR)/data
 	mkdir -p $(DATADIR)/images
 	mkdir -p $(DATADIR)/ships
+	mkdir -p $(DATADIR)/sounds
 	cp $(SSN) $(PREFIX)/bin/
 	cp images/* $(DATADIR)/images
 	cp data/* $(DATADIR)/data
 	cp ships/* $(DATADIR)/ships
+	cp sounds/* $(DATADIR)/sounds
 
 deinstall:
 	rm -rf $(PREFIX)/bin/$(SSN)

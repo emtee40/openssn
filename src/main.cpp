@@ -94,7 +94,7 @@ void SetupScreen(bool full_screen){
         dark_grey = SDL_MapRGB(screen->format, 100, 100, 100);
 	// mapcolor = SDL_MapRGB(screen->format, 130, 201, 225);
         mapcolor = SDL_MapRGB(screen->format, 10, 10, 100);
-        Init_Audio();
+        // Init_Audio();
 }
 
 void MapIcon(int x, int y, int ShipType, int Friend, Uint32 color){
@@ -2660,6 +2660,7 @@ int main(int argc, char **argv){
 	char file3[] = "images/largefont.png";
 	char file4[] = "data/largefont.dat";
         int mission_number = 0;
+        int enable_sound = FALSE;
 	SDL_Event event; //a typedef to hold events
 	drawsonar = 0; // draw the sonar flag
 	drawmap = 1; // draw the map flag
@@ -2674,7 +2675,7 @@ int main(int argc, char **argv){
 	srand(time(NULL)); //Seed the random generator
 
 	//Process commandline options.
-	sprintf(text,"m:vwfkh");
+	sprintf(text,"m:vwfkhs");
 	while ((option_choice = getopt(argc, argv, text)) != -1){
 		switch (option_choice){
                         case 'm':
@@ -2697,11 +2698,15 @@ int main(int argc, char **argv){
 				cout << "Usage:" << endl
                                 << "-m <mission> select specific mission." << endl
                                 << "-f For full screen mode." << endl
+                                << "-s Enable sound effects." << endl
 				<< "-w For Windowed Mode." << endl
                                 << "-v For version." << endl
 				<< "-h For this message." << endl;
 				return 0;
 				break;
+                        case 's':
+                                enable_sound = TRUE;
+                                break;
 			default:
 				cout << "Unknown command-line argument" << endl
 				<< "Please use -h for a list of commands." << endl;
@@ -2709,6 +2714,7 @@ int main(int argc, char **argv){
 		}
 	}
 	SetupScreen(full_screen);
+        Init_Audio(enable_sound);
 	// CreateShips(mission_number);
 	Tma.InitGraphics();
 	SonarStation.InitGraphics();
@@ -3394,6 +3400,11 @@ int main(int argc, char **argv){
                                                 free(ship_file);
                                               if (new_torpedo)
                                               {
+                                                  char *sound_file, *file_name = "sounds/torpedo-launch.ogg";
+                                                  sound_file = Find_Data_File(file_name);
+                                                  Play_Sound(sound_file);
+                                                  if ( (sound_file) && (sound_file != file_name) )
+                                                      free(sound_file);
                                                   new_torpedo->Friend = FRIEND;
                                                   new_torpedo->owner = Subs;
                                                   torpedoes = Add_Ship(torpedoes, new_torpedo);

@@ -24,6 +24,7 @@ $Id: submarine.cpp,v 1.6 2003/04/14 05:51:04 mbridak Exp $
 #include <string.h>
 #include "submarine.h"
 #include "files.h"
+#include "sound.h"
 
 using namespace std;
 
@@ -1212,7 +1213,15 @@ int Submarine::Check_Status()
       range = DistanceToTarget(target);
       delta_depth = fabs(target->Depth - Depth);
       if ( (range < HITTING_RANGE) && (delta_depth < HITTING_DEPTH) )
+      {
+         char *full_path, *explosion = "sounds/explosion.ogg";
+         full_path = Find_Data_File(explosion);
+         Play_Sound(full_path);
+         if ( (full_path) && (explosion) )
+            free(full_path);
+ 
          return HIT_TARGET;
+      }
    }
 
    return STATUS_OK;
@@ -1459,10 +1468,16 @@ int Submarine::Send_Ping(Submarine *all_ships)
 {
    Submarine *current;
    int status;
-
+   char *full_path, *ping_file = "sounds/sonar-ping.ogg";
    // some craft do not have sonar
    if (! has_sonar)
       return FALSE;
+
+   full_path = Find_Data_File(ping_file);
+   printf("Playing %s\n", full_path);
+   Play_Sound(full_path);
+   if ( (full_path) && (full_path != ping_file) )
+      free(full_path);
 
    pinging = 2;
    current = all_ships;

@@ -1,3 +1,7 @@
+  - Added sounds for pinging, torpedo launch and explosions.
+
+  - Added sounds directory creation to makefile.
+
   - Added click button for active sonar.
 
   - Torpedo room buttons looks more torpedo-like.
