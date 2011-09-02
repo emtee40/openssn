@@ -34,7 +34,8 @@ Licensing info
 
 The OpenSSN project is licensed under the GNU General Public License,
 version 2. The LinuxSSN project was also GNU GPL licensed and we
-carry on that tradition. Please see the LICENSE file for further details.
+carry on that tradition. Copyright Jesse Smith <jessefrgsmith@yahoo.ca>
+Please see the LICENSE file for further details.
 
 Data files, missions, artwork and images included in OpenSSN are
 licensed under the Creative Commons CC0 1.0 Universal license. 
@@ -52,12 +53,12 @@ is recommended) and the following development libraries:
 SDL
 SDL_gfx
 SDL_image
-
+SDL_mixer
 
 Assuming the above libraries are installed, it should be possible to
 build OpenSSN with the following commands
 
-tar zxf openssn-0.5.tar.gz
+tar zxf openssn-0.7.tar.gz
 cd openssn
 make
 
@@ -78,6 +79,7 @@ The following command line parameters are recognized:
 
 -w		Run in windowed mode, this is the default
 -f		Run in full screen
+-s		Enable sound effects
 -v		Display version number and exit
 -h		Display help and exit
 -m <mission> 	Load a specific mission
@@ -131,6 +133,9 @@ Each of the weapon station keys should be followed by
 a number indication which tube should be loaded or fired.
 The tubes are numbered 1-6.
 
+
+Sonar controls
+G			Send active sonar pulse.
 
 
 

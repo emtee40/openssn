@@ -1,7 +1,7 @@
 PREFIX ?= /usr
 SSN = openssn
 DATADIR = $(PREFIX)/share/games/openssn
-VERSION = 0.7
+VERSION = 0.8
 
 all:
 	$(MAKE) VERSION=$(VERSION) PREFIX=$(PREFIX) -C src

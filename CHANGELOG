@@ -1,3 +1,11 @@
+  - Added thermal layers to listening function Can_Hear().
+
+  - Added DEBUGMAP flag for Makefile to help test MAP class.
+
+  - Added MAP class, which will handle depth and thermal layer information.
+
+============ openssn-0.7 released August 15, 2011 =============
+
   - Added sounds for pinging, torpedo launch and explosions.
 
   - Added sounds directory creation to makefile.

@@ -19,8 +19,13 @@ $Id: coord.h,v 1.5 2003/04/14 05:51:03 mbridak Exp $
 #ifndef COORD_H
 #define COORD_H
 
+// These map values are also present in the MAP class.
+#ifndef MAP_MIN
 #define MAP_MIN 0
+#endif
+#ifndef MAP_MAX
 #define MAP_MAX 300000
+#endif
 
 /**
   *@author Michael Bridak

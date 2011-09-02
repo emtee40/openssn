@@ -21,6 +21,7 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 
 #include <stdio.h>
 #include "coord.h"
+#include "map.h"
 #include "stack.h"
 #include "towedarray.h"
 
@@ -189,6 +190,7 @@ public:
         int radio_message;
         int torpedo_tube[MAX_TUBES];
         int pinging;       // are we using active sonar?
+        MAP *map;
 
         Submarine *next;     // also for torpedos, though could be used
                              // later for ships

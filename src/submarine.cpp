@@ -25,6 +25,7 @@ $Id: submarine.cpp,v 1.6 2003/04/14 05:51:04 mbridak Exp $
 #include "submarine.h"
 #include "files.h"
 #include "sound.h"
+#include "map.h"
 
 using namespace std;
 
@@ -106,6 +107,7 @@ void Submarine::Init()
         convoy_course_change = CONVOY_CHANGE_COURSE;
         radio_message = RADIO_NONE;
         pinging = FALSE;
+        map = NULL;
 }
 
 
@@ -744,6 +746,7 @@ int Submarine::Can_Hear(Submarine *target)
         float value;
         float SeaState = 3.0; // Anyone want to model the weather.
         float minimum_sound = -45.0;
+        int thermal_layers;
 
         // sanity check
         if (! target)
@@ -777,6 +780,11 @@ int Submarine::Can_Hear(Submarine *target)
              NoiseFromSpeed = 0.65;
              BasisNoiseLevel = 9.75;
         }
+        // check just in case we didn't set the map variable
+        if (map)
+            thermal_layers = map->Thermals_Between(Depth, target->Depth);
+        else  // no map, then no thermals
+           thermal_layers = 0;
         AmbientNoise = 89.0 + (5.0 * SeaState);
         OwnShipNoise = RadiatedNoise();
         TotalNoise = 10.0 * log10(pow(10.0,OwnShipNoise/10.0) + pow(10.0,AmbientNoise/10.0));
@@ -785,6 +793,9 @@ int Submarine::Can_Hear(Submarine *target)
         TargetNoise = HisPassiveSonarCrosssection +
         ((NoiseFromSpeed * EffectiveTargetSpeed) + BasisNoiseLevel);
         value = TargetNoise - (20.0 * log10(NauticalMiles) + 1.1 * NauticalMiles) - Lbp;
+        if (thermal_layers)   // avoid zero multiplier
+            value -= value * (thermal_layers * 0.25);
+
         #ifdef AIDEBUG
         printf("Our noise: %f Target Noise: %f Value: %f\n",
                 TotalNoise, TargetNoise, value);
@@ -1474,7 +1485,6 @@ int Submarine::Send_Ping(Submarine *all_ships)
       return FALSE;
 
    full_path = Find_Data_File(ping_file);
-   printf("Playing %s\n", full_path);
    Play_Sound(full_path);
    if ( (full_path) && (full_path != ping_file) )
       free(full_path);

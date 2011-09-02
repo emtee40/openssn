@@ -20,7 +20,7 @@ $Id: main.h,v 1.11 2003/07/18 03:50:00 mbridak Exp $
 #define MAIN_H
 
 #ifndef VERSION
-#define VERSION 0.6
+#define VERSION 0.8
 #endif
 
 // delay between game loops
@@ -247,7 +247,7 @@ std::list<position> SubPosLog;  //STL incompetence DANGER!
 
 //declarations
 void	SetupScreen(bool);
-void	CreateShips(int mission_number);
+void	CreateShips(int mission_number, MAP *map);
 void	UpdateSensors(void);
 void	UpdateDisplay(void);
 void	TakeCommands(void);

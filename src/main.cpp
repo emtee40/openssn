@@ -50,6 +50,7 @@ $Id: main.cpp,v 1.28 2003/07/18 03:50:00 mbridak Exp $
 #include "control.h"
 #include "main.h"
 #include "sound.h"
+#include "map.h"
 #include <fstream>
 #include <cstdlib>
 #include <iomanip>
@@ -1100,7 +1101,8 @@ void LatLonDifference(Submarine *x, Submarine *y, double *platdif, double *plond
 	}
 }
 
-void CreateShips(int mission_number){
+void CreateShips(int mission_number, MAP *map)
+{
   char *ship_file, *mission_name;
   char filename[128];
   char line[256], *status;
@@ -1150,7 +1152,7 @@ void CreateShips(int mission_number){
         printf("Added new ship to list of ships.\n");
         #endif
         new_ship->Init();
-
+        new_ship->map = map;
         #ifdef DEBUG
         printf("Loaded: %s", line);
         #endif
@@ -2662,6 +2664,7 @@ int main(int argc, char **argv){
         int mission_number = 0;
         int enable_sound = FALSE;
 	SDL_Event event; //a typedef to hold events
+        MAP *map;
 	drawsonar = 0; // draw the sonar flag
 	drawmap = 1; // draw the map flag
 	drawradar = 0;
@@ -2727,6 +2730,10 @@ int main(int argc, char **argv){
 	LoadScreen(0); //Display intro screen
 	DFont fnt(file1, file2);
 	static DFont fnt2(file3,file4);
+        map = new MAP();
+        #ifdef DEBUGMAP
+        map->Test_Map();
+        #endif
 	SDL_UpdateRect(screen, 0, 0, 0, 0);
 	timer1 = SDL_GetTicks();// initialize the timer
         SDL_Delay(1000);   // show splash screen for one second
@@ -2753,7 +2760,7 @@ int main(int argc, char **argv){
         if (status == ACTION_QUIT)
           quit = true;
         
-        CreateShips(mission_number);
+        CreateShips(mission_number, map);
 	SDL_Rect rectangle;
 	rectangle.x = 0;
 	rectangle.y = 0;
@@ -3492,6 +3499,8 @@ int main(int argc, char **argv){
         printf("Killing SDL\n");
         #endif
         Clean_Up_Audio();
+        if (map)
+            delete map;
 	SDL_Quit();
         return 0;   // just to make the compiler happy
 }
