@@ -42,7 +42,7 @@ int MAP::Create_Thermal_Layers(int how_many)
 
    base_range = MAX_THERMAL_DEPTH / how_many;
    current_range = 0;
-   index++;
+   index = 0;
    while ( (index < MAX_THERMALS) && (index < how_many) )
    {
        current_range += base_range;

@@ -597,6 +597,7 @@ int Submarine::Load_Mission(FILE *from_file)
 
     memset(line, '\0', 256);
     fgets(line, 256, from_file);
+    #ifndef WIN32
     if (! strncasecmp(line, "sink", 4) )
         mission_status = MISSION_SINK;
     else if (! strncasecmp(line, "find", 4) )
@@ -605,6 +606,16 @@ int Submarine::Load_Mission(FILE *from_file)
         mission_status = MISSION_ALIVE;
     else
         mission_status = MISSION_NONE;
+    #else
+    if (! my_strncasecmp(line, "sink", 4) )
+        mission_status = MISSION_SINK;
+    else if (! my_strncasecmp(line, "find", 4) )
+        mission_status = MISSION_FIND;
+    else if (! my_strncasecmp(line, "alive", 5) )
+        mission_status = MISSION_ALIVE;
+    else
+        mission_status = MISSION_NONE;
+    #endif
     return TRUE;
 }
 

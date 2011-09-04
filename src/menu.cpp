@@ -80,7 +80,11 @@ int New_Mission(int next_prev, int old_mission)
       new_mission = old_mission + 1;
    }
 
+   #ifndef WIN32
    snprintf(mission_filename, 256, "data/mission%d.dat", new_mission);
+   #else
+   sprintf(mission_filename, "data/mission%d.dat", new_mission);
+   #endif
    mission_path = Find_Data_File(mission_filename);
    mission_file = fopen(mission_path, "r");
    if ( (mission_path) && (mission_path != mission_filename) )
@@ -107,8 +111,12 @@ int Display_Mission(int mission_number)
    int y = 610;
    DFont my_font("images/font.png", "data/font.dat");
    Uint32 menu_background = SDL_MapRGB(menu_screen->format, 0, 0, 0);
-  
+ 
+   #ifndef WIN32 
    snprintf(filename, 256, "data/orders%d.txt", mission_number);
+   #else
+   sprintf(filename, "data/orders%d.txt", mission_number);
+   #endif
    full_path = Find_Data_File(filename);
    mission_file = fopen(full_path, "r");
    if ( (full_path) && (full_path != filename) )

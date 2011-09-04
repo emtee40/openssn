@@ -28,11 +28,9 @@ $Id: main.cpp,v 1.28 2003/07/18 03:50:00 mbridak Exp $
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#include <unistd.h>
 #include <SDL.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
-// #include "SDL/SDL_image.h"
 #include <SDL/SDL_thread.h>
 #include "dfont.h"
 #include "draw.h"
@@ -51,6 +49,7 @@ $Id: main.cpp,v 1.28 2003/07/18 03:50:00 mbridak Exp $
 #include "main.h"
 #include "sound.h"
 #include "map.h"
+#include "winfunctions.h"
 #include <fstream>
 #include <cstdlib>
 #include <iomanip>
@@ -1110,8 +1109,12 @@ void CreateShips(int mission_number, MAP *map)
   FILE *my_file, *mission_file;
   Submarine *new_ship;
 
+  #ifndef WIN32
   snprintf(filename, 128, "data/ships%d.dat", mission_number);
-  // ifstream constructor opens file
+  #else
+  sprintf(filename, "data/ships%d.dat", mission_number);
+  #endif
+
   ship_file = Find_Data_File(filename);
   my_file = fopen(ship_file, "r");
   if ( (ship_file) && (ship_file != filename) )
@@ -1123,7 +1126,11 @@ void CreateShips(int mission_number, MAP *map)
     exit(1);
   }
 
+  #ifndef WIN32
   snprintf(filename, 128, "data/mission%d.dat", mission_number);
+  #else
+  sprintf(filename, "data/mission%d.dat", mission_number);
+  #endif
   mission_name = Find_Data_File(filename);
   mission_file = fopen(mission_name, "r");
   if ( (mission_name) && (mission_name != filename) )
@@ -1163,12 +1170,21 @@ void CreateShips(int mission_number, MAP *map)
                   &(new_ship->DesiredHeading), &(new_ship->Lat_TotalYards),
                   &(new_ship->Lon_TotalYards)); // , &(new_ship->PSCS) );
         // check mood
+        #ifndef WIN32
         if ( strcasestr(line, "convoy") )
             new_ship->mood = MOOD_CONVOY;
         else if ( strcasestr(line, "passive") )
             new_ship->mood = MOOD_PASSIVE;
         else if ( strcasestr(line, "attack") )
             new_ship->mood = MOOD_ATTACK;
+        #else
+        if ( my_strcasestr(line, "convoy") )
+            new_ship->mood = MOOD_CONVOY;
+        else if ( my_strcasestr(line, "passive") )
+            new_ship->mood = MOOD_PASSIVE;
+        else if ( my_strcasestr(line, "attack") )
+            new_ship->mood = MOOD_ATTACK;
+        #endif
 
      #ifdef DEBUG
      printf("%d %d %d %d %d %d %f %f %d\n",
@@ -2678,11 +2694,23 @@ int main(int argc, char **argv){
 	srand(time(NULL)); //Seed the random generator
 
 	//Process commandline options.
+        /*
 	sprintf(text,"m:vwfkhs");
 	while ((option_choice = getopt(argc, argv, text)) != -1){
-		switch (option_choice){
+        */
+        status = 1;
+        while (status < argc)
+        {
+             if (argv[status][0] == '-')
+                option_choice = argv[status][1];
+             else
+                option_choice = '\0';
+		switch (option_choice)
+                {
                         case 'm':
-                               mission_number = atoi(optarg);
+                               // mission_number = atoi(optarg);
+                               mission_number = atoi(argv[status + 1]);
+                               status++;
                                break;
 			case 'w': //they passed the '-w' flag.
 				full_screen = false;
@@ -2714,8 +2742,9 @@ int main(int argc, char **argv){
 				cout << "Unknown command-line argument" << endl
 				<< "Please use -h for a list of commands." << endl;
 				return 1;
-		}
-	}
+		}   // end of switch
+               status++;
+	}    // end of while
 	SetupScreen(full_screen);
         Init_Audio(enable_sound);
 	// CreateShips(mission_number);

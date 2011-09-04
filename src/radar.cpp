@@ -1159,11 +1159,21 @@ int Radar::DeltaBearing(int bearing1, int bearing2)
 {
 	// Difference between two bearings
 	int deltabearing;
+        // for POSIX systems
+        #ifndef WIN32
 	if (fabs(bearing1 - bearing2) < 180){
 		 deltabearing = (int) fabs(bearing1 - bearing2);
 	}else{
 		deltabearing = (int) (360 - fabs(bearing1 - bearing2));
 	}
+        // WIN32 prefers abs when dealignwith int
+        #else
+        if (abs(bearing1 - bearing2) < 180){
+                 deltabearing = (int) abs(bearing1 - bearing2);
+        }else{
+                deltabearing = (int) (360 - abs(bearing1 - bearing2));
+        }
+        #endif
 	return deltabearing;
 }
 

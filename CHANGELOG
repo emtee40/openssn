@@ -1,3 +1,17 @@
+  - Rewrote code for getting command line options to make it
+    compatable across operating systems.
+
+  - Compatibility functions for WIN32 created. These functions
+    are stored in winfunctions.cpp and winfunctions.h
+    strncasecmp and strcasestr functions are now duplicated
+    and wrapped up in ifdefs.
+
+  - Converted snprintf calls to sprintf for WIN32
+
+  - Converted fabs() calls to abs() in radar.cpp for the WIN32 platform.
+
+  - Dependency unistd.h removed from main.cpp
+
   - Added thermal layers to listening function Can_Hear().
 
   - Added DEBUGMAP flag for Makefile to help test MAP class.
