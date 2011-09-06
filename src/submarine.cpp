@@ -757,7 +757,7 @@ int Submarine::Can_Hear(Submarine *target)
         float value;
         float SeaState = 3.0; // Anyone want to model the weather.
         float minimum_sound = -45.0;
-        int thermal_layers;
+        int thermal_layers = 0;
 
         // sanity check
         if (! target)
@@ -793,9 +793,12 @@ int Submarine::Can_Hear(Submarine *target)
         }
         // check just in case we didn't set the map variable
         if (map)
+        {
             thermal_layers = map->Thermals_Between(Depth, target->Depth);
-        else  // no map, then no thermals
-           thermal_layers = 0;
+            #ifdef DEBUGMAP
+            printf("%d thermals between ship and target\n", thermal_layers);
+            #endif
+        }
         AmbientNoise = 89.0 + (5.0 * SeaState);
         OwnShipNoise = RadiatedNoise();
         TotalNoise = 10.0 * log10(pow(10.0,OwnShipNoise/10.0) + pow(10.0,AmbientNoise/10.0));
@@ -803,14 +806,9 @@ int Submarine::Can_Hear(Submarine *target)
         Lbp = AmbientNoise + Gb;
         TargetNoise = HisPassiveSonarCrosssection +
         ((NoiseFromSpeed * EffectiveTargetSpeed) + BasisNoiseLevel);
+        if (thermal_layers)
+           TargetNoise -= TargetNoise * (thermal_layers * THERMAL_FILTER);
         value = TargetNoise - (20.0 * log10(NauticalMiles) + 1.1 * NauticalMiles) - Lbp;
-        if (thermal_layers)   // avoid zero multiplier
-            value -= value * (thermal_layers * 0.25);
-
-        #ifdef AIDEBUG
-        printf("Our noise: %f Target Noise: %f Value: %f\n",
-                TotalNoise, TargetNoise, value);
-        #endif
         // if (!observer)
         //      SonarStation.flowandambientnoise = (Lbp - 34);
         if (value > minimum_sound){

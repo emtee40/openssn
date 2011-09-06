@@ -1,3 +1,11 @@
+  - Added depth and thermal indicator to the tactical map screen.
+
+  - Added Spanish translation of the manual from Fernando Liebana.
+
+  - Make sure we define DATADIR, even if we don't use a makefile.
+
+  - Thermal layers now filter sound.
+
   - Rewrote code for getting command line options to make it
     compatable across operating systems.
 

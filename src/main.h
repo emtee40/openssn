@@ -262,6 +262,7 @@ void	PositionCursor(int, int);
 void	ClearScreen(void);
 void    Display_Target(void);
 void	DrawMap(void);
+void    Draw_Depth_Meter(Submarine *my_sub);
 /*
 void	DrawPixel(SDL_Surface *screen, int x, int y, Uint32 Color);
 void	DrawLine(SDL_Surface *screen, int X1, int Y1, int X2, int Y2, Uint32 Color);

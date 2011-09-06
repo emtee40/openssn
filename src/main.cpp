@@ -55,6 +55,8 @@ $Id: main.cpp,v 1.28 2003/07/18 03:50:00 mbridak Exp $
 #include <iomanip>
 using namespace std;
 
+MAP *my_map = NULL;
+
 //#######GRAPHIC PRIMITIVES#############
 void SetupScreen(bool full_screen){
 	//Initialize the screen and some default colors
@@ -1262,6 +1264,7 @@ void UpdateDisplay(){
 	if (drawmap){
                 Display_Target();
 		DrawMap(); // fix me to do something useful!
+                Draw_Depth_Meter(player);
 	}
 	if (drawsonar){
 		SonarStation.UpdateDisplay(current_target);
@@ -1335,6 +1338,32 @@ void Display_Target()
 }
 
 
+
+void Draw_Depth_Meter(Submarine *my_sub)
+{
+   SDL_Rect rectangle;
+   int y, index;
+   rectangle.x = 890;
+   rectangle.y = 145;
+   rectangle.h = 500;
+   rectangle.w = 10;
+
+   if (! my_sub)
+      return;
+   SDL_FillRect(screen, &rectangle, mapcolor);
+   if (my_sub->map)
+   {
+     for (index = 0; index < my_sub->map->Thermals_Between(0, MAX_DEPTH); index++)
+     {
+        y = my_sub->map->thermals[index];
+        y = 145 + (y / 10);
+        FillRectangle(screen, 890, y, 900, y+1, white);
+     }
+   }
+   y = (my_sub->Depth / 10) + 145;
+   FillRectangle(screen, 890, y, 900, y+1, red);
+   SDL_UpdateRects(screen, 1, &rectangle);
+}
 
 
 void DrawMap(){
@@ -1571,6 +1600,7 @@ float Sonar_Detection_New(double Range, Submarine *observer, Submarine *target)
         float BasisNoiseLevel;
         float value;
         float SeaState = 3.0; // Anyone want to model the weather.
+        int thermal_layers = 0;
 
         if (target->Speed <= 5.0){
              EffectiveTargetSpeed = 0.0;
@@ -1585,6 +1615,11 @@ float Sonar_Detection_New(double Range, Submarine *observer, Submarine *target)
              NoiseFromSpeed = 0.65;
              BasisNoiseLevel = 9.75;
         }
+        if (my_map)
+           thermal_layers = my_map->Thermals_Between(observer->Depth, target->Depth);
+        #ifdef DEBUGMAP
+        printf("There are %d thermal layers between us.\n", thermal_layers);
+        #endif
         AmbientNoise = 89.0 + (5.0 * SeaState);
         OwnShipNoise = observer->RadiatedNoise();
         TotalNoise = 10.0 * log10(pow(10.0,OwnShipNoise/10.0) + pow(10.0,AmbientNoise/10.0));
@@ -1592,6 +1627,14 @@ float Sonar_Detection_New(double Range, Submarine *observer, Submarine *target)
         Lbp = AmbientNoise + Gb;
         TargetNoise = HisPassiveSonarCrosssection +
         ((NoiseFromSpeed * EffectiveTargetSpeed) + BasisNoiseLevel);
+        #ifdef DEBUGMAP
+        printf("Old target noise: %f\n", TargetNoise);
+        #endif
+        if (thermal_layers)
+            TargetNoise -= TargetNoise * (thermal_layers * THERMAL_FILTER);
+        #ifdef DEBUGMAP
+        printf("New target noise: %f\n", TargetNoise);
+        #endif
         value = TargetNoise - (20.0 * log10(NauticalMiles) + 1.1 * NauticalMiles) - Lbp;
         if (!observer) 
               SonarStation.flowandambientnoise = (Lbp - 34);
@@ -2680,7 +2723,6 @@ int main(int argc, char **argv){
         int mission_number = 0;
         int enable_sound = FALSE;
 	SDL_Event event; //a typedef to hold events
-        MAP *map;
 	drawsonar = 0; // draw the sonar flag
 	drawmap = 1; // draw the map flag
 	drawradar = 0;
@@ -2759,9 +2801,9 @@ int main(int argc, char **argv){
 	LoadScreen(0); //Display intro screen
 	DFont fnt(file1, file2);
 	static DFont fnt2(file3,file4);
-        map = new MAP();
+        my_map = new MAP();
         #ifdef DEBUGMAP
-        map->Test_Map();
+        my_map->Test_Map();
         #endif
 	SDL_UpdateRect(screen, 0, 0, 0, 0);
 	timer1 = SDL_GetTicks();// initialize the timer
@@ -2789,7 +2831,7 @@ int main(int argc, char **argv){
         if (status == ACTION_QUIT)
           quit = true;
         
-        CreateShips(mission_number, map);
+        CreateShips(mission_number, my_map);
 	SDL_Rect rectangle;
 	rectangle.x = 0;
 	rectangle.y = 0;
@@ -3528,8 +3570,8 @@ int main(int argc, char **argv){
         printf("Killing SDL\n");
         #endif
         Clean_Up_Audio();
-        if (map)
-            delete map;
+        if (my_map)
+            delete my_map;
 	SDL_Quit();
         return 0;   // just to make the compiler happy
 }

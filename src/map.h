@@ -9,7 +9,8 @@ water and placing of thermal layers.
 #define MAX_DEPTH 5000      // deepest part of the ocean
 #define MIN_DEPTH 0          // most shallow point of the ocean
 #define MAX_THERMALS 3
-#define MAX_THERMAL_DEPTH 1000
+#define MAX_THERMAL_DEPTH 900
+#define THERMAL_FILTER 0.25
 
 // MAP_MIN and MAP_MAX are also defined in the coord class
 #ifndef MAP_MIN 
@@ -21,10 +22,9 @@ water and placing of thermal layers.
 
 class MAP
 {
-private:
+public:
   int thermals[MAX_THERMALS];
 
-public:
   MAP();
   ~MAP();
   int Init();
