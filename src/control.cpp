@@ -35,6 +35,9 @@ using namespace std;
 // Use these for the display
 DStack HeadingStack(2), SpeedStack(2), DepthStack(2);
 
+// Used to remember last ordered heading, to clear display.
+float old_heading;
+
 
 Control::Control(Submarine *temp): Subs(temp)
 {
@@ -72,6 +75,7 @@ void Control::InitGraphics(SDL_Surface *temp, SDL_Surface *tempcontrolscreen)
   LoadWidgets();
   DisplayWidgets();
   orange = SDL_MapRGB(screen->format, 238, 118, 0);
+  green = SDL_MapRGB(screen->format, 0, 128, 0);
   black = SDL_MapRGB(screen->format, 0, 0, 0);
 
 }
@@ -500,6 +504,9 @@ void Control::ClearHeading(){
 
 void Control::ClearOrdHeading(){
 
+ // Clear Last Ordered Heading Compass
+	DLine(screen, 250, 344, int(250.0 + 60.0*cos(1.57-old_heading*3.14/180.0)), int(344.0 - 60.0*sin(1.57-old_heading*3.14/180.0)), black);
+
  // Clear the screen
   SDL_Surface *temp;
   temp = Load_Image("images/ClearControl.png");
@@ -808,12 +815,14 @@ void Control::Display(){
       x = int(250.0 + 60.0*cos(1.57-previous_radians));
       y = int(344.0 - 60.0*sin(1.57-previous_radians));
       DLine(screen, 250, 344, x, y, black);
+      
     }
 
-  // Draw Heading Compass
+  // Draw Desired Heading Compass
   x = int(250.0 + 60.0*cos(1.57-radians));
   y = int(344.0 - 60.0*sin(1.57-radians));
   DLine(screen, 250, 344, x, y, orange);
+
 
   // Push the data on the stack
   HeadingStack.push(radians);
@@ -837,7 +846,6 @@ void Control::AdjustHeading(int x, int y){
   
   ClearOrdHeading();
   
-  
   if(x >= 250)
     {
       heading = int(90.0 + (180/3.14)*atan(c5/c6));
@@ -848,7 +856,13 @@ void Control::AdjustHeading(int x, int y){
     }
   
   Subs->DesiredHeading = heading;
+  old_heading = heading;
   
+   // Draw Desired Heading Compass
+  x = int(250.0 + 60.0*cos(1.57-heading*3.14/180.0));
+  y = int(344.0 - 60.0*sin(1.57-heading*3.14/180.0));
+  DLine(screen, 250, 344, x, y, green);
+
   return;
 
 }

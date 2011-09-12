@@ -103,7 +103,7 @@ class Control {
   
   int x;
   int y;
-  Uint32 orange, black;
+  Uint32 orange, green, black;
   
   static char text[120];
   DFont largeFont(const char*, const char *);

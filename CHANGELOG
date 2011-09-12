@@ -1,3 +1,6 @@
+  - Added patch from Rick to show ordered heading vs actual
+    heading on helm screen.
+
   - Added depth and thermal indicator to the tactical map screen.
 
   - Added Spanish translation of the manual from Fernando Liebana.
