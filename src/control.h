@@ -76,9 +76,9 @@ class Control {
 
   void AdjustDepth(int x);
   
-  void DPixel(SDL_Surface *screen, int x, int y, Uint32 color);
+ // void DPixel(SDL_Surface *screen, int x, int y, Uint32 color);  //rdm not needed
   
-  void DLine(SDL_Surface *screen, int X1, int Y1, int X2, int Y2, Uint32 Color);
+ // void DLine(SDL_Surface *screen, int X1, int Y1, int X2, int Y2, Uint32 Color);  //rdm not needed
   
  private:
   
@@ -103,7 +103,7 @@ class Control {
   
   int x;
   int y;
-  Uint32 orange, green, black;
+  // Uint32 orange, green, black; //rdm 9/11 not needed
   
   static char text[120];
   DFont largeFont(const char*, const char *);

@@ -19,6 +19,7 @@ $Id: control.cpp,v 1.3 2003/04/20 19:30:29 anoncvs_pygsl Exp $
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
 #include "SDL/SDL_thread.h"
+#include "SDL/SDL_gfxPrimitives.h" //rdm 9/11
 #include "dfont.h"
 #include "submarine.h"
 #include "files.h"
@@ -28,7 +29,6 @@ $Id: control.cpp,v 1.3 2003/04/20 19:30:29 anoncvs_pygsl Exp $
 #include <cmath>
 #include <cstdlib>
 
-// rdm windows
 #include <iostream>
 using namespace std;
 
@@ -74,9 +74,10 @@ void Control::InitGraphics(SDL_Surface *temp, SDL_Surface *tempcontrolscreen)
   
   LoadWidgets();
   DisplayWidgets();
-  orange = SDL_MapRGB(screen->format, 238, 118, 0);
-  green = SDL_MapRGB(screen->format, 0, 128, 0);
-  black = SDL_MapRGB(screen->format, 0, 0, 0);
+  
+//  orange = SDL_MapRGB(screen->format, 238, 118, 0);  //rdm 9/11  not needed
+ // green = SDL_MapRGB(screen->format, 0, 128, 0);
+ // black = SDL_MapRGB(screen->format, 0, 0, 0);
 
 }
 
@@ -503,9 +504,20 @@ void Control::ClearHeading(){
 }
 
 void Control::ClearOrdHeading(){
-
- // Clear Last Ordered Heading Compass
-	DLine(screen, 250, 344, int(250.0 + 60.0*cos(1.57-old_heading*3.14/180.0)), int(344.0 - 60.0*sin(1.57-old_heading*3.14/180.0)), black);
+	int x, y;
+	double x1, y1, x2, y2;//rdm 9/11
+	
+ // Clear Last Ordered Heading Compass //rdm 9/11
+	x = int(251.0 + 58.0*cos(1.57-old_heading*3.14/180.0));
+	y = int(344.0 - 58.0*sin(1.57-old_heading*3.14/180.0));
+//	filledTrigonRGBA(screen, 251, 341, 251, 347, x, y, 0, 0, 0, 255);  //rdm 9/11
+	
+	x1 = int(251.0 + 4.0*sin(1.57-old_heading*3.14/180.0));
+	y1 = 	int(344.0 + 4.0*cos(1.57-old_heading*3.14/180.0));
+	x2 = int(251.0 - 4.0*sin(1.57-old_heading*3.14/180.0));
+	y2 = int(344.0 - 4.0*cos(1.57-old_heading*3.14/180.0));
+	
+	filledTrigonRGBA(screen, x1, y1, x2, y2, x, y, 0, 0, 0, 255); 
 
  // Clear the screen
   SDL_Surface *temp;
@@ -728,6 +740,7 @@ void Control::Display(){
   DFont fnt(file1, file2);
   float radians, previous_radians;
   float previous_speed, previous_depth;
+  double x1, y1, x2, y2;
 
   
   if (depthup) Subs->DesiredDepth--;   // Take her up!!
@@ -750,6 +763,21 @@ void Control::Display(){
 
   sprintf(text, "%i",(int)Subs[0].DesiredHeading);
   fnt.PutString(screen, 145, 198, text);
+
+//Replot desired heading compass if we left control screen before turn completed  //rdm 9/11
+  if (Subs->DesiredHeading != Subs->Heading ) 
+  {
+ 	// Draw a green filled triangle with vertices (x1, y1), (x2, y2), (x3, y3) and RGBA color (r, g, b, a)
+	x = int(251.0 + 58.0*cos(1.57-Subs[0].DesiredHeading*3.14/180.0));
+  	y = int(344.0 - 58.0*sin(1.57-Subs[0].DesiredHeading*3.14/180.0));
+ 
+  	x1 = int(251.0 + 4.0*sin(1.57-Subs[0].DesiredHeading*3.14/180.0));
+	y1 = 	int(344.0 + 4.0*cos(1.57-Subs[0].DesiredHeading*3.14/180.0));
+	x2 = int(251.0 - 4.0*sin(1.57-Subs[0].DesiredHeading*3.14/180.0));
+	y2 = int(344.0 - 4.0*cos(1.57-Subs[0].DesiredHeading*3.14/180.0));
+	
+	filledTrigonRGBA(screen, x1, y1, x2, y2, x, y, 0, 128, 0, 255);   
+  }
   
   // Depth Screen
   src.x=212;
@@ -811,19 +839,32 @@ void Control::Display(){
       if(Subs->Depth <= 1000.0 && previous_depth > 1000.0) ClearDepth();
       
 
-      // Clear Old Data from Heading Compass
-      x = int(250.0 + 60.0*cos(1.57-previous_radians));
-      y = int(344.0 - 60.0*sin(1.57-previous_radians));
-      DLine(screen, 250, 344, x, y, black);
-      
+      // Clear Old Data from Heading Compass //rdm 9/11
+  		// Draw a orange filled triangle with vertices (x1, y1), (x2, y2), (x3, y3) and RGBA color (r, g, b, a)
+    	x = int(251.0 + 58.0*cos(1.57-previous_radians));
+		y = int(344.0 - 58.0*sin(1.57-previous_radians));
+		
+		x1 = int(251.0 + 4.0*sin(1.57-previous_radians));
+		y1 = 	int(344.0 + 4.0*cos(1.57-previous_radians));
+		x2 = int(251.0 - 4.0*sin(1.57-previous_radians));
+		y2 = int(344.0 - 4.0*cos(1.57-previous_radians));
+	
+		filledTrigonRGBA(screen, x1, y1, x2, y2, x, y, 0, 0, 0, 255); 
+		    
     }
 
-  // Draw Desired Heading Compass
-  x = int(250.0 + 60.0*cos(1.57-radians));
-  y = int(344.0 - 60.0*sin(1.57-radians));
-  DLine(screen, 250, 344, x, y, orange);
-
-
+  // Draw Desired Heading Compass //rdm 9/11
+	// Draw a orange filled triangle with vertices (x1, y1), (x2, y2), (x3, y3) and RGBA color (r, g, b, a)
+		x = int(251.0 + 58.0*cos(1.57-radians));
+  		y = int(344.0 - 58.0*sin(1.57-radians));
+  		
+		x1 = int(251.0 + 4.0*sin(1.57-radians));
+		y1 = 	int(344.0 + 4.0*cos(1.57-radians));
+		x2 = int(251.0 - 4.0*sin(1.57-radians));
+		y2 = int(344.0 - 4.0*cos(1.57-radians));
+	
+		filledTrigonRGBA(screen, x1, y1, x2, y2, x, y, 238, 118, 0, 255); 
+		
   // Push the data on the stack
   HeadingStack.push(radians);
   SpeedStack.push(Subs->Speed);
@@ -836,17 +877,22 @@ void Control::Display(){
 void Control::AdjustHeading(int x, int y){
   
   double c1, c3, c5, c6;
+  double x1, y1, x2, y2;
   int heading;
   
-  c1 = double(250);
+  c1 = double(251);
   c3 = double(344);
   
-  c5 = 60.0*(double(y)-c3);
-  c6 = 60.0*(double(x)-c1);
+ // c5 = 60.0*(double(y)-c3);
+ // c6 = 60.0*(double(x)-c1);
+
+	c5 = 58.0*(double(y)-c3);
+ 	c6 = 58.0*(double(x)-c1);  
+  
   
   ClearOrdHeading();
   
-  if(x >= 250)
+  if(x >= 251)
     {
       heading = int(90.0 + (180/3.14)*atan(c5/c6));
     }
@@ -858,11 +904,18 @@ void Control::AdjustHeading(int x, int y){
   Subs->DesiredHeading = heading;
   old_heading = heading;
   
-   // Draw Desired Heading Compass
-  x = int(250.0 + 60.0*cos(1.57-heading*3.14/180.0));
-  y = int(344.0 - 60.0*sin(1.57-heading*3.14/180.0));
-  DLine(screen, 250, 344, x, y, green);
-
+   // Draw Desired Heading Compass//rdm 9/11
+	// Draw a green filled triangle with vertices (x1, y1), (x2, y2), (x3, y3) and RGBA color (r, g, b, a)
+	x = int(251.0 + 58.0*cos(1.57-heading*3.14/180.0));
+  	y = int(344.0 - 58.0*sin(1.57-heading*3.14/180.0));
+//  	filledTrigonRGBA(screen, 251, 341, 251, 347, x, y, 0, 128, 0, 255);  //rdm 9/11
+ 
+  	x1 = int(251.0 + 4.0*sin(1.57-heading*3.14/180.0));
+	y1 = 	int(344.0 + 4.0*cos(1.57-heading*3.14/180.0));
+	x2 = int(251.0 - 4.0*sin(1.57-heading*3.14/180.0));
+	y2 = int(344.0 - 4.0*cos(1.57-heading*3.14/180.0));
+	
+	filledTrigonRGBA(screen, x1, y1, x2, y2, x, y, 0, 128, 0, 255); 
   return;
 
 }
@@ -899,6 +952,9 @@ void Control::AdjustDepth(int x){
   return;
 }
 
+//Not needed if use SDL_gfx rdm 9/11
+
+/*
 void Control::DLine(SDL_Surface *screen, int X1, int Y1, int X2, int Y2, Uint32 Color)
 {
 
@@ -954,3 +1010,4 @@ void Control::DPixel(SDL_Surface *screen, int x, int y, Uint32 color)
   pixel_location = (Uint16 *)screen->pixels + y*screen->pitch/2 + x;
   *pixel_location = color;
 }
+*/
