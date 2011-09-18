@@ -6,6 +6,13 @@ This file contains definitions for dealing with the depth of the
 water and placing of thermal layers.
 */
 
+#ifndef TRUE
+#define TRUE 1
+#endif
+#ifndef FALSE
+#define FALSE 0
+#endif
+
 #define MAX_DEPTH 5000      // deepest part of the ocean
 #define MIN_DEPTH 0          // most shallow point of the ocean
 #define MAX_THERMALS 3
@@ -32,6 +39,9 @@ public:
  
   int Get_Ocean_Depth(int x, int y);
   int Thermals_Between(int depth_1, int depth_2);
+  int Next_Up(int current_depth);    // find thermal from our position
+  int Next_Down(int current_depth);  // find thermal from our position
+
   #ifdef DEBUGMAP
   void Test_Map();
   #endif

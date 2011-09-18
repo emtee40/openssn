@@ -530,6 +530,7 @@ int Submarine::Can_Detect(Submarine *a_sub)
 
 // Find the next available target. Return the target
 // pointer or NULL if no target is found
+/*
 Submarine *Submarine::Next_Target()
 {
      Target *original = last_target;
@@ -556,6 +557,52 @@ Submarine *Submarine::Next_Target()
      {
         last_target = targets;
         return (Submarine *)last_target->sub;
+     }
+}
+*/
+Submarine *Submarine::Next_Target()
+{
+    Target *original = last_target;
+    Target *my_target;
+    int found = FALSE;
+
+    // no possible targets to return
+    if (! targets)
+    {
+        last_target = NULL;
+        return NULL;
+    }
+
+    if (! original)
+       last_target = targets;
+
+    // starting from the last target, try to find something
+    // we can use
+    my_target = (Target *) last_target->next;
+    if (! my_target)
+       my_target = targets;   // avoid segfault
+    while ( (! found) && (my_target != last_target) )
+    {
+        if (my_target->contact_strength >= CONTACT_WEAK)
+           found = TRUE;
+        else
+        {
+            my_target = (Target *) my_target->next;
+            if (! my_target)
+               my_target = targets;
+        }
+
+     }     
+
+     if (found)
+     {
+        last_target = my_target;
+        return (Submarine *) my_target->sub;
+     }
+     else
+     {
+        last_target = targets;
+        return NULL;
      }
 }
 

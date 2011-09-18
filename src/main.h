@@ -118,6 +118,10 @@ $Id: main.h,v 1.11 2003/07/18 03:50:00 mbridak Exp $
 #define		USE_TUBE 71
 #define		CUTARRAY 72
 #define         SEND_PING 73
+#define         UP_THERMAL 74
+#define         HOLD_DEPTH 75
+#define         DOWN_THERMAL 76
+
 
 //globals
 
@@ -262,7 +266,7 @@ void	PositionCursor(int, int);
 void	ClearScreen(void);
 void    Display_Target(void);
 void	DrawMap(void);
-void    Draw_Depth_Meter(Submarine *my_sub);
+void    Draw_Depth_Meter(Submarine *my_sub, int which_screen);
 /*
 void	DrawPixel(SDL_Surface *screen, int x, int y, Uint32 Color);
 void	DrawLine(SDL_Surface *screen, int X1, int Y1, int X2, int Y2, Uint32 Color);

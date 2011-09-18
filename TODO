@@ -1,8 +1,3 @@
-See if we need to specify SDL_rotozoom.h
-
-We should not see target data on the map screen if we cannot track the target.
-Add up/down thermal depth commands
-
 Make Stack more flexible, it's a fixed-length array.
 
 AI stuff

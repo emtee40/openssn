@@ -101,6 +101,57 @@ int MAP::Thermals_Between(int depth_1, int depth_2)
 }
 
 
+/*
+This function finds the next themral above the current depth. If
+no thermal lies above this position then we return "from_depth".
+*/
+int MAP::Next_Up(int from_depth)
+{
+   int index = MAX_THERMALS - 1;
+   int found = FALSE;
+
+   while ( (!found) && (index >= 0) )
+   {
+      if ( (thermals[index] > 0) && (thermals[index] < from_depth) )
+         found = TRUE;
+      else
+         index--;
+   }
+   if (found)
+      return thermals[index];
+   else
+      return from_depth;
+}
+
+
+/*
+This function finds the next themral below the current depth. If
+no thermal lies below this position then we return "from_depth".
+*/
+int MAP::Next_Down(int from_depth)
+{
+   int index = 0;
+   int found = FALSE;
+
+   while ( (!found) && (index < MAX_THERMALS) )
+   {
+        if ( (thermals[index] > 0) && (thermals[index] > from_depth) )
+            found = TRUE;
+        else
+           index++;
+   }
+   if (found)
+       return thermals[index];
+   else
+      return from_depth;
+}
+
+
+
+
+
+
+
 #ifdef DEBUGMAP
 void MAP::Test_Map()
 {

@@ -58,7 +58,7 @@ SDL_mixer
 Assuming the above libraries are installed, it should be possible to
 build OpenSSN with the following commands
 
-tar zxf openssn-0.7.tar.gz
+tar zxf openssn-0.8.tar.gz
 cd openssn
 make
 
@@ -102,6 +102,9 @@ Left keypad (4)		Turn left
 Right keypad (6)	Turn right
 Down keypad (2)		Dive deeper
 Up keypad (8)		Rise toward the surface
+Q			Go up one thermal
+A			Hold depth here
+Z			Go down one thermal
 
 
 System controls...................
@@ -136,7 +139,9 @@ The tubes are numbered 1-6.
 
 Sonar controls
 G			Send active sonar pulse.
-
+E			Extend sonar array
+R			Retract towed sonar array
+W			Hold towed sonar in place
 
 
 

@@ -7,6 +7,9 @@
 // #include "SDL/SDL_image.h"
 #include <SDL/SDL_thread.h>
 
+#define SCREEN_NAV 2
+#define SCREEN_HELM 4
+
 
 void DrawPixel(SDL_Surface *screen, int x, int y, Uint32 color);
 

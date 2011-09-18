@@ -971,6 +971,14 @@ void ShipHandeling(){
            else
               my_torp = my_torp->next;
         }   // end of all torpedoes
+
+        // see if we can still detect the current target
+        if (current_target)
+        {
+            status = player->Can_Detect(current_target);
+            if (status < CONTACT_WEAK) 
+               current_target = NULL;
+        }
 }
 
 
@@ -1264,7 +1272,7 @@ void UpdateDisplay(){
 	if (drawmap){
                 Display_Target();
 		DrawMap(); // fix me to do something useful!
-                Draw_Depth_Meter(player);
+                Draw_Depth_Meter(player, SCREEN_NAV);
 	}
 	if (drawsonar){
 		SonarStation.UpdateDisplay(current_target);
@@ -1281,7 +1289,8 @@ void UpdateDisplay(){
 		EsmStation.DisplayContacts();			
 	}
 	if (drawcontrol){
-		ControlStation.Display();			
+		ControlStation.Display();
+                Draw_Depth_Meter(player, SCREEN_HELM);
 	}
 
 }
@@ -1339,13 +1348,23 @@ void Display_Target()
 
 
 
-void Draw_Depth_Meter(Submarine *my_sub)
+void Draw_Depth_Meter(Submarine *my_sub, int screen_number)
 {
    SDL_Rect rectangle;
    int y, index;
-   rectangle.x = 890;
-   rectangle.y = 145;
-   rectangle.h = 500;
+
+   if (screen_number == SCREEN_NAV)
+   {
+     rectangle.x = 890;
+     rectangle.y = 145;
+     rectangle.h = 500;
+   }
+   else   // helm screen
+   {
+     rectangle.x = 450;
+     rectangle.y = 125;
+     rectangle.h = 525;
+   }
    rectangle.w = 10;
 
    if (! my_sub)
@@ -1356,12 +1375,12 @@ void Draw_Depth_Meter(Submarine *my_sub)
      for (index = 0; index < my_sub->map->Thermals_Between(0, MAX_DEPTH); index++)
      {
         y = my_sub->map->thermals[index];
-        y = 145 + (y / 10);
-        FillRectangle(screen, 890, y, 900, y+1, white);
+        y = rectangle.y + (y / 10);
+        FillRectangle(screen, rectangle.x, y, rectangle.x + 10, y+1, white);
      }
    }
-   y = (my_sub->Depth / 10) + 145;
-   FillRectangle(screen, 890, y, 900, y+1, red);
+   y = (my_sub->Depth / 10) + rectangle.y;
+   FillRectangle(screen, rectangle.x, y, rectangle.x + 10, y+1, red);
    SDL_UpdateRects(screen, 1, &rectangle);
 }
 
@@ -1647,68 +1666,6 @@ float Sonar_Detection_New(double Range, Submarine *observer, Submarine *target)
 
 
 
-// Re-writing this Sonar function above to accept submarines
-// passed in, rather than indexes. Should make things more
-// flexible.
-
-// Can I hear you?
-// float Sonar_Detection(double Range, int observer, int target){
-
-	/*********************************************
-	This is the current incarnation of our detection
-	routines. It seems to work well, and any further
-	changes will be slight, unless I get a wild hair
-	up my butt....
-
-	Pass it the Range of the two objects and the
-	ship ID's and it will spit back if the target
-	ship should be detectable.
-	*********************************************/
-/*
-	float NauticalMiles = (float)Range / 2000.0;
-	float HisPassiveSonarCrosssection = Subs[target].PSCS;
-	float EffectiveTargetSpeed;
-	float AmbientNoise;
-	float OwnShipNoise;
-	float TotalNoise;
-	float TargetNoise;
-	float Gb;
-	float Lbp;
-	float NoiseFromSpeed;
-	float BasisNoiseLevel;
-	float value;
-	float SeaState = 3.0; // Anyone want to model the weather.
-
-	if (Subs[target].Speed <= 5.0){
-	     EffectiveTargetSpeed = 0.0;
-	}else{
-	     EffectiveTargetSpeed = Subs[target].Speed - 5.0;
-	}
-
-	if (Subs[target].Speed < 20.0){
-	     NoiseFromSpeed = 1.30;
-	     BasisNoiseLevel = 0.0;
-	}else{
-	     NoiseFromSpeed = 0.65;
-	     BasisNoiseLevel = 9.75;
-	}
-
-	AmbientNoise = 89.0 + (5.0 * SeaState);
-	OwnShipNoise = Subs[observer].RadiatedNoise();
-	TotalNoise = 10.0 * log10(pow(10.0,OwnShipNoise/10.0) + pow(10.0,AmbientNoise/10.0));
-	Gb = (TotalNoise - AmbientNoise) / 2.9;
-	Lbp = AmbientNoise + Gb;
-	TargetNoise = HisPassiveSonarCrosssection +
-	((NoiseFromSpeed * EffectiveTargetSpeed) + BasisNoiseLevel);
-	value = TargetNoise - (20.0 * log10(NauticalMiles) + 1.1 * NauticalMiles) - Lbp;
-	if (!observer) SonarStation.flowandambientnoise = (Lbp - 34);
-	if (value > -45.0){
-		return (value - -45.0) + 1.0;
-	}else{
-		return 0.0;
-	}
-}
-*/
 
 
 void SoundEnvironment(){
@@ -2093,19 +2050,6 @@ int HandleInput(SDL_Event &event, int &mousex, int &mousey){
 		case SDL_MOUSEBUTTONDOWN:
 			mousex = event.button.x;
 			mousey = event.button.y;
-                        // This is debug stuff we can get rid of later
-                        /*
-			char cmousex[10];
-			char cmousey[10];
-			sprintf(cmousex, "%i", mousex);
-			sprintf(cmousey, "%i", mousey);
-			textline="Mouse Event: X:";
-			textline.append(cmousex);
-			textline.append(" Y:");
-			textline.append(cmousey);
-			Message.post_message(textline);
-			Message.display_message();
-                        */
 			if (mousey<740 && mousey>711){
 				if (mousex <212 && mousex>180){   //SONAR widget
 					return SONAR;
@@ -2692,6 +2636,12 @@ int HandleInput(SDL_Event &event, int &mousex, int &mousey){
                                          return USE_TUBE;
                                 case SDLK_g:
                                         return SEND_PING;
+                                case SDLK_q:
+                                        return UP_THERMAL;
+                                case SDLK_a:
+                                        return HOLD_DEPTH;
+                                case SDLK_z:
+                                        return DOWN_THERMAL;
 				default:	
 					return 0;
 					break;
@@ -2808,21 +2758,6 @@ int main(int argc, char **argv){
 	SDL_UpdateRect(screen, 0, 0, 0, 0);
 	timer1 = SDL_GetTicks();// initialize the timer
         SDL_Delay(1000);   // show splash screen for one second
-        /*
-	while (!quit){
-		if (SDL_GetTicks() - timer1 > 5000) quit = true; // if 5 seconds has passed, exit intro
-		while (SDL_PollEvent(&event)){
-			switch (event.type){
-				case SDL_MOUSEBUTTONDOWN: //is the mouse button pressed?
-				case SDL_KEYDOWN: //or has a key been pressed?
-					quit = true; // exit the intro screen
-					break;
-				default:
-					break;
-			}
-		}
-	}
-        */
 	quit = false; //reset loop exit flag
 	//LoadWidgets(); //load up the buttons
         LoadScreen(9);
@@ -3202,6 +3137,25 @@ int main(int argc, char **argv){
 						DisplayTMAWidgets();
 					}
 					break;
+                                case UP_THERMAL:
+                                        if ( (player) && (my_map) )
+                                        {
+                                           status = my_map->Next_Up(player->Depth);
+                                           player->DesiredDepth = status - 25;
+                                        }
+                                        break;
+                                case DOWN_THERMAL:
+                                        if ( (player) && (my_map) )
+                                        {
+                                            status = my_map->Next_Down(player->Depth);
+                                            player->DesiredDepth = status + 25;
+                                        }
+                                        break;
+                                case HOLD_DEPTH:
+                                        if (player)
+                                          player->DesiredDepth = player->Depth;
+                                        break;
+
 				case TOGGLESPHERICALTOWED:
 					SonarStation.ToggleArrayChoice();
 					SonarStation.DisplaySonarWidgets();

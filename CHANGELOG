@@ -1,3 +1,15 @@
+  - We should no longer display target information if we
+    do not have a strong contact.
+    Re-wrote Next_Target function to only return strong targets.
+
+  - Added controls to go up/down a thermal. Added key to hold
+    current depth. See README file for details.
+
+  - Depth and thermal meter now appears on helm screen and nav screen.
+
+  - Use SDL_gfx functions to draw arrows on helm screen.
+    Minor code clean-up. Patch provided by Rick.
+
   - Added patch from Rick to show ordered heading vs actual
     heading on helm screen.
 
