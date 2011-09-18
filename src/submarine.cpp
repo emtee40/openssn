@@ -562,7 +562,7 @@ Submarine *Submarine::Next_Target()
 */
 Submarine *Submarine::Next_Target()
 {
-    Target *original = last_target;
+    Target *original = NULL;
     Target *my_target;
     int found = FALSE;
 
@@ -573,20 +573,31 @@ Submarine *Submarine::Next_Target()
         return NULL;
     }
 
-    if (! original)
+    if (! last_target)
+    {
        last_target = targets;
+       my_target = last_target;
+    }
+    else   // we used to have a target
+    {
+       my_target = (Target *) last_target->next;
+       if (! my_target)
+          my_target = targets;
+    }
 
     // starting from the last target, try to find something
     // we can use
-    my_target = (Target *) last_target->next;
-    if (! my_target)
-       my_target = targets;   // avoid segfault
-    while ( (! found) && (my_target != last_target) )
+    while ( (! found) && (my_target != original) )
     {
+        #ifdef DEBUG
+        printf("Testing signal strength: %d\n", my_target->contact_strength);
+        #endif
         if (my_target->contact_strength >= CONTACT_WEAK)
            found = TRUE;
         else
         {
+            if (! original)
+               original = my_target;
             my_target = (Target *) my_target->next;
             if (! my_target)
                my_target = targets;
@@ -596,11 +607,17 @@ Submarine *Submarine::Next_Target()
 
      if (found)
      {
+        #ifdef DEBUG
+        printf("Returning new target.\n");
+        #endif
         last_target = my_target;
         return (Submarine *) my_target->sub;
      }
      else
      {
+        #ifdef DEBUG
+        printf("No target found.\n");
+        #endif
         last_target = targets;
         return NULL;
      }

@@ -1,3 +1,7 @@
+  - Display text feedback when changing depth or holding depth.
+
+  - Added new mission, hunt for a Typhoon.
+
   - We should no longer display target information if we
     do not have a strong contact.
     Re-wrote Next_Target function to only return strong targets.
@@ -37,7 +41,7 @@
 
   - Added thermal layers to listening function Can_Hear().
 
-  - Added DEBUGMAP flag for Makefile to help test MAP class.
+  - Added DEBUGMAP flag in Makefile to help test MAP class.
 
   - Added MAP class, which will handle depth and thermal layer information.
 

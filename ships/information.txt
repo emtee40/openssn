@@ -15,4 +15,5 @@ Destroyer	3
 Merchant	4
 Torpedo		5
 NoiseMaker	6
+Typhoon         7
 

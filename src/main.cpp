@@ -3141,19 +3141,31 @@ int main(int argc, char **argv){
                                         if ( (player) && (my_map) )
                                         {
                                            status = my_map->Next_Up(player->Depth);
-                                           player->DesiredDepth = status - 25;
+                                           if (status != player->Depth)
+                                           {
+                                               player->DesiredDepth = status - 25;
+                                               Message.post_message("Going up one thermal.");
+                                               Message.display_message();
+                                           }
                                         }
                                         break;
                                 case DOWN_THERMAL:
                                         if ( (player) && (my_map) )
                                         {
                                             status = my_map->Next_Down(player->Depth);
-                                            player->DesiredDepth = status + 25;
+                                            if (status != player->Depth)
+                                            {
+                                               player->DesiredDepth = status + 25;
+                                               Message.post_message("Going down one thermal.");
+                                               Message.display_message();
+                                            }
                                         }
                                         break;
                                 case HOLD_DEPTH:
                                         if (player)
                                           player->DesiredDepth = player->Depth;
+                                        Message.post_message("Holding depth, Captain.");
+                                        Message.display_message();
                                         break;
 
 				case TOGGLESPHERICALTOWED:
