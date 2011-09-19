@@ -154,7 +154,7 @@ void AnBqq5::Sonar(bool center)
 	//Are there any sound events at this time index to worry about?
 		for (int event=1; event<=Subs->GetCount(); event++){
 		//If so step through the events.
-			Subs->GetEvent(event, direction, signal, ship_type);
+			Subs->GetEvent(event, &direction, &signal, &ship_type);
 			//TargetId not used now but maybe later in TMA
 
 			//visable mono color from 70 - 255
@@ -290,7 +290,7 @@ void AnBqq5::TowedSonar(bool center)
 	//Are there any sound events at this time index to worry about?
 		for (int event=1; event<=TB16_Count; event++){
 		//If so step through the events.
-			TB16.GetEvent(event, bearing, signal, ship_type);
+			TB16.GetEvent(event, &bearing, &signal, &ship_type);
 			ambiguous_relative_bearing = (int)TB16.BearingAmbiguity((float)bearing);
 			//TargetId not used now but maybe later in TMA
 			//visable mono color from 70 - 255
@@ -1202,7 +1202,7 @@ void AnBqq5::UpdateCursor()
 	//Are there any sound events at this time index to worry about?
 		for (int event=1; event<=Subs->GetCount(); event++){
 		//If so step through the events. 
-			Subs->GetEvent(event, direction, signal, ship_type);
+			Subs->GetEvent(event, &direction, &signal, &ship_type);
 			//Okay this used to go through each bearing one by one and
 			//check to see if there was a sonar contact. But this is slow..
 			//So we are now incrementing by 5 degrees to speed thing along

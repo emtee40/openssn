@@ -1,3 +1,12 @@
+============ openssn-0.8 released September 18, 2011 ==========
+
+  - Added makefile target "tarball" for creating source packages.
+
+  - Stack object is now a linked list, not an array. Allows for
+    more ships/subs/sonar data.
+
+============ openssn-0.7 released August 15, 2011 =============
+
   - Display text feedback when changing depth or holding depth.
 
   - Added new mission, hunt for a Typhoon.

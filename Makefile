@@ -1,7 +1,7 @@
 PREFIX ?= /usr
 SSN = openssn
 DATADIR = $(PREFIX)/share/games/openssn
-VERSION = 0.8
+VERSION = 0.9
 
 all:
 	$(MAKE) VERSION=$(VERSION) PREFIX=$(PREFIX) -C src
@@ -27,3 +27,7 @@ install: all
 deinstall:
 	rm -rf $(PREFIX)/bin/$(SSN)
 	rm -rf $(DATADIR)
+
+tarball: clean
+	cd .. && tar czf openssn-$(VERSION).tar.gz openssn
+

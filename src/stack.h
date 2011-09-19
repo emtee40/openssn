@@ -21,24 +21,39 @@ $Id: stack.h,v 1.4 2003/04/14 05:51:04 mbridak Exp $
 
 /**Holds sound information for the SONAR
   *@author Michael Bridak
+  * Re-written to use linked list instead of array
+  * by Jesse
   */
 
-#define MAX_STACK 80
+
+#ifndef TRUE
+#define TRUE 1
+#endif
+#ifndef FALSE
+#define FALSE 0
+#endif
+
+typedef struct
+{
+  int direction, ship_type;
+  float signal_strength;
+  void *next;
+} STACK_DATA;
 
 class Stack {
 public:
 	/** how many events for this second*/
 	int counter;
 	/** storage space */
-	float stack[MAX_STACK][3];
+	STACK_DATA *stack, *top_of_stack;
 	/** Advance sound history, drop old events */
 	void AdvanceSonarHistory();
 	/** Place a sound event on in the Queue */
-	void RegisterEvent(int direction, float signalstrength, int ship_type);
+	int RegisterEvent(int direction, float signalstrength, int ship_type);
 	/** Get how many events are in the Queue for a particular second */
 	int  GetCount();
 	/** Get sound information */
-	void GetEvent(int event, int &Direction, float &SignalStrength, int &ship_type);
+	int GetEvent(int event, int *Direction, float *SignalStrength, int *ship_type);
 	Stack();
 	~Stack();
 };

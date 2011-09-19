@@ -16,51 +16,94 @@ $Id: stack.cpp,v 1.5 2003/04/14 05:51:04 mbridak Exp $
  *                                                                         *
  ***************************************************************************/
 
- #include "stack.h"
-#include <iostream>
+#include <stdlib.h>
+#include "stack.h"
 
-Stack::Stack(){
-	counter=0;
-}
-Stack::~Stack(){
-}
-
-void Stack::RegisterEvent(int direction, float signal, int ship_type){
-
-	++counter;
-	stack[counter][0]=(float)direction;
-	stack[counter][1]=signal;
-        stack[counter][2]=(float)ship_type;
-
+Stack::Stack()
+{
+	counter = 0;
+        stack = NULL;
+        top_of_stack = NULL;
 }
 
-void Stack::GetEvent(int event, int &rdirection, float &rsignal, int &ship_type){
 
-	rdirection=(int)stack[event][0];
-	rsignal=stack[event][1];
-        ship_type = (int) stack[event][2];
+Stack::~Stack()
+{
+  STACK_DATA *my_stack, *previous;
 
+  my_stack = stack;
+  while (my_stack)
+  {
+     previous = my_stack;
+     my_stack = (STACK_DATA *) my_stack->next;
+     free(previous);
+  }
 }
 
-int Stack::GetCount(){
-	return (counter);
+int Stack::RegisterEvent(int direction, float signal, int ship_type)
+{
+    STACK_DATA *current;
+
+    current = (STACK_DATA *) calloc(1, sizeof(STACK_DATA));
+    if (! current)
+       return FALSE;
+
+    current->direction = direction;
+    current->signal_strength = signal;
+    current->ship_type = ship_type;
+    if (top_of_stack)
+    {
+        top_of_stack->next = current;
+        top_of_stack = current;
+    }
+    else   // nothing in stack
+    {
+        top_of_stack = stack = current;
+    }
+    counter++;
+    return TRUE;
 }
 
-void Stack::AdvanceSonarHistory(){
-/*
-	for (int second=29; second>0; second--){
-		counter[second]=counter[second-1];
-		for (int event=counter[second-1]; event>0; event--){
-			stack[second][event][0]=stack[second-1][event][0];
-			stack[second][event][1]=stack[second-1][event][1];
-			stack[second][event][2]=stack[second-1][event][2];
-		}
-	}
-*/
-	counter=0;
-	stack[0][0]=0;
-	stack[0][1]=0;
-	stack[0][2]=0;
+int Stack::GetEvent(int event, int *rdirection, float *rsignal, int *ship_type)
+{
+    int index = 0;
+    STACK_DATA *current;
+
+    current = stack;
+    while ( (current) && (index < event) )
+    {
+        current = (STACK_DATA *) current->next;
+        index++;
+    }
+
+    if ( (index == event) && (current) )
+    {
+        *rdirection = current->direction;
+        *ship_type = current->ship_type;
+        *rsignal = current->signal_strength;
+        return TRUE;
+    }
+    else
+      return FALSE;
+}
+
+int Stack::GetCount()
+{
+	return counter;
+}
+
+void Stack::AdvanceSonarHistory()
+{
+   STACK_DATA *current, *previous;
+   current = stack;
+   while (current)
+   {
+      previous = current;
+      current = (STACK_DATA *) current->next;
+      free(previous);
+   }
+   stack = top_of_stack = NULL;
+   counter = 0;
 }
 
 
