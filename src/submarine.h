@@ -50,12 +50,16 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 #define PING_NOISE 200
 
 #define CLASS_NAME_SIZE 32
+#define CLASS_TYPE_SIZE 8
 #define CLASS_LOSANGELES 1
 #define CLASS_AKULA 2
 #define CLASS_DESTROYER 3
 #define CLASS_MERCHANT 4
 #define CLASS_TORPEDO 5
 #define CLASS_NOISEMAKER 6
+#define CLASS_TYPHOON 7
+#define CLASS_NIMITZ 8
+#define CLASS_TBILISI 9
 
 // status of tubes
 #define MAX_TUBES 6
@@ -161,6 +165,7 @@ public:
 	int ShipType; /*SubSurface, Surface, Air */
         int ShipClass;  // specific type (Los Angels, Akula, etc)
         char ClassName[CLASS_NAME_SIZE];
+        char ClassType[CLASS_TYPE_SIZE];
 	int Friend; /*Flag to mark if ship is a friend/foe/neither*/
 	float Depth; /*How deep are we?*/
 	int DesiredDepth; /*You want to go how deep!*/
@@ -181,6 +186,7 @@ public:
 	float CheckNegSpeed(float); /*if Speed is negative return inverse value*/
 	double DistanceToTarget(Submarine *Target);
 	double BearingToTarget(Submarine *Target);
+        double BearingToOrigin(Submarine *Target);
 	float DEAngle(Submarine *Target);
         int hull_strength;
         int mission_status;
@@ -199,6 +205,7 @@ public:
         Submarine *owner;     // torpedoes are owned by ships/subs
         int fuel_remaining;  // mostly for torpedos, 
                              // but maybe for electric subs later
+        int origin_x, origin_y;    // where did this torp come from?
         
 	Submarine();
 	~Submarine();

@@ -943,6 +943,10 @@ void ShipHandeling(){
                // we should always have a target, but just in case...
                if (my_torp->target)
                {
+                  if (my_torp->target == player)
+                     Message.post_message("We have been hit!");
+                  else
+                     Message.post_message("A torpedo hit its target!");
                   // radio warning to others
                   if ( (my_torp->target->ShipType == TYPE_SHIP) &&
                        (my_torp->target->mood == MOOD_CONVOY) )
@@ -963,7 +967,7 @@ void ShipHandeling(){
                temp_torp = my_torp->next;
                torpedoes = Remove_Ship(torpedoes, my_torp);
                my_torp = temp_torp;
-               Message.post_message("A torpedo hit its target!");
+               // Message.post_message("A torpedo hit its target!");
                if (target_status == DAMAGE_SINK)
                   Message.post_message("Target is sinking!");
                Message.display_message();
@@ -1340,7 +1344,9 @@ void Display_Target()
    sprintf(buffer, "Depth: %d feet", (int) current_target->Depth);
    fnt.PutString(screen, 140, 472, buffer);
 
-   sprintf(buffer, "Type: %s", current_target->ClassName );
+   sprintf(buffer, "Type: %s ", current_target->ClassName );
+   if (current_target->ClassType[0])
+      strcat(buffer, current_target->ClassType); 
    fnt.PutString(screen, 140, 484, buffer);
    }   // end of valid target
    SDL_UpdateRects(screen, 1, &rectangle); 
@@ -2642,6 +2648,10 @@ int HandleInput(SDL_Event &event, int &mousex, int &mousey){
                                         return HOLD_DEPTH;
                                 case SDLK_z:
                                         return DOWN_THERMAL;
+                                case SDLK_s:
+                                        return GO_SURFACE;
+                                case SDLK_x:
+                                        return GO_PERISCOPE_DEPTH;
 				default:	
 					return 0;
 					break;
@@ -3165,6 +3175,18 @@ int main(int argc, char **argv){
                                         if (player)
                                           player->DesiredDepth = player->Depth;
                                         Message.post_message("Holding depth, Captain.");
+                                        Message.display_message();
+                                        break;
+                                 case GO_SURFACE:
+                                        if (player)
+                                           player->DesiredDepth = 0;
+                                        Message.post_message("Surfacing, Captain!");
+                                        Message.display_message();
+                                        break;
+                                 case GO_PERISCOPE_DEPTH:
+                                        if (player)
+                                           player->DesiredDepth = PERISCOPE_DEPTH;
+                                        Message.post_message("Heading to periscope depth.");
                                         Message.display_message();
                                         break;
 

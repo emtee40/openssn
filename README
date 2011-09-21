@@ -58,7 +58,7 @@ SDL_mixer
 Assuming the above libraries are installed, it should be possible to
 build OpenSSN with the following commands
 
-tar zxf openssn-0.8.tar.gz
+tar zxf openssn-0.9.tar.gz
 cd openssn
 make
 
@@ -90,10 +90,8 @@ The following command line parameters are recognized:
 Control Keys
 ===========================
 
-At the moment, it's probably easiest to use the mouse to
-manipulate the submarine, however keyboard support is included and
-the following keys work.
-
+The player's submarine can be controlled with either the mouse 
+or keyboard commands. The following key commands are recognized.
 
 Pilot the submarine..............
 Plus key		Increase sub's speed
@@ -105,6 +103,8 @@ Up keypad (8)		Rise toward the surface
 Q			Go up one thermal
 A			Hold depth here
 Z			Go down one thermal
+S			Surface
+X			Go to periscope depth
 
 
 System controls...................

@@ -9,11 +9,12 @@ For example:
 Each class is assigned a number. Currently the following classes exist:
 
 Name		Class
-Los Angeles	1
-Akula		2
-Destroyer	3
-Merchant	4
-Torpedo		5
-NoiseMaker	6
-Typhoon         7
-
+Los Angeles SSN	 1
+Akula SSN	 2
+Destroyer DD	 3
+Merchant	 4
+Torpedo		 5
+NoiseMaker	 6
+Typhoon SSBN     7
+Nimitz CV	 8
+Tbilisi CV       9

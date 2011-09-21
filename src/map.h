@@ -17,7 +17,7 @@ water and placing of thermal layers.
 #define MIN_DEPTH 0          // most shallow point of the ocean
 #define MAX_THERMALS 3
 #define MAX_THERMAL_DEPTH 900
-#define THERMAL_FILTER 0.25
+#define THERMAL_FILTER 0.15
 
 // MAP_MIN and MAP_MAX are also defined in the coord class
 #ifndef MAP_MIN 

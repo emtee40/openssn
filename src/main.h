@@ -121,6 +121,8 @@ $Id: main.h,v 1.11 2003/07/18 03:50:00 mbridak Exp $
 #define         UP_THERMAL 74
 #define         HOLD_DEPTH 75
 #define         DOWN_THERMAL 76
+#define		GO_PERISCOPE_DEPTH 77
+#define		GO_SURFACE 78
 
 
 //globals

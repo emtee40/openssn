@@ -1,11 +1,29 @@
-============ openssn-0.8 released September 18, 2011 ==========
+  - Added keys for moving to periscope depth and surfacing.
+    X and S respectively.
+
+  - Radar now gives us the location, but not a firm
+    contact on surface vessels. Prevents "cheating'
+    when on recon missions.
+
+  - Ship type is now included in target information.
+
+  - Added new carrier class ships.
+
+  - AI vessels in ATTACK mood should now chase after the
+    origin of torpedoes.
+
+  - Reduced thermal dampening of sound from 25% to 15%
+
+  - Player should be informed if they have been hit.
+
+  - Updated English PDF manual.
 
   - Added makefile target "tarball" for creating source packages.
 
   - Stack object is now a linked list, not an array. Allows for
     more ships/subs/sonar data.
 
-============ openssn-0.7 released August 15, 2011 =============
+============ openssn-0.8 released September 18, 2011 ==========
 
   - Display text feedback when changing depth or holding depth.
 

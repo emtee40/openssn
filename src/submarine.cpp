@@ -29,37 +29,9 @@ $Id: submarine.cpp,v 1.6 2003/04/14 05:51:04 mbridak Exp $
 
 using namespace std;
 
-Submarine::Submarine(){
+Submarine::Submarine()
+{
     Init();
-/*
-Moved all of this to init()
-
-        int index;
-
-	//Passive Sonar Cross Section
-	//in future make different pscs's
-	//based on angle of view, front
-	//side and rear.
-
-	PSCS=83.0;
-        Active = FALSE;
-	CavitationFlag=0;
-	Depth=100;
-	MaxDepth=1200;
-	Speed=5.0;
-	MaxSpeed=32;
-	MinSpeed=-32;
-	DesiredSpeed=0;
-	Rudder=10;
-	TorpedosOnBoard=23;
-        // clear targets
-        for (index = 0; index < MAX_SUBS; index++)
-        {
-           targets[index] = -1;
-           target_strength[index] = 0;
-        }
-        current_target = -1;
-*/
 }
 
 Submarine::~Submarine()
@@ -108,6 +80,8 @@ void Submarine::Init()
         radio_message = RADIO_NONE;
         pinging = FALSE;
         map = NULL;
+        ClassName[0] = '\0';
+        ClassType[0] = '\0';
 }
 
 
@@ -215,6 +189,65 @@ double Submarine::BearingToTarget(Submarine *Target){
 	}
 	return bearing;
 }
+
+
+double Submarine::BearingToOrigin(Submarine *Target)
+{
+        double latdif=0, londif=0, bearing = 0; //atan() needs doubles
+        //LatLonDifference(observer, target, &latdif, &londif);
+
+        if (! Target)
+           return 0;
+        if (Lat_TotalYards > Target->origin_x){
+                latdif = Lat_TotalYards - Target->origin_x;
+        }
+        else{
+                latdif = Target->origin_x - Lat_TotalYards;
+        }
+
+        if (Lon_TotalYards > Target->origin_y){
+                londif = Lon_TotalYards - Target->origin_y;
+        }
+        else{
+                londif = Target->origin_y - Lon_TotalYards;
+        }
+
+        if ((Lon_TotalYards < Target->origin_y) &&
+        (Lat_TotalYards < Target->origin_x)){
+                bearing = (360 - ((atan(latdif / londif) * 360) / 6.28318530717958647692));
+        }
+        if ((Lon_TotalYards < Target->origin_y) &&
+        (Lat_TotalYards > Target->origin_x)){
+                bearing = (0 + ((atan(latdif / londif) * 360) / 6.28318530717958647692));
+        }
+        if ((Lon_TotalYards > Target->origin_y) &&
+        (Lat_TotalYards < Target->origin_x)){
+                bearing = (180 + ((atan(latdif / londif) * 360) / 6.28318530717958647692));
+        }
+        if ((Lon_TotalYards > Target->origin_y) &&
+        (Lat_TotalYards > Target->origin_x)){
+                bearing = (180 - ((atan(latdif / londif) * 360) / 6.28318530717958647692));
+        }
+
+        if (londif == 0){
+                if (Lat_TotalYards > Target->origin_x){
+                        bearing = 90;
+                }else{
+                        bearing = 270;
+                }
+        }
+        if (latdif == 0){
+                if (Lon_TotalYards > Target->origin_y){
+                        bearing = 180;
+                }else{
+                        bearing = 0;
+                }
+        }
+        return bearing;
+
+}
+
+
 
 double Submarine::DistanceToTarget(Submarine *Target){
 	double latdif = 0, londif = 0; //sqrt needs doubles
@@ -390,7 +423,7 @@ int Submarine::Add_Target(Submarine *new_sub, float signal_strength)
    Target *my_target, *new_target, *last_target = NULL;
 
    if (signal_strength == 2.0)
-      add_contact = CONTACT_SOLID;
+      add_contact = CONTACT_WEAK;
    else if (signal_strength == 1.0)
       add_contact = CONTACT_WEAK;
    else if (signal_strength == CONTACT_PING)
@@ -417,6 +450,9 @@ int Submarine::Add_Target(Submarine *new_sub, float signal_strength)
            (my_target->contact_strength < CONTACT_WEAK) )
          my_target->contact_strength = CONTACT_WEAK + 2;
       else if (signal_strength == CONTACT_PING)
+         my_target->contact_strength = my_target->contact_strength;
+      else if ( (add_contact == CONTACT_WEAK) &&
+                (my_target->contact_strength >= CONTACT_WEAK) )
          my_target->contact_strength = my_target->contact_strength;
       else
          my_target->contact_strength += add_contact;
@@ -640,7 +676,7 @@ int Submarine::Load_Class(char *my_file)
        return FALSE;
 
     // load data
-    infile >> MaxSpeed >> MaxDepth >> Rudder >> TorpedosOnBoard >> hull_strength >> has_sonar >> PSCS >> ClassName;
+    infile >> MaxSpeed >> MaxDepth >> Rudder >> TorpedosOnBoard >> hull_strength >> has_sonar >> PSCS >> ClassName >> ClassType;
     infile.close();
     // if we carry torpedoes, we also carry noisemakers
     NoiseMakers = TorpedosOnBoard / 2;
@@ -797,6 +833,8 @@ Submarine *Submarine::Fire_Tube(Submarine *target, char *ship_file)
    // my_torp->ShipType = TYPE_TORPEDO;
    // my_torp->Friend = FOE;
    my_torp->Friend = Friend;
+   my_torp->origin_x = Lat_TotalYards;
+   my_torp->origin_y = Lon_TotalYards;
    return my_torp;
 }
 
@@ -938,130 +976,6 @@ int Submarine::Torpedo_AI(Submarine *all_subs)
 }
 
 
-// This function lets us figure out what to do with surface
-// ships. By default a surface ships just wanders around
-// and make the occasional turn.
-// Note: Later we will add hunting, running and shooting at stuff here.
-// This function returns the torpedoes
-/*
-Submarine *Submarine::Ship_AI(Submarine *all_ships, Submarine *all_torpedoes)
-{
-   int change;
-   Submarine *torpedo, *my_torpedoes, *target;
-   int can_hear_torpedo;
-   double distance;
-   int bearing, status;
-   int found;
-
-   // most important thing we can do is run away from torpedoes
-   if (has_sonar)
-   {
-       // go through all torpedoes and see if any of them
-       // are chasing us
-       torpedo = all_torpedoes;
-       while (torpedo) 
-       {
-           if (torpedo->ShipType == TYPE_TORPEDO) 
-           {
-           can_hear_torpedo = Can_Hear(torpedo);
-           distance = DistanceToTarget(torpedo);
-           if ( (torpedo->target == this) && (can_hear_torpedo) && 
-                (distance < (10 * MILES_TO_YARDS) ) )
-           {
-               status = (DesiredSpeed == MaxSpeed);
-               all_torpedoes = Launch_Noisemaker(all_torpedoes, torpedo);
-               bearing = (int) BearingToTarget(torpedo);
-               bearing += 180;
-               if (bearing >= 360)
-                  bearing = bearing % 360;
-               DesiredHeading = bearing;
-               DesiredSpeed = MaxSpeed;
-               if (mood == MOOD_CONVOY)
-                   mood = MOOD_PASSIVE;
-               if (! status)
-                 return all_torpedoes;
-           }
-           }   // end of this really is a torp
-           torpedo = torpedo->next;
-      }
-
-      // see if we can hear a nearby enemy to shoot at
-      target = Have_Enemy_Target(all_ships);
-      int count = Count_Torpedoes(all_torpedoes);
-      if ( (target) && (TorpedosOnBoard > 0) &&
-           (count < MAX_TORPEDOES_FIRED) )
-      {
-          #ifdef DEBUG
-          printf("Firing with %d torpedoes.\n", count);
-          #endif
-          torpedo_tube[0] = TUBE_TORPEDO;
-          status = Use_Tube(FIRE_TUBE, 0);
-          if (status == TUBE_ERROR_FIRE_SUCCESS)
-          {
-              char *ship_file, filename[] = "ships/class5.shp";
-              ship_file = Find_Data_File(filename);
-              torpedo = Fire_Tube(target, ship_file );
-              if ( (ship_file) && (ship_file != filename) )
-                   free(ship_file);
-              if (torpedo)
-              {
-                 torpedo->Friend = Friend;
-                 torpedo->owner = this;
-                 // all_torpedoes = Add_Ship(all_torpedoes, torpedo);
-                 if (! all_torpedoes)
-                    return torpedo;
-                 my_torpedoes = all_torpedoes;
-                 found = FALSE;
-                 while ( (! found) && (my_torpedoes) )
-                 {
-                     if (my_torpedoes->next)
-                        my_torpedoes = my_torpedoes->next;
-                     else
-                     {
-                       my_torpedoes->next = torpedo;
-                       found = TRUE;
-                       // return all_torpedoes;
-                     }
-                 }
-              }
-              TorpedosOnBoard--;
-              return all_torpedoes;
-          }
-      }
-
-      // if we got this far we cannot hear a torpedo coming at us
-      if (Speed == MaxSpeed)
-         DesiredSpeed = MaxSpeed / 2;
-   }
-
-   // when traveling in convoy, we change course once every
-   // ... twenty minutes?
-   if (mood == MOOD_CONVOY)
-   {
-      convoy_course_change--;
-      if (! convoy_course_change)
-      {
-          convoy_course_change = CONVOY_CHANGE_COURSE;
-          DesiredHeading += 90;
-          if (DesiredHeading >= 360)
-              DesiredHeading = DesiredHeading % 360;
-      }
-   }
-   // nothing is going on, we have a 1/100 chance of making a turn
-   else
-   {
-     change = rand() % CHANCE_COURSE;
-     if (! change)
-     {
-        DesiredHeading = Heading + ((rand() % 180) - 90);
-        if (DesiredHeading >= 360)
-           DesiredHeading = DesiredHeading % 360;
-     }
-   }
-
-   return all_torpedoes;
-}
-*/
 
 // This function tells us what AI submarines will do.
 // Right now they just make the occasional turn. Later we
@@ -1077,6 +991,7 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
    Submarine *target, *my_torpedoes;
    int status, found;
    int action = 0;     // 1 = running, 2 = chasing
+   Submarine *track_torpedo = NULL;
 
    // most important thing we can do is run away from torpedoes
    if (has_sonar)
@@ -1127,6 +1042,14 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
            {
                 if (ShipType == TYPE_SHIP)
                     mood = MOOD_ATTACK;
+                // if we are not tracking anything, check out the torp
+                if ( (! track_torpedo) && (torpedo->Friend != Friend) )
+                {
+                  #ifdef AIDEBUG
+                  printf("Found torpedo to track.\n");
+                  #endif
+                  track_torpedo = torpedo;
+                }
            }
           
            if ( (can_hear_torpedo) && (ShipType == TYPE_SHIP) )
@@ -1134,7 +1057,7 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
 
            }   // end of this is a torpedo
            torpedo = torpedo->next;
-        }
+        }   // end of checking out torpedoes in the water
 
       #ifdef AIDEBUG
       printf("Checking for targets.\n");
@@ -1212,13 +1135,27 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
                 DesiredDepth = target->Depth;
              action = 2;
           }
+      }    // end of we have a target and we have torpedoes on board
+
+      // we are not tracking anything, but we have torpedoes
+      // and we can hear a torpedo
+      // move toward the origine of the torpedo we hear
+      else if ( (TorpedosOnBoard > 0) && (track_torpedo) )
+      {
+         #ifdef AIDEBUG
+         printf("We hear a torpedo, tracking it.\n");
+         printf("We should probably only chase torpedoes if in attack mood\n");
+         #endif
+         DesiredHeading = BearingToOrigin(track_torpedo);
+         if (ShipType == TYPE_SUB)
+            DesiredDepth = track_torpedo->Depth;
       }
       
 
       // if we got this far we cannot hear a torpedo coming at us
       if ( (Speed == MaxSpeed) && (! action) )
          DesiredSpeed = MaxSpeed / 3;
-   }
+   }     // I think this is the end of "we have sonar" section
 
    
    // when traveling in convoy, we change course once every
