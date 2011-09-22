@@ -99,6 +99,8 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 #define DAMAGE_SINK 2
 
 #define CHANCE_COURSE 1000
+#define RUDDER_CHANGE 0.025
+#define PLANES_CHANGE 0.2  // originally around 0.185
 
 #define MISSION_NONE 0
 #define MISSION_SINK 1
@@ -113,6 +115,8 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 #define MAX_NOISEMAKERS_FIRED 1
 #define MAX_PLAYER_WEAPONS 6
 #define MAX_TORPEDO_RANGE 8
+#define TORPEDO_RANGE_ATTACK 4
+#define TORPEDO_RANGE_PASSIVE 3
 
 #define DISTRACTED_CHANCE 4   // 1 in 4 chance a torpedo will chase noisemaker
 
@@ -196,6 +200,7 @@ public:
         int radio_message;
         int torpedo_tube[MAX_TUBES];
         int pinging;       // are we using active sonar?
+        int using_radar;
         MAP *map;
 
         Submarine *next;     // also for torpedos, though could be used

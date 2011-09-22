@@ -871,6 +871,7 @@ void ShipHandeling(){
        {
            EsmStation.LowerMast();
            RadarStation.LowerMast();
+           player->using_radar = FALSE;
        }
        // if array is out, limit speed
        if (TB16.GetLength() > 0)
@@ -3352,12 +3353,16 @@ int main(int argc, char **argv){
 					RadarStation.LowerMast();
 					RadarStation.DisplayWidgets();
 					RadarStation.ClearScreen();
+                                        if (player)
+                                            player->using_radar = FALSE;
 					break;
 				case RADARUP:
                                         if (Subs->Depth < PERISCOPE_DEPTH)
                                         {
 					  RadarStation.RaiseMast();
 					  RadarStation.DisplayWidgets();
+                                          if (player)
+                                             player->using_radar = TRUE;
                                         }
 					break;
 				case ESMDOWN:

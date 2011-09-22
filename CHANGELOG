@@ -1,3 +1,25 @@
+  - Vessel depth changes a little faster now, even at
+    slow speeds. Simplified depth change calculation.
+
+  - When traveling in reverse the sub should rise/fall in
+    the proper direction.
+
+  - AI subs should change depth sometimes.
+
+  - Fixed bug which would prevent AI from shooting at
+    near targets.
+
+  - AI vessels should shoot at different ranges depending
+    on their mood and a little randomness.
+
+  - Enemy surface ships now detect radar signals and
+    investigate.
+
+  - Pinging at escorts in a convoy will cause the escorts to
+    examine the pinging vessel.
+
+  - AI now notices pinging and will move to investigate.
+
   - Added keys for moving to periscope depth and surfacing.
     X and S respectively.
 

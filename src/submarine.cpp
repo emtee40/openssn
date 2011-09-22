@@ -79,6 +79,7 @@ void Submarine::Init()
         convoy_course_change = CONVOY_CHANGE_COURSE;
         radio_message = RADIO_NONE;
         pinging = FALSE;
+        using_radar = FALSE;
         map = NULL;
         ClassName[0] = '\0';
         ClassType[0] = '\0';
@@ -311,35 +312,47 @@ void Submarine::Handeling(){
         // based on the desired variables
 	// First we'll do depth
 
-	float UpBubble; //The greater the amount the faster the change.
-	float DownBubble;
+	// float UpBubble; //The greater the amount the faster the change.
+	// float DownBubble;
 	float AmountOfChange; //How much to turn the boat.
+        float temp_speed = Speed;
+        float delta_depth = 0.0;
 
+        if (temp_speed < 0)
+            temp_speed = -temp_speed;
         // keep desired depth sane
         if (DesiredDepth < 0)
             DesiredDepth = 0;
         else if (DesiredDepth > MaxDepth)
             DesiredDepth = MaxDepth;
 
+        delta_depth = temp_speed * PLANES_CHANGE;
+        if (delta_depth < 1.0)
+           delta_depth = 1.0;
+        else if (delta_depth > 5.0)
+           delta_depth = 5.0;
+
 	if (DesiredDepth > Depth){  //Do we need to go up?
-		UpBubble = 0.05; //5% up bubble if we're close
-		if ((DesiredDepth - Depth) > 20){
-			UpBubble = 0.1; //10% Up Bubble
-		}
-                UpBubble *= 4;
-		Depth += ((Speed * 0.185) * UpBubble); //feet per second @ 1kt = 0.185
+		// UpBubble = 0.05; //5% up bubble if we're close
+		// if ((DesiredDepth - Depth) > 20){
+		//	UpBubble = 0.1; //10% Up Bubble
+		// }
+                // UpBubble *= 4;
+		// Depth += ((temp_speed * PLANES_CHANGE) * UpBubble); //feet per second @ 1kt = 0.185
+                Depth += delta_depth;
 		if (Depth > DesiredDepth){         //if we have risen past the desired depth
 			Depth = DesiredDepth;     //Flatten us out
 		}
 	}
 
 	if (DesiredDepth < Depth){  //Do we need to go down?
-		DownBubble= 0.05; //5% Down Bubble if we're close
-		if ((Depth - DesiredDepth) >20){
-			DownBubble = 0.1; //10% down bubble
-		}
-                UpBubble *= 4;
-		Depth -= ((Speed * 0.185) * DownBubble);
+		// DownBubble= 0.05; //5% Down Bubble if we're close
+		// if ((Depth - DesiredDepth) >20){
+		//	DownBubble = 0.1; //10% down bubble
+		// }
+                // UpBubble *= 4;
+		// Depth -= ((temp_speed * PLANES_CHANGE) * DownBubble); 
+                Depth -= delta_depth;
 		if (Depth < DesiredDepth){
 			Depth = DesiredDepth;
 		}
@@ -348,7 +361,7 @@ void Submarine::Handeling(){
 	//Change Heading
 
 	// AmountOfChange = (Rudder * Speed) * 0.012;
-        AmountOfChange = (Rudder * Speed) * 0.025;
+        AmountOfChange = (Rudder * temp_speed) * RUDDER_CHANGE;
         #ifdef DEBUG
         printf("Rudder change %f\n", AmountOfChange);
         #endif
@@ -873,6 +886,8 @@ int Submarine::Can_Hear(Submarine *target)
         {
            if (target->Depth <= 0)
               return TRUE;
+           if (target->using_radar)
+              return TRUE;
         }
 
         if (ShipType == TYPE_TORPEDO)
@@ -908,6 +923,8 @@ int Submarine::Can_Hear(Submarine *target)
         Lbp = AmbientNoise + Gb;
         TargetNoise = HisPassiveSonarCrosssection +
         ((NoiseFromSpeed * EffectiveTargetSpeed) + BasisNoiseLevel);
+        if (target->pinging)
+           TargetNoise += PING_NOISE;
         if (thermal_layers)
            TargetNoise -= TargetNoise * (thermal_layers * THERMAL_FILTER);
         value = TargetNoise - (20.0 * log10(NauticalMiles) + 1.1 * NauticalMiles) - Lbp;
@@ -977,9 +994,7 @@ int Submarine::Torpedo_AI(Submarine *all_subs)
 
 
 
-// This function tells us what AI submarines will do.
-// Right now they just make the occasional turn. Later we
-// will add depth/speed and combat changed in here.
+// This function tells us what AI ships and submarines will do.
 // This function returns a link to all torpedoes.
 Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
 {
@@ -1072,12 +1087,19 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
            // (count < MAX_TORPEDOES_FIRED) )
       {
           int target_range = DistanceToTarget(target);
+          int shooting_range;
+          // we shoot at different distances, depending on mood
+          if (mood == MOOD_ATTACK)
+            shooting_range = TORPEDO_RANGE_ATTACK;
+          else
+            shooting_range = TORPEDO_RANGE_PASSIVE;
+          shooting_range += (rand() % 3) - 2;  // add some randomness
           target_range *= YARDS_TO_MILES;
           #ifdef AIDEBUG
           printf("Checking range %d\n", target_range);
           #endif
           if ( (count < MAX_TORPEDOES_FIRED) && 
-               (target_range < (MAX_TORPEDO_RANGE / 3)) )
+               (target_range < shooting_range) )
           {
           #ifdef AIDEBUG
           printf("Firing with %d torpedoes.\n", count);
@@ -1127,7 +1149,8 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
           }   // torpedo firing was successful
           }   // can fire torpedo at target in range
         
-          else if (mood == MOOD_ATTACK)   // we hear an enemy, but can't fire yet
+          // we hear an enemy, but can't fire yet
+          else if ( (mood == MOOD_ATTACK) && (! action) ) 
           {
              DesiredHeading = BearingToTarget(target); 
              DesiredSpeed = (MaxSpeed / 2) + (rand() % 5) - 2;
@@ -1140,7 +1163,7 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
       // we are not tracking anything, but we have torpedoes
       // and we can hear a torpedo
       // move toward the origine of the torpedo we hear
-      else if ( (TorpedosOnBoard > 0) && (track_torpedo) )
+      else if ( (TorpedosOnBoard > 0) && (track_torpedo) && (!action) )
       {
          #ifdef AIDEBUG
          printf("We hear a torpedo, tracking it.\n");
@@ -1180,6 +1203,9 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
        if (DesiredHeading >= 360)
          DesiredHeading = DesiredHeading % 360;
        DesiredSpeed = MaxSpeed / 3;
+       // submarines should change depth too
+       if (ShipType == TYPE_SUB)
+          DesiredDepth = (rand() % MaxDepth) / 2 + 50;
      }
    }
 
@@ -1352,6 +1378,11 @@ Submarine *Submarine::Have_Enemy_Target(Submarine *all_ships)
                    #endif
                    min = current;
                    min_distance = current_distance;
+                   // if the target is hostile and pinging, and
+                   // we are in a convoy, switch to attack mood
+                   if ( (current->pinging) && (mood == MOOD_CONVOY) )
+                      mood = MOOD_ATTACK;
+                  
                }
            } 
        }
