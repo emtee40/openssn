@@ -75,6 +75,7 @@ void Submarine::Init()
         hull_strength = 1;
         has_sonar = TRUE;
         mission_status = MISSION_NONE;
+        mission_timer = 0;
         mood = MOOD_PASSIVE;
         convoy_course_change = CONVOY_CHANGE_COURSE;
         radio_message = RADIO_NONE;
@@ -331,6 +332,8 @@ void Submarine::Handeling(){
            delta_depth = 1.0;
         else if (delta_depth > 5.0)
            delta_depth = 5.0;
+        if (ShipType == TYPE_TORPEDO)
+           delta_depth *= 2.0;
 
 	if (DesiredDepth > Depth){  //Do we need to go up?
 		// UpBubble = 0.05; //5% up bubble if we're close
@@ -729,6 +732,9 @@ int Submarine::Load_Mission(FILE *from_file)
     else
         mission_status = MISSION_NONE;
     #endif
+
+    if (mission_status == MISSION_ALIVE)
+        sscanf( &(line[6]), "%d", &mission_timer);
     return TRUE;
 }
 
@@ -1003,7 +1009,7 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
    int can_hear_torpedo;
    double distance;
    int bearing;
-   Submarine *target, *my_torpedoes;
+   Submarine *target = NULL, *my_torpedoes;
    int status, found;
    int action = 0;     // 1 = running, 2 = chasing
    Submarine *track_torpedo = NULL;
@@ -1037,7 +1043,7 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
                   bearing = bearing % 360;
                DesiredHeading = bearing;
                DesiredSpeed = MaxSpeed;
-               // subs are dive too
+               // subs can dive too
                if (ShipType == TYPE_SUB)
                {
                  if (torpedo->Depth <= Depth)  // it is above us
@@ -1155,14 +1161,18 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
              DesiredHeading = BearingToTarget(target); 
              DesiredSpeed = (MaxSpeed / 2) + (rand() % 5) - 2;
              if (ShipType == TYPE_SUB)
+             {
                 DesiredDepth = target->Depth;
+                if (DesiredDepth < PERISCOPE_DEPTH)
+                    DesiredDepth = PERISCOPE_DEPTH;
+             }
              action = 2;
           }
       }    // end of we have a target and we have torpedoes on board
 
       // we are not tracking anything, but we have torpedoes
       // and we can hear a torpedo
-      // move toward the origine of the torpedo we hear
+      // move toward the origin of the torpedo we hear
       else if ( (TorpedosOnBoard > 0) && (track_torpedo) && (!action) )
       {
          #ifdef AIDEBUG
@@ -1172,6 +1182,13 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
          DesiredHeading = BearingToOrigin(track_torpedo);
          if (ShipType == TYPE_SUB)
             DesiredDepth = track_torpedo->Depth;
+      }
+      // We have no target and no torpedo to follow
+      // if we are in attack mood we should slow down
+      // so we can hear better
+      else if ( (! action) && (!target) && (mood == MOOD_ATTACK) )
+      {
+          DesiredSpeed = (MaxSpeed / 3) + ( ( rand() % 5 ) - 3 );
       }
       
 
@@ -1205,7 +1222,7 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
        DesiredSpeed = MaxSpeed / 3;
        // submarines should change depth too
        if (ShipType == TYPE_SUB)
-          DesiredDepth = (rand() % MaxDepth) / 2 + 50;
+          DesiredDepth = ( (rand() % MaxDepth) / 2 ) + 50;
      }
    }
 
@@ -1232,7 +1249,8 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
        }
    }
    radio_message = RADIO_NONE;
-
+   if ( (ShipType == TYPE_SUB) && (Depth < PERISCOPE_DEPTH) )
+       DesiredDepth = PERISCOPE_DEPTH;
    return all_torpedoes;
 }  // end of Sub_AI
 

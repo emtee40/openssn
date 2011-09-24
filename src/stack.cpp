@@ -66,7 +66,7 @@ int Stack::RegisterEvent(int direction, float signal, int ship_type)
 
 int Stack::GetEvent(int event, int *rdirection, float *rsignal, int *ship_type)
 {
-    int index = 0;
+    int index = 1;
     STACK_DATA *current;
 
     current = stack;

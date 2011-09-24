@@ -149,6 +149,7 @@ void AnBqq5::Sonar(bool center)
 	int direction;
 	float signal;
         int ship_type;
+        double combined_sound;
 
 	if (Subs->GetCount()>0){
 	//Are there any sound events at this time index to worry about?
@@ -158,15 +159,18 @@ void AnBqq5::Sonar(bool center)
 			//TargetId not used now but maybe later in TMA
 
 			//visable mono color from 70 - 255
+                        combined_sound = (signal * 4) + flowandambientnoise;
+                        if (combined_sound > 255.0)
+                            combined_sound = 255.0;
                         switch(ship_type)
                         {
                           case TYPE_SHIP:
-			tracecolor=SDL_MapRGB(sonarscreen->format, 0,(int) (signal+flowandambientnoise), 0); break;
+			tracecolor=SDL_MapRGB(sonarscreen->format, 0,(int) combined_sound, 0); break;
                           case TYPE_TORPEDO:
-                          tracecolor=SDL_MapRGB(sonarscreen->format,(int) (signal+flowandambientnoise), 0, 0); break;
+                          tracecolor=SDL_MapRGB(sonarscreen->format,(int) combined_sound, 0, 0); break;
                           case TYPE_SUB:
                           default: 
-                          tracecolor=SDL_MapRGB(sonarscreen->format, 0, 0, (int) (signal+flowandambientnoise)); break;
+                          tracecolor=SDL_MapRGB(sonarscreen->format, 0, 0, (int) combined_sound); break;
                          }
 			//Change brightness based on strength of signal
 			int tdirection = direction;
@@ -285,6 +289,7 @@ void AnBqq5::TowedSonar(bool center)
 	int direction, ambiguous_direction, bearing, ambiguous_relative_bearing;
         int ship_type;
 	float signal;
+        double combined_sound;
 	int TB16_Count = TB16.GetCount();
 	if (TB16_Count > 0){
 	//Are there any sound events at this time index to worry about?
@@ -294,15 +299,18 @@ void AnBqq5::TowedSonar(bool center)
 			ambiguous_relative_bearing = (int)TB16.BearingAmbiguity((float)bearing);
 			//TargetId not used now but maybe later in TMA
 			//visable mono color from 70 - 255
+                        combined_sound = (signal * 4) + flowandambientnoise;
+                        if (combined_sound > 255.0)
+                           combined_sound = 255.0;
                         switch(ship_type)
                         {
                           case TYPE_SHIP:
-                        tracecolor=SDL_MapRGB(sonarscreen->format, 0,(int) (signal+flowandambientnoise), 0); break;
+                        tracecolor=SDL_MapRGB(sonarscreen->format, 0,(int) combined_sound, 0); break;
                           case TYPE_TORPEDO:
-                          tracecolor=SDL_MapRGB(sonarscreen->format,(int) (signal+flowandambientnoise), 0, 0); break;
+                          tracecolor=SDL_MapRGB(sonarscreen->format,(int) combined_sound, 0, 0); break;
                           case TYPE_SUB:
                           default:
-                          tracecolor=SDL_MapRGB(sonarscreen->format, 0, 0, (int) (signal+flowandambientnoise)); break;
+                          tracecolor=SDL_MapRGB(sonarscreen->format, 0, 0, (int) combined_sound); break;
                          }
 
 			//Change brightness based on strength of signal

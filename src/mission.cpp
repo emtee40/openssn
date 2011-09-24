@@ -83,3 +83,32 @@ int Check_Find(Submarine *all_subs)
 }
 
 
+
+// This function checks to see if the mission depends on
+// any ships remaining alive for a given amount of time.
+// Any ships which have the MISSION_ALIVE flag set will
+// have their timer reduced. If the timer hits zero (0)
+// then we change the mission flag to be MISSION_NONE.
+// This function returns TRUE if everything goes normally
+// or FALSE if we encounter an error.
+int Check_Alive(Submarine *all_subs)
+{
+   Submarine *current;
+
+   if (! all_subs)
+      return FALSE;
+
+   current = all_subs;
+   while (current)
+   {
+      if (current->mission_status == MISSION_ALIVE)
+      {
+          current->mission_timer--;
+          if (current->mission_timer < 1)
+             current->mission_status = MISSION_NONE;
+      }
+      current = current->next;
+   }
+
+   return TRUE;
+}

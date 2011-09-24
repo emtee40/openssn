@@ -18,3 +18,6 @@ NoiseMaker	 6
 Typhoon SSBN     7
 Nimitz CV	 8
 Tbilisi CV       9
+Alpha SSN	 10
+Ohio SSBN	 11
+

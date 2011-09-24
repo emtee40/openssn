@@ -1,3 +1,23 @@
+  - Vessels in attack mood who have no target slow down
+    to cruising speed so they can hear better.
+
+  - Added escort mission.
+
+  - When an escorted ship is sunk the mission fails.
+
+  - Fixed bug which prevented all sounds from showing up on
+    sonar display.
+
+  - We should now be able to make missions where a vessel's
+    goal is to stay alive for N seconds.
+
+  - Sound signals should show up brighter on sonar display.
+
+  - Added new recon mission.
+
+  - AI subs should not "randomly" move to surface during
+    patrol.
+
   - Vessel depth changes a little faster now, even at
     slow speeds. Simplified depth change calculation.
 

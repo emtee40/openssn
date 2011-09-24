@@ -867,7 +867,7 @@ void ShipHandeling(){
        Submarine *ship;
 
        // see if we can use radar, esm, etc
-       if ( Subs->Depth > PERISCOPE_DEPTH)
+       if (player->Depth > PERISCOPE_DEPTH)
        {
            EsmStation.LowerMast();
            RadarStation.LowerMast();
@@ -959,6 +959,8 @@ void ShipHandeling(){
                   {
                      if (my_torp->target == player)
                        player = NULL;
+                     if (my_torp->target->mission_status == MISSION_ALIVE)
+                        my_mission_status = MISSION_FAILED;
                      Remove_Inactive_Ship(my_torp->target);
                   }
                }
@@ -2025,6 +2027,7 @@ int Update_Everything()
            UpdateSensors();
            // see if the mission is over
            Check_Find(Subs);
+           Check_Alive(Subs);
            my_mission_status = Mission_Status(Subs, my_mission_status);
         }  // player is dead, we should end the mission
         else
@@ -3357,7 +3360,7 @@ int main(int argc, char **argv){
                                             player->using_radar = FALSE;
 					break;
 				case RADARUP:
-                                        if (Subs->Depth < PERISCOPE_DEPTH)
+                                        if (Subs->Depth <= PERISCOPE_DEPTH)
                                         {
 					  RadarStation.RaiseMast();
 					  RadarStation.DisplayWidgets();
@@ -3371,7 +3374,7 @@ int main(int argc, char **argv){
 					EsmStation.ClearScreen();
 					break;
 				case ESMUP:
-                                        if (Subs->Depth < PERISCOPE_DEPTH)
+                                        if (Subs->Depth <= PERISCOPE_DEPTH)
                                         {
 					  EsmStation.RaiseMast();
 					  EsmStation.DisplayWidgets();

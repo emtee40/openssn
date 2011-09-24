@@ -194,6 +194,7 @@ public:
 	float DEAngle(Submarine *Target);
         int hull_strength;
         int mission_status;
+        int mission_timer;
         int has_sonar;
         int mood;
         int convoy_course_change;
