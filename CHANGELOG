@@ -1,3 +1,10 @@
+  - Stack holding ESM data is now of dynamic size. Should no
+    longer crash when faced with many surface targets.
+
+  - Updated makefile. Added manual page, desktop entry and icon.
+    Files and updates provided by Vincent on behave of 
+    the Debian project.
+
   - Vessels in attack mood who have no target slow down
     to cruising speed so they can hear better.
 

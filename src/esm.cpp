@@ -32,7 +32,7 @@ $Id: esm.cpp,v 1.5 2003/04/14 05:51:03 mbridak Exp $
 #include <iostream>
 using namespace std;
 
-DStack EsmStack(20);
+DStack EsmStack;
 
 
 Esm::Esm(Submarine *temp):Subs(temp)
@@ -364,7 +364,7 @@ void Esm::DisplayContacts(){
 	DFont fnt(file1, file2);
 	//	static DFont largeFont(filename.c_str(), filename2.c_str());
 	float radians;
-	float radians_old[8];
+	float radians_old;
 	int bearing, range, depth;
         Submarine *target;
         int count;
@@ -377,6 +377,7 @@ void Esm::DisplayContacts(){
 	src.h=50;
 	src.w=174;
 
+        /*
 	if (!EsmStack.empty()) // Is there is data on the stack?
 	  { 
             // TODO: FIX THIS
@@ -390,6 +391,14 @@ void Esm::DisplayContacts(){
 		DLine(screen, 326, 383, x, y, black);
 	      }
 	  }
+        */
+        while (! EsmStack.empty() )
+        {
+           radians_old = EsmStack.pop();
+           x = int(326.0 + (460.0 - 326.0)*cos(1.57-radians_old));
+           y = int(383.0 - (460.0 - 326.0)*sin(1.57-radians_old));
+           DLine(screen, 326, 383, x, y, black); 
+        }
 
         target = Subs->next;
         count = 0;

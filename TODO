@@ -1,6 +1,3 @@
-Ships in attack mode who cannot hear a target should
-travel at slow speeds.
-
 Add new mood, Hunt, which will cause AI to actively
 search for submarines, including the use of active sonar.
 

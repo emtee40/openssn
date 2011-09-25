@@ -1222,7 +1222,12 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
        DesiredSpeed = MaxSpeed / 3;
        // submarines should change depth too
        if (ShipType == TYPE_SUB)
-          DesiredDepth = ( (rand() % MaxDepth) / 2 ) + 50;
+       {
+          DesiredDepth =+ rand() % 200;
+          DesiredDepth /= 2;
+          DesiredDepth += PERISCOPE_DEPTH;
+          // DesiredDepth = ( (rand() % MaxDepth) / 2 ) + 50;
+       }
      }
    }
 

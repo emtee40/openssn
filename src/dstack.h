@@ -2,20 +2,33 @@
 // dstack.h -- Dynamic stack (DStack) declaration and function prototypes.
 //
 
+#ifndef FALSE
+#define FALSE 0
+#endif
+#ifndef TRUE
+#define TRUE 1
+#endif
+
+typedef struct
+{
+   float value;
+   void *next, *previous;
+} STACKVALUE;
+
 class DStack
 {
   private:
-    float *bottom_;
-    float *top_;
-    int size_;
+    STACKVALUE *bottom_;
+    STACKVALUE *top_;
+    int number_items;
 
   public:
-    DStack(int size=10);
-    void push(float val);
-    int num_items() const;
-    float pop();
-    int full() const;
-    int empty() const;
-    void print() const;
+    DStack();
     ~DStack();
+    void clear_stack();    // erase everything
+    int push(float val);
+    int num_items();
+    float pop();
+    int empty();
+    void print();
 };

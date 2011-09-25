@@ -33,7 +33,7 @@ $Id: control.cpp,v 1.3 2003/04/20 19:30:29 anoncvs_pygsl Exp $
 using namespace std;
 
 // Use these for the display
-DStack HeadingStack(2), SpeedStack(2), DepthStack(2);
+DStack HeadingStack, SpeedStack, DepthStack;
 
 // Used to remember last ordered heading, to clear display.
 float old_heading;
