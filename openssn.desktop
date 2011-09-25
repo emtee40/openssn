@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=OpenSSN
+GenericName=Tactical submarine simulator
+Comment=Command a submarine in a deep ocean environment
+Exec=openssn -s
+Icon=openssn
+Terminal=false
+Type=Application
+Categories=Game;
