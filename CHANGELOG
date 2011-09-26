@@ -1,3 +1,5 @@
+  - Added sub vs sub mission.
+
   - Stack holding ESM data is now of dynamic size. Should no
     longer crash when faced with many surface targets.
 

@@ -40,13 +40,12 @@ Find  - We must find and track this target to beat the mission.
 
 The optional Timer variable only applies to ships marked with "Alive".
 This tells us how long, in seconds, the ship must survive for the mission
-to be a success.  At the end of the file we can append text to tell the
-player what their mission is.
+to be a success.  
 
 For example, we can create a mission file to go with
 the above ships file which looks like this:
 
 None
 Find
-This mission requires you to find a merchant ship. That is all.
+
 

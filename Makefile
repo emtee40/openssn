@@ -39,6 +39,6 @@ deinstall:
 	rm $(PREFIX)/share/applications/openssn.desktop
 	rm $(PREFIX)/share/pixmaps/openssn.png
 
-tarball: clean
+tarball: 
 	cd .. && tar czf openssn-$(VERSION).tar.gz openssn
 
