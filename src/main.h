@@ -20,8 +20,10 @@ $Id: main.h,v 1.11 2003/07/18 03:50:00 mbridak Exp $
 #define MAIN_H
 
 #ifndef VERSION
-#define VERSION 0.8
+#define VERSION 1.0
 #endif
+
+#include "helicopter.h"
 
 // delay between game loops
 #define GAME_DELAY 10
@@ -127,7 +129,7 @@ $Id: main.h,v 1.11 2003/07/18 03:50:00 mbridak Exp $
 
 //globals
 
-int	ships = 19; // why does ships equal 19, isn't this set in CreateShips?
+// int	ships = 19; // why does ships equal 19, isn't this set in CreateShips?
 float	flowandambientnoise;
 SDL_Surface	*screen=NULL; //The screen we are goin to be looking at
 SDL_Surface	*towedarrayscreen=NULL; //scratch blit surface
@@ -231,6 +233,7 @@ Submarine *Subs = NULL;   // all subs, ships
 Submarine *player = NULL;
 Contact Contacts[MAX_SUBS]; //Workable contacts.
 Submarine *torpedoes;   // a linked-list of torpedoes
+Helicopter *helicopters;  // a linked-list of helicopters
 TowedArray TB16;
 TargetMotionAnalysis Tma;
 msg Message;
@@ -313,6 +316,8 @@ Uint32	timerfunc(Uint32 interval, void *param);
 Submarine *Add_Ship(Submarine *all_torpedoes, Submarine *new_torpedo);
 Submarine *Remove_Ship(Submarine *all_torpedoes, Submarine *old_torpedo);
 void Remove_Inactive_Ship(Submarine *victim);  // find and remove inactive ship
+Helicopter *Add_Helicopter(Helicopter *all_helicopters, Helicopter *new_helicopter);
+Helicopter *Remove_Helicopter(Helicopter *all_helicopters, Helicopter*old_helicopter);
 
 #endif
 

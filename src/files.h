@@ -6,6 +6,9 @@
 #ifndef DATADIR
 #define DATADIR "."
 #endif
+#ifndef OPTDIR
+#define OPTDIR "/opt/openssn"
+#endif
 
 // Find the full path of a file based on its name.
 // The return value should be freed UNLESS the return

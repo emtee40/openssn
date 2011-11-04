@@ -56,6 +56,15 @@ char *Find_Data_File(char *filename)
    }
    */
 
+   // last chance, try OPTDIR
+   sprintf(location, "%s/%s", OPTDIR, filename);
+   my_file = fopen(location, "r");
+   if (my_file)
+   {
+      fclose(my_file);
+      data_dir = OPTDIR;
+      return location;
+   }
    data_dir = ".";  
    return filename;
 }

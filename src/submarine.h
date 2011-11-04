@@ -37,7 +37,7 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 #define TYPE_AIR 2
 #define TYPE_TORPEDO 3
 #define TYPE_NOISEMAKER 4
-
+#define TYPE_HELICOPTER 5
 
 #define FRIEND 1
 #define FOE 0
@@ -60,6 +60,9 @@ $Id: submarine.h,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 #define CLASS_TYPHOON 7
 #define CLASS_NIMITZ 8
 #define CLASS_TBILISI 9
+#define CLASS_ALPHA 10
+#define CLASS_OHIO 11
+#define CLASS_HELICOPTER 12
 
 // status of tubes
 #define MAX_TUBES 6
@@ -181,7 +184,7 @@ public:
 	int Rudder; /*bend me and she will turn*/
 	int TorpedosOnBoard; /*Where are all the fish!*/
         int NoiseMakers;    // to destract the torpedos
-	int CavitationFlag; /*Ok Who Farted!*/
+	int CavitationFlag; 
 	int BaseNoise; /*how noisey are we just sittin' here*/
 	float PSCS; /*Passive Sonar Crosssection*/
 	float RadiatedNoise(); /*Tell 'em how loud we are.*/

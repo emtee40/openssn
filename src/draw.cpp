@@ -112,13 +112,11 @@ void DrawDiamond(SDL_Surface *screen, int X1, int Y1, int Size, char Direction, 
   // Direction: T = Top, B = Bottom, F = Full
         int xc, yc;
         int size;
-        char direction;
         xc = X1;
         yc = Y1;
         size = Size;
-        direction = Direction;
 
-        switch(direction){
+        switch(Direction){
 
         case 'B':
           DrawLine(screen, xc-size, yc, xc, yc+size, Color); //bottomleft

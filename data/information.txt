@@ -7,7 +7,7 @@ The format for the ships files goes like this:
 
 Type Class Friend Speed Depth Heading Latitude Longitude Sonar Mood
 
-Type determines submarine (0) or ship (1)
+Type determines submarine (0) or ship (1) or helicopter (5).
 Class must match to a class from the "ships" directory.
 Friend tells us which side the ship is on. Zero is a FOE, 1 is a Friend,
        2 is unknown and 3 is neutral.

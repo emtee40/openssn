@@ -163,15 +163,15 @@ double Submarine::BearingToTarget(Submarine *Target){
 	(Lat_TotalYards < Target->Lat_TotalYards)){
 		bearing = (360 - ((atan(latdif / londif) * 360) / 6.28318530717958647692));
 	}
-	if ((Lon_TotalYards < Target->Lon_TotalYards) &&
+	else if ((Lon_TotalYards < Target->Lon_TotalYards) &&
 	(Lat_TotalYards > Target->Lat_TotalYards)){
 		bearing = (0 + ((atan(latdif / londif) * 360) / 6.28318530717958647692));
 	}
-	if ((Lon_TotalYards > Target->Lon_TotalYards) &&
+	else if ((Lon_TotalYards > Target->Lon_TotalYards) &&
 	(Lat_TotalYards < Target->Lat_TotalYards)){
 		bearing = (180 + ((atan(latdif / londif) * 360) / 6.28318530717958647692));
 	}
-	if ((Lon_TotalYards > Target->Lon_TotalYards) &&
+	else if ((Lon_TotalYards > Target->Lon_TotalYards) &&
 	(Lat_TotalYards > Target->Lat_TotalYards)){
 		bearing = (180 - ((atan(latdif / londif) * 360) / 6.28318530717958647692));
 	}
@@ -681,7 +681,7 @@ Submarine *Submarine::Next_Target()
 // will load the ship's class specific information from the appropriate
 // data file.
 // The data file's format will be
-// maxspeed maxdepth name
+// maxspeed maxdepth name rudder torpedoes-carried hull_strength has_sonar, PSCS class-name class-type
 int Submarine::Load_Class(char *my_file)
 {
     // confirm file exists

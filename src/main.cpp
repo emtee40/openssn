@@ -46,6 +46,7 @@ $Id: main.cpp,v 1.28 2003/07/18 03:50:00 mbridak Exp $
 #include "files.h"
 #include "esm.h"
 #include "control.h"
+#include "helicopter.h"
 #include "main.h"
 #include "sound.h"
 #include "map.h"
@@ -114,7 +115,7 @@ void MapIcon(int x, int y, int ShipType, int Friend, Uint32 color){
   //           Aircraft = Yellow Top Half box
 
   // Is it a submarine?
-  if(ShipType == 0) {
+  if(ShipType == TYPE_SUB) {
     switch(Friend){
     case 0: //Foe??
       DrawDiamond(screen, x-2, y+2, 7, 'B', black);  //Bottom Half Diamond
@@ -136,7 +137,7 @@ void MapIcon(int x, int y, int ShipType, int Friend, Uint32 color){
     }
   }
  // Is it a surface ship?
-    else if(ShipType == 1) {
+    else if(ShipType == TYPE_SHIP) {
    switch(Friend){
    case 0: //Foe??
      DrawDiamond(screen, x-2 ,y+2, 7, 'F', black); //Diamond
@@ -157,7 +158,7 @@ void MapIcon(int x, int y, int ShipType, int Friend, Uint32 color){
   }
 
   // Is it an airplane or Helo?
-  else if(ShipType == 2) {
+  else if(ShipType == TYPE_HELICOPTER) {
     switch(Friend){
     case 0: //Foe??
       DrawDiamond(screen, x, y, 7, 'T', color);  //Top Half Diamond
@@ -834,17 +835,17 @@ Submarine *Remove_Ship(Submarine *all_torpedoes, Submarine *old_torpedo)
       if ( (my_torp == old_torpedo) && (! previous) )
       {
           previous = my_torp->next;
-          free(my_torp);
+          delete my_torp;
           return previous;
       }
       // found a match and it isn't the first in the list
       else if (my_torp == old_torpedo)
       {
          previous->next = my_torp->next;
-         free(my_torp);
+         delete my_torp;
          return all_torpedoes;
       }
-      // no match found
+      // this one does not match, go to next node
       else
       {
           previous = my_torp;
@@ -858,6 +859,63 @@ Submarine *Remove_Ship(Submarine *all_torpedoes, Submarine *old_torpedo)
 
 
 
+Helicopter *Add_Helicopter(Helicopter *all_helicopters, Helicopter *new_helicopter)
+{
+   Helicopter *current;
+
+   if (! new_helicopter)
+      return all_helicopters;
+   if (! all_helicopters)
+      return new_helicopter;
+
+   current = all_helicopters;
+   while (current->next)
+      current = current->next;
+   current->next = new_helicopter;
+
+  return all_helicopters;
+}
+
+
+
+Helicopter *Remove_Helicopter(Helicopter *all_helicopters, Helicopter *old_helicopter)
+{
+   Helicopter *current, *previous = NULL;
+
+   if (! all_helicopters)
+      return NULL;
+   if (! old_helicopter)
+      return all_helicopters;
+
+   current = all_helicopters;
+   while (current)
+   {
+       // first in list
+       if ( (current == old_helicopter) && (! previous) )
+       {
+          previous = current->next;
+          delete current;
+          return previous;
+       }
+       // not first in list
+       else if (current == old_helicopter)
+       {
+          previous->next = current->next;
+          delete current;
+          return all_helicopters;
+       }
+       // this is not our node
+       else
+       {
+          previous = current;
+          current = current->next;
+       }
+   }
+   return all_helicopters;
+}
+
+
+
 
 
 //######################################
@@ -865,6 +923,7 @@ void ShipHandeling(){
        Submarine *my_torp, *temp_torp;
        int status;
        Submarine *ship;
+       Helicopter *helicopter;
 
        // see if we can use radar, esm, etc
        if (player->Depth > PERISCOPE_DEPTH)
@@ -903,6 +962,24 @@ void ShipHandeling(){
                    ship->pinging--;
                 ship = ship->next;
 	}
+        helicopter = helicopters;
+        while (helicopter)
+        {
+             helicopter->UpdateLatLon();
+             helicopter->Helicopter_AI(Subs, torpedoes);
+             #ifdef DEBUG_HELICOPTER
+             printf("Course: %d\nSpeed: %d\nHeight: %d\n",
+                     (int) helicopter->Heading, (int) helicopter->Speed,
+                     (int) helicopter->Depth);
+             printf("DX: %d DY: %d\n  X: %d  Y: %d\n",
+                    helicopter->destination_x, helicopter->destination_y,
+                    (int) helicopter->Lat_TotalYards, 
+                    (int) helicopter->Lon_TotalYards);
+             #endif
+             helicopter->Handle();
+             helicopter = helicopter->next;
+        }
+
 	for (int x = 0; x < MAX_SUBS; x++){
 		Contacts[x].UpdateContact();	
 	}
@@ -1122,9 +1199,11 @@ void CreateShips(int mission_number, MAP *map)
   char *ship_file, *mission_name;
   char filename[128];
   char line[256], *status;
-  int i;
+  // int i;
   FILE *my_file, *mission_file;
   Submarine *new_ship;
+  Helicopter *new_helicopter;
+  int ship_type, ship_class;
 
   #ifndef WIN32
   snprintf(filename, 128, "data/ships%d.dat", mission_number);
@@ -1139,7 +1218,7 @@ void CreateShips(int mission_number, MAP *map)
 
   // idiot check
   if(!my_file){
-    cerr << "Create ships file missing \n";
+    printf("Create ships: file missing\n");
     exit(1);
   }
 
@@ -1162,10 +1241,65 @@ void CreateShips(int mission_number, MAP *map)
 
   // Notes: Ship Type: Sub=0, Surface=1, Aircraft=2
   //        Friend: Foe=0, Friend=1, Unknown=2, Neutral=3
-  i = 0;
+  // i = 0;
   status = fgets(line, 256, my_file);
   while (status)
   {
+   sscanf(line, "%d %d", &ship_type, &ship_class);
+   if (ship_class == CLASS_HELICOPTER)
+   {
+         #ifdef DEBUG
+         printf("Creating new helicopter.\n");
+         #endif
+         new_helicopter = new Helicopter();
+         if (new_helicopter)
+         {
+             new_helicopter->map = map;
+             sscanf(line, "%d %d %d %d %d %d %f %f %d",
+                    &(new_helicopter->ShipType),
+                    &(new_helicopter->ShipClass),
+                    &(new_helicopter->Friend),
+                    &(new_helicopter->DesiredSpeed),
+                    &(new_helicopter->DesiredDepth),
+                    &(new_helicopter->DesiredHeading),
+                    &(new_helicopter->Lat_TotalYards),
+                    &(new_helicopter->Lon_TotalYards),
+                    &(new_helicopter->has_sonar) );
+             // check mood 
+        #ifndef WIN32
+        if ( strcasestr(line, "convoy") )
+            new_helicopter->mood = MOOD_CONVOY;
+        else if ( strcasestr(line, "passive") )
+            new_helicopter->mood = MOOD_PASSIVE;
+        else if ( strcasestr(line, "attack") )
+            new_helicopter->mood = MOOD_ATTACK;
+        #else
+        if ( my_strcasestr(line, "convoy") )
+            new_helicopter->mood = MOOD_CONVOY;
+        else if ( my_strcasestr(line, "passive") )
+            new_helicopter->mood = MOOD_PASSIVE;
+        else if ( my_strcasestr(line, "attack") )
+            new_helicopter->mood = MOOD_ATTACK;
+        #endif
+        new_helicopter->Speed = new_helicopter->DesiredSpeed;
+        new_helicopter->Heading = new_helicopter->DesiredHeading;
+        new_helicopter->Depth = new_helicopter->DesiredDepth;
+             // load mission
+        new_helicopter->Load_Mission(mission_file);
+             // load class
+        sprintf(filename, "ships/class%d.shp", new_helicopter->ShipClass);
+        ship_file = Find_Data_File(filename);
+        new_helicopter->Load_Class(ship_file);
+        // add helicopter to list
+        helicopters = Add_Helicopter(helicopters, new_helicopter);
+        if ( (ship_file) && (ship_file != filename) )
+           free(ship_file);
+        }    // end of created a helicopter
+
+   } // end of helicopter
+
+   else   // all other classes
+   {
    #ifdef DEBUG
    printf("Creating new ship\n");
    #endif
@@ -1230,8 +1364,11 @@ void CreateShips(int mission_number, MAP *map)
      Subs = Add_Ship(Subs, new_ship);
      if ( (ship_file) && (ship_file != filename) )
         free(ship_file);
-     i+=1;
-     }
+     // i+=1;
+     }   // end of successfully created new ship
+
+     }  // end of other classes
+
      status = fgets(line, 256, my_file);
   }
   // inClientFile.close();
@@ -1241,7 +1378,7 @@ void CreateShips(int mission_number, MAP *map)
      fclose(mission_file);
 
   // ships = i - 1;
-  ships = i;
+  // ships = i;
   // rdm 5/15/01 testing to be sure correct number of ships being read
   // cout << " Number of ships = " <<  i-1 << endl;
   if (Subs)
@@ -1429,6 +1566,7 @@ void PlaceShips(int scale, int change_scrollx, int change_scrolly, Submarine *cu
 	Uint32 color;
         Submarine *a_torp;
         Submarine *target_ship;
+        Helicopter *a_helicopter;
 
 	scale = scale * MAP_FACTOR;
 	if(mapcenter){ //center map onto our own ntds symbol
@@ -1541,6 +1679,34 @@ void PlaceShips(int scale, int change_scrollx, int change_scrolly, Submarine *cu
           
            a_torp = a_torp->next;
         }  // end of displaying torpedoes
+
+       #ifdef DEBUG
+       printf("About to draw helicopters on map.\n");
+       #endif
+       a_helicopter = helicopters;
+       while (a_helicopter)
+       {
+           x = 500 - ((int)a_helicopter->Lat_TotalYards / scale);
+           x = x - scrolloffsetx;
+           y = 500 - ((int)a_helicopter->Lon_TotalYards / scale);
+           y = y - scrolloffsety;
+           if (x>10 && x<490 && y>10 && y<490)  // are we on the map
+           {
+               x = x + xoffset;
+               y = y + yoffset;
+               switch (a_helicopter->Friend)
+               {
+                  case FOE: color = red; break;
+                  case FRIEND: color = green; break;
+                  case NEUTRAL: color = grey; break;
+                  case UNKNOWN:
+                  default:  color = yellow; break;
+               }   // end of friend/foe switch
+               MapIcon(x, y, a_helicopter->ShipType, 
+                       a_helicopter->Friend, color);
+           }  // within map limits
+           a_helicopter = a_helicopter->next;
+       }   // end of drawing helicopters
 }
 
 
@@ -2696,6 +2862,7 @@ int main(int argc, char **argv){
 	Uint32 timer1; // timer2; // our event timers....
 	SDL_TimerID timer_id, timer_id2;
         torpedoes = NULL;
+        helicopters = NULL;
 	tmamutex = SDL_CreateMutex();
 	srand(time(NULL)); //Seed the random generator
 

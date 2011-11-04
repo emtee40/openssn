@@ -1203,7 +1203,7 @@ void AnBqq5::DisplayCursor()
 }
 void AnBqq5::UpdateCursor()
 {
-	int direction, relative_bearing, temp;
+	int direction, temp;
         int ship_type;
 	float signal;
 	if (Subs->GetCount()>0){
@@ -1218,7 +1218,7 @@ void AnBqq5::UpdateCursor()
 			//the contact might get passed by if it's on a 0/359 deg boundary.
 			temp = direction;
 			if(cursorBearing > temp) temp += 360;
-			relative_bearing = temp - cursorBearing;
+			// relative_bearing = temp - cursorBearing;
 		
 			//if(relative_bearing < 3 || relative_bearing >357){
 			// cout << "TargetId: " << TargetId << " - Bearing: " << direction <<endl;

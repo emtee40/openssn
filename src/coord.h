@@ -27,6 +27,10 @@ $Id: coord.h,v 1.5 2003/04/14 05:51:03 mbridak Exp $
 #define MAP_MAX 300000
 #endif
 
+#ifndef RADIAN_RATIO
+#define RADIAN_RATIO 6.28318530717958647692
+#endif
+
 /**
   *@author Michael Bridak
   */
