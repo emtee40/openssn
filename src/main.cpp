@@ -953,7 +953,7 @@ void ShipHandeling(){
                   else if (ship->ShipType == TYPE_SHIP)
                     torpedoes = ship->Ship_AI(Subs, torpedoes);
                   */
-                   torpedoes = ship->Sub_AI(Subs, torpedoes);
+                   torpedoes = ship->Sub_AI(Subs, torpedoes, helicopters);
                 }
 		ship->Handeling();	//Steer, Change Depth etc...
 
@@ -966,12 +966,12 @@ void ShipHandeling(){
         while (helicopter)
         {
              helicopter->UpdateLatLon();
-             helicopter->Helicopter_AI(Subs, torpedoes);
+             torpedoes = helicopter->Helicopter_AI(Subs, torpedoes);
              #ifdef DEBUG_HELICOPTER
              printf("Course: %d\nSpeed: %d\nHeight: %d\n",
                      (int) helicopter->Heading, (int) helicopter->Speed,
                      (int) helicopter->Depth);
-             printf("DX: %d DY: %d\n  X: %d  Y: %d\n",
+             printf("DX: %d DY: %d\nX: %d  Y: %d\n",
                     helicopter->destination_x, helicopter->destination_y,
                     (int) helicopter->Lat_TotalYards, 
                     (int) helicopter->Lon_TotalYards);
@@ -1567,6 +1567,7 @@ void PlaceShips(int scale, int change_scrollx, int change_scrolly, Submarine *cu
         Submarine *a_torp;
         Submarine *target_ship;
         Helicopter *a_helicopter;
+        int layers;
 
 	scale = scale * MAP_FACTOR;
 	if(mapcenter){ //center map onto our own ntds symbol
@@ -1683,6 +1684,11 @@ void PlaceShips(int scale, int change_scrollx, int change_scrolly, Submarine *cu
        #ifdef DEBUG
        printf("About to draw helicopters on map.\n");
        #endif
+       // we only draw helicopters if we are near the surface
+       // and moving slow. This is crude, but it'll do for now
+       layers = my_map->Thermals_Between(0, player->Depth);
+       if ( (layers < 1) && (player->Speed < (player->MaxSpeed / 2) ) )
+       {
        a_helicopter = helicopters;
        while (a_helicopter)
        {
@@ -1707,6 +1713,7 @@ void PlaceShips(int scale, int change_scrollx, int change_scrolly, Submarine *cu
            }  // within map limits
            a_helicopter = a_helicopter->next;
        }   // end of drawing helicopters
+       }   // end of if near surface
 }
 
 
@@ -3729,6 +3736,11 @@ int main(int argc, char **argv){
         #endif
         while (Subs)
             Subs = Remove_Ship(Subs, Subs);
+        #ifdef DEBUG
+        printf("Removing helicopters.\n");
+        #endif
+        while (helicopters)
+          helicopters = Remove_Helicopter(helicopters, helicopters);
         #ifdef DEBUG
         printf("Killing SDL\n");
         #endif

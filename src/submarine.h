@@ -241,7 +241,7 @@ public:
         // figure out what to do with surface ships
         // Submarine *Ship_AI(Submarine *all_ships, Submarine *all_torpedoes);  
         // like ship AI in 3D
-        Submarine *Sub_AI(Submarine *all_ships, Submarine *all_torpedoes);   
+        Submarine *Sub_AI(Submarine *all_ships, Submarine *all_torpedoes, void *helicopters);   
         int Check_Status();         // see if our torpedo is ok
         int Take_Damage();         // we were hit!
         int Count_Torpedoes(Submarine *all_torpedoes); // how many have I fired?

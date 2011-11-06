@@ -1002,7 +1002,7 @@ int Submarine::Torpedo_AI(Submarine *all_subs)
 
 // This function tells us what AI ships and submarines will do.
 // This function returns a link to all torpedoes.
-Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
+Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes, void *helicopters)
 {
    int change;
    Submarine *torpedo;
@@ -1197,6 +1197,12 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes)
          DesiredSpeed = MaxSpeed / 3;
    }     // I think this is the end of "we have sonar" section
 
+   // helicopters should go low if there are helicopters
+   if ( (ShipType == TYPE_SUB) && (helicopters) )
+   {
+       if (Depth < map->thermals[0])
+          DesiredDepth = map->thermals[0] + 25;
+   }
    
    // when traveling in convoy, we change course once every
    // ... twenty minutes?

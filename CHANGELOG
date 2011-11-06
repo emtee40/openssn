@@ -1,3 +1,32 @@
+  - Subs will now stay below a thermal if they hear helicopters.
+
+  - Helicopters will shoot at enemy subs.
+
+  - Helicopters should now track enemy submarines.
+
+  - Helicopter now moves randomly when searching for
+    targets and it has nothing better to do.
+
+  - Added debug compiler flag DEBUG_HELICOPTER.
+
+  - Removed "ships" index variable. With linked lists we
+    should not need it.
+
+  - Added helicopter class.
+
+======== openssn-1.0 Oct 22, 2011 ============
+
+  - Game now recognizes OPTDIR variable, for when OpenSSN
+    is installed in /opt/openssn/
+
+  - Corrected/improved makefile.
+    Patch provided by Vincent.
+
+  - Added optinstall option for Makefile, installs
+    OpenSSN under /opt/openssn
+
+========== openssn-0.9 September 26, 2011  =========
+
   - Added sub vs sub mission.
 
   - Stack holding ESM data is now of dynamic size. Should no
