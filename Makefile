@@ -2,10 +2,10 @@ PREFIX ?= /usr
 SSN = openssn
 DATADIR = $(PREFIX)/share/openssn
 OPTDIR = /opt/openssn
-VERSION = 1.1
+VERSION = 1.2
 
 all:
-	$(MAKE) VERSION=$(VERSION) PREFIX=$(PREFIX) OPTDIR=$(OPTDIR) -C src
+	$(MAKE) VERSION=$(VERSION) PREFIX=$(PREFIX) OPTDIR=$(OPTDIR) DATADIR=$(DATADIR) -C src
 	gzip -c openssn.6 > openssn.6.gz
 
 clean:
@@ -30,7 +30,7 @@ install: all
 	cp ships/* $(DATADIR)/ships
 	cp sounds/* $(DATADIR)/sounds
 	cp openssn.png $(PREFIX)/share/pixmaps
-	cp openssn.desktop $(PREFIX)/share/applications/openssn.desktop
+	cp openssn.desktop $(PREFIX)/share/applications
 	cp openssn.6.gz $(PREFIX)/share/man/man6
 
 optinstall: all
@@ -62,5 +62,5 @@ optdeinstall:
 	rm -rf $(PREFIX)/share/pixmaps/openssn.png
 
 tarball: 
-	cd .. && tar czf openssn-$(VERSION).tar.gz openssn
+	cd .. && tar czf openssn-$(VERSION).tar.gz openssn --exclude=.svn
 

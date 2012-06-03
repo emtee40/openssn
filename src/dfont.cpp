@@ -12,6 +12,8 @@ DFont::DFont (char * IFile, char * DFile)
     initMap(DFile); //if the font file doesn't exist then create one
   else
     loadMap(DFile);
+  
+  loadMap(DFile);
   gap = fonts['!'].w;
 }
 
@@ -102,9 +104,19 @@ void DFont::PutChar (SDL_Surface * screen, Sint16 x, Sint16 y, char c)
 	SDL_UpdateRects(screen, 1, &dest);
 }
 
+
+/*
+This function used to save our newly created fonts to a file.
+This is a bad idea as we do not know where the file is being
+created. It usually ends up in ./data/ and that is not
+nice behaviour. Commenting out the file creation and
+writes to the file to avoid this. We ship with the proper
+font files in the tarball, that should be enough.
+-- Jesse
+*/
 void DFont::initMap (char * name)
 {
-  ofstream file(name);
+  // ofstream file(name);
   //Sentry value
   Uint32 sentry = SDL_MapRGB(fontSurface->format, 255, 0, 255);
   char index = '!';  //Start of the fonts in ASCII
@@ -120,7 +132,7 @@ void DFont::initMap (char * name)
           for (; GetPixel(fontSurface, x, 0) != sentry && x < fontSurface->w; ++x)
             ;
           fonts[index].w = (x - fonts[index].x);
-        file << fonts[index];
+        // file << fonts[index];
           ++index;
         }
       else

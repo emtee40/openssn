@@ -66,6 +66,7 @@ public:
    double Distance_To_Target(Submarine *target);
    Submarine *Find_Target(Submarine *all_ships);
    Submarine *Fire_Torpedo(Submarine *target, char *ship_file);
+   Submarine *Find_Closest_Friend(Submarine *ships);
 };
 
 

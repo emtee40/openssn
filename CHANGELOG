@@ -1,3 +1,26 @@
+  - Applied makefile patch from Vincent.
+
+  - We no longer create font and largeont files in
+    the directory "./data/" OpenSSN used to try to
+    save our fonts in case the font files were missing,
+    but this is no longer required and is probably
+    improper behaviour. This fix closes Debian bug
+    #675744.
+    Thanks to Guillem for pointing out the error.
+
+
+
+========== openssn-1.1 Nov 7, 2011 ============
+
+  - Updated makefile to support more data locations.
+
+  - Helicopters will guard friendly ships if they cannot
+    hear enemies.
+
+  - Subs attack a little slower to avoid alerting everyone.
+
+  - Helicopters no longer rapid-fire torpedoes.
+
   - Subs will now stay below a thermal if they hear helicopters.
 
   - Helicopters will shoot at enemy subs.

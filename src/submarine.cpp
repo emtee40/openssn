@@ -1159,7 +1159,10 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes, voi
           else if ( (mood == MOOD_ATTACK) && (! action) ) 
           {
              DesiredHeading = BearingToTarget(target); 
-             DesiredSpeed = (MaxSpeed / 2) + (rand() % 5) - 2;
+             if (ShipType == TYPE_SHIP)
+                DesiredSpeed = (MaxSpeed / 2) + (rand() % 5) - 2;
+             else  // sub
+                DesiredSpeed = (MaxSpeed / 3) + (rand() % 3) + 1;
              if (ShipType == TYPE_SUB)
              {
                 DesiredDepth = target->Depth;

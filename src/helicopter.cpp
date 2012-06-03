@@ -128,6 +128,8 @@ Submarine *Helicopter::Helicopter_AI(Submarine *all_ships, Submarine *all_torped
   Submarine *torpedo, *my_torpedoes;
   int found;
 
+  if (firing_countdown)
+      firing_countdown--;
   #ifdef DEBUG_HELICOPTER
   printf("Current action: %d\n", current_action);
   #endif
@@ -236,7 +238,7 @@ Submarine *Helicopter::Helicopter_AI(Submarine *all_ships, Submarine *all_torped
                       #endif
                       do_what = DO_SHOOT;
                       // do shooting here
-                      if (TorpedoesOnBoard > 0)
+                      if ( (TorpedoesOnBoard > 0) && (! firing_countdown) )
                       {
                           char *ship_file, filename[] = "ships/class5.shp";
                           ship_file = Find_Data_File(filename);
@@ -266,6 +268,7 @@ Submarine *Helicopter::Helicopter_AI(Submarine *all_ships, Submarine *all_torped
                                }
                             }
                             TorpedoesOnBoard--;
+                            firing_countdown = FIRING_WAIT;
                           }
                       }   // end of torpedoes on board
                       destination_x = target->Lat_TotalYards;
@@ -294,10 +297,20 @@ Submarine *Helicopter::Helicopter_AI(Submarine *all_ships, Submarine *all_torped
 
                // No target? then we should find a friendy ship
                // to get close to
+               ship = Find_Closest_Friend(all_ships);
+               if (ship)
+               {
+                  do_what = DO_MOVE;
+                  destination_x = ship->Lat_TotalYards;
+                  destination_y = ship->Lon_TotalYards;
+                  DesiredDepth = MOVE_HEIGHT;
+                  DesiredSpeed = MaxSpeed / 2;
+               }
 
                // we do not hear anything, move randomly and listen again
                // when in doubt, we are hovering
-               current_action = ACTION_HOVER;
+               if (! do_what)
+                  current_action = ACTION_HOVER;
             }   // end of we are listening
             break;
        default:
@@ -677,5 +690,34 @@ Submarine *Helicopter::Fire_Torpedo(Submarine *target, char *ship_file)
    my_torp->origin_x = Lat_TotalYards;
    my_torp->origin_y = Lon_TotalYards;
    return my_torp;
+}
+
+
+
+// This function tries to locate the nearest friendly surface ship.
+// If we find a friendly surface vessel that ship's pointer is
+// returned. Otherwise we return NULL.
+Submarine *Helicopter::Find_Closest_Friend(Submarine *ships)
+{
+    double nearest = INT_MAX;
+    double range;
+    Submarine *best_fit = NULL;
+    Submarine *current;
+    
+    current = ships;
+    while (current)
+    {
+       if ( (current->ShipType == TYPE_SHIP) && (current->Friend == Friend) )
+       {
+          range = Distance_To_Target(current);
+          if (range < nearest)
+          {
+              best_fit = current;
+              nearest = range;
+          }
+       }
+       current = current->next;
+    }
+    return best_fit;
 }
 
