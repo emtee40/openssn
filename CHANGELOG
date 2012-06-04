@@ -1,3 +1,12 @@
+  - Added unistd.h and corrected DrawPixel declaration
+    to fix compile/build errors.
+
+  - Removed un-needed -k command line option. It
+    was buggy and causing compiler warnings.
+
+
+========= openssn-1.2 Jun 3, 2012 ===========
+
   - Applied makefile patch from Vincent.
 
   - We no longer create font and largeont files in

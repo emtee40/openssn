@@ -73,7 +73,7 @@ char *Find_Data_File(char *filename)
 SDL_Surface *Load_Image(char *filename)
 {
    char *file_name;
-   SDL_Surface *my_image;
+   SDL_Surface *my_image = NULL;
 
    file_name = Find_Data_File(filename);
    if (file_name)

@@ -7,7 +7,7 @@
 #include "draw.h"
 
 
-inline void DrawPixel(SDL_Surface *screen, int x, int y, Uint32 color){
+void DrawPixel(SDL_Surface *screen, int x, int y, Uint32 color){
         //this only works for 16bpp screens
         //are we outside the screen?????
         //If we are bail out now before it's too late!

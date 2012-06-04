@@ -28,6 +28,7 @@ $Id: main.cpp,v 1.28 2003/07/18 03:50:00 mbridak Exp $
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#include <unistd.h>
 #include <SDL.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
@@ -1016,7 +1017,7 @@ void ShipHandeling(){
            }
            else if (status == HIT_TARGET)
            {
-               int target_status;
+               int target_status = DAMAGE_OK;
                // damage target
                // we should always have a target, but just in case...
                if (my_torp->target)
@@ -2898,10 +2899,12 @@ int main(int argc, char **argv){
                         case 'f': // full screen
                                 full_screen = true;
                                 break;
+/*
 			case 'k': //This option is just for me cause when using kdevelop
 							//I don't start in the right directory.
 				chdir("./subsim");
 				break;
+*/
                         case 'v':
                                 cout << "OpenSSN version " << VERSION << endl;
                                 return 0;

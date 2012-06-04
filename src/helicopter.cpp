@@ -86,10 +86,12 @@ int Helicopter::Load_Class(char *from_file)
 int Helicopter::Load_Mission(FILE *from_file)
 {
    char line[256];
-
+   char *status;
    if (! from_file)
         return FALSE;
-   fgets(line, 256, from_file);
+   status = fgets(line, 256, from_file);
+   if (! status)
+      return FALSE;
    return TRUE;
 }
 

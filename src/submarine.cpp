@@ -707,12 +707,15 @@ int Submarine::Load_Class(char *my_file)
 int Submarine::Load_Mission(FILE *from_file)
 {
     char line[256];
-    
+    char *status;
+
     if (! from_file)
        return FALSE;
 
     memset(line, '\0', 256);
-    fgets(line, 256, from_file);
+    status = fgets(line, 256, from_file);
+    if (status)
+    {
     #ifndef WIN32
     if (! strncasecmp(line, "sink", 4) )
         mission_status = MISSION_SINK;
@@ -735,6 +738,10 @@ int Submarine::Load_Mission(FILE *from_file)
 
     if (mission_status == MISSION_ALIVE)
         sscanf( &(line[6]), "%d", &mission_timer);
+    }
+    else    // could not read line, default to none
+       mission_status = MISSION_NONE;
+      
     return TRUE;
 }
 
@@ -1434,7 +1441,7 @@ Submarine *Submarine::Have_Enemy_Target(Submarine *all_ships)
 Submarine *Submarine::Launch_Noisemaker(Submarine *all_noisemakers, Submarine *chased_by)
 {
     int existing_noisemakers;
-    Submarine *new_noisemaker, *my_noise;
+    Submarine *new_noisemaker = NULL, *my_noise;
     int status, found;
 
     if ( (! chased_by) || (! all_noisemakers) )
@@ -1484,8 +1491,11 @@ Submarine *Submarine::Launch_Noisemaker(Submarine *all_noisemakers, Submarine *c
          }   // created new noisemaker
      }  // status
     NoiseMakers--;
-    new_noisemaker->DesiredHeading = chased_by->DesiredHeading;
-    chased_by->Is_Distracted_By_Noisemaker(new_noisemaker);
+    if (new_noisemaker)
+    {
+        new_noisemaker->DesiredHeading = chased_by->DesiredHeading;
+        chased_by->Is_Distracted_By_Noisemaker(new_noisemaker);
+    }
     return all_noisemakers;
 }
 
