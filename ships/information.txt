@@ -3,7 +3,7 @@ Each ship gets a class file. The files are formated wit hthe following fields:
 Speed MaxDepth Rudder Torpedos HullStrength HasSonar SonarAngle ClassName ClassType
 
 For example:
-33 950 10 2 1 90.0 GenericSub SSN
+33 950 10 20 2 1 90.0 GenericSub SSN
 
 
 Each class is assigned a number. Currently the following classes exist:

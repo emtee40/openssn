@@ -20,7 +20,7 @@ $Id: main.h,v 1.11 2003/07/18 03:50:00 mbridak Exp $
 #define MAIN_H
 
 #ifndef VERSION
-#define VERSION 1.0
+#define VERSION 1.4
 #endif
 
 #include "helicopter.h"

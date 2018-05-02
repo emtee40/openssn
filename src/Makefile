@@ -1,4 +1,4 @@
-CC = g++
+CXX ?= clang++
 PREFIX ?= /usr
 DEVCFLAGS = -Wall -g -D_GNU_SOURCE `sdl-config --cflags` 
 CFLAGS = -O2 -Wall `sdl-config --cflags` -Wno-write-strings \
@@ -12,11 +12,11 @@ VERSION ?= 0.0
 .SUFFIXES: .cpp .o
 
 .cpp.o:	
-	$(CC) $(CFLAGS) -DVERSION=$(VERSION) -DDATADIR=\"$(DATADIR)\" -DOPTDIR=\"$(OPTDIR)\" -c $<
+	$(CXX) $(CFLAGS) -DVERSION=$(VERSION) -DDATADIR=\"$(DATADIR)\" -DOPTDIR=\"$(OPTDIR)\" -c $<
 
 .o:
-	$(CC) $(CLFAGS) $< -o $@
+	$(CXX) $(CLFAGS) $< -o $@
 
 all: $(OBJS)
-	$(CC) $(OBJS) $(LIBS) -o $(SSN)
+	$(CXX) $(OBJS) $(LIBS) -o $(SSN)
 

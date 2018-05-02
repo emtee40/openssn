@@ -26,6 +26,9 @@ $Id: submarine.cpp,v 1.6 2003/04/14 05:51:04 mbridak Exp $
 #include "files.h"
 #include "sound.h"
 #include "map.h"
+#ifdef WIN32
+#include "winfunctions.h"
+#endif
 
 using namespace std;
 

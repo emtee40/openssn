@@ -2,7 +2,7 @@ PREFIX ?= /usr
 SSN = openssn
 DATADIR = $(PREFIX)/share/openssn
 OPTDIR = /opt/openssn
-VERSION = 1.3
+VERSION = 1.4
 
 all:
 	$(MAKE) VERSION=$(VERSION) PREFIX=$(PREFIX) OPTDIR=$(OPTDIR) DATADIR=$(DATADIR) -C src
@@ -65,5 +65,5 @@ tarball: clean
 	cd .. && tar czf openssn-$(VERSION).tar.gz openssn --exclude=.svn
 
 zipfile: clean
-	cd .. && zip -r openssn-$(VERSION).zip openssn --exclude \*.svn\*
+	cd .. && zip -r openssn-$(VERSION)-source.zip openssn --exclude \*.svn\*
 
