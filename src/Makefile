@@ -17,6 +17,7 @@ VERSION ?= 0.0
 .o:
 	$(CXX) $(CLFAGS) $< -o $@
 
-all: $(OBJS)
+all: $(SSN)
+$(SSN): $(OBJS)
 	$(CXX) $(OBJS) $(LIBS) -o $(SSN)
 
