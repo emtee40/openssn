@@ -11,21 +11,21 @@
 
 typedef struct
 {
-   float value;
-   void *next, *previous;
+    float value;
+    void *next, *previous;
 } STACKVALUE;
 
 class DStack
 {
-  private:
+private:
     STACKVALUE *bottom_;
     STACKVALUE *top_;
     int number_items;
 
-  public:
+public:
     DStack();
     ~DStack();
-    void clear_stack();    // erase everything
+    void clear_stack();  // erase everything
     int push(float val);
     int num_items();
     float pop();

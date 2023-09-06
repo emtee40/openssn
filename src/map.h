@@ -13,14 +13,14 @@ water and placing of thermal layers.
 #define FALSE 0
 #endif
 
-#define MAX_DEPTH 5000      // deepest part of the ocean
-#define MIN_DEPTH 0          // most shallow point of the ocean
-#define MAX_THERMALS 3
+#define MAX_DEPTH        5000  // deepest part of the ocean
+#define MIN_DEPTH           0  // most shallow point of the ocean
+#define MAX_THERMALS        3
 #define MAX_THERMAL_DEPTH 900
-#define THERMAL_FILTER 0.15
+#define THERMAL_FILTER      0.15
 
 // MAP_MIN and MAP_MAX are also defined in the coord class
-#ifndef MAP_MIN 
+#ifndef MAP_MIN
 #define MAP_MIN 0
 #endif
 #ifndef MAP_MAX
@@ -30,25 +30,21 @@ water and placing of thermal layers.
 class MAP
 {
 public:
-  int thermals[MAX_THERMALS];
+    int thermals[MAX_THERMALS];
 
-  MAP();
-  ~MAP();
-  int Init();
-  int Create_Thermal_Layers(int how_many);
- 
-  int Get_Ocean_Depth(int x, int y);
-  int Thermals_Between(int depth_1, int depth_2);
-  int Next_Up(int current_depth);    // find thermal from our position
-  int Next_Down(int current_depth);  // find thermal from our position
+    MAP();
+    ~MAP();
+    int Init();
+    int Create_Thermal_Layers(int how_many);
 
-  #ifdef DEBUGMAP
-  void Test_Map();
-  #endif
+    int Get_Ocean_Depth(int x, int y);
+    int Thermals_Between(int depth_1, int depth_2);
+    int Next_Up(int current_depth);    // find thermal from our position
+    int Next_Down(int current_depth);  // find thermal from our position
 
+    #ifdef DEBUGMAP
+    void Test_Map();
+    #endif
 };
 
-
-
-#endif
-
+#endif  // MAP_HEADER_FILE__

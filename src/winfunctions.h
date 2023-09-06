@@ -14,7 +14,7 @@ char *my_strcasestr(char *haystack, char *needle);
 
 int my_strncasecmp(char *str1, char *str2, int letters);
 
-#endif
+#endif  // WIN32
 
-#endif
+#endif  // WINCOMPAT_HEADER_FILE__
 

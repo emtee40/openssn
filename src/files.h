@@ -15,10 +15,7 @@
 // value is equal to the filename passed in.
 char *Find_Data_File(char *filename);
 
-
 // Try to find the image file in various locations
 SDL_Surface *Load_Image(char *filename);
 
-
-#endif
-
+#endif  // FILES_HEADER_FILE__

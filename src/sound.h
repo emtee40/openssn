@@ -10,14 +10,11 @@
 
 int Init_Audio(int enable_sound);
 
-void Sound_Done();   // call back for when the music is finished playing
+void Sound_Done();  // call back for when the music is finished playing
 
 int Play_Sound(char *sound_file);
 
 void Clean_Up_Audio();
 
-
-
-
-#endif
+#endif  // SOUND_HEADER_FILE__
 

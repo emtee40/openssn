@@ -8,12 +8,11 @@ $Id: contact.h,v 1.4 2003/05/20 17:36:04 mbridak Exp $
  ***************************************************************************/
 
 /***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License.     *
- *    .                                   *
- *                                                                         *
+
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; either version 2 of the License.
+
  ***************************************************************************/
 
 #ifndef CONTACT_H
@@ -21,21 +20,22 @@ $Id: contact.h,v 1.4 2003/05/20 17:36:04 mbridak Exp $
 
 #include "coord.h"
 
-/**This is our picture of what is outside
-of our Sub.
-  *@author Michael Bridak
+/** This is our picture of what is outside of our Sub.
+  * @author Michael Bridak
   */
 
-class Contact : public Coord  {
+class Contact : public Coord
+{
 public:
-	bool Active; /*Flag to see if ship is in the world.*/
-	int ShipType;
-	//Sub=0, Surface=1, Air=2
-	int Friend;
-	//Foe=0, Friend=1, Unknown=2, Neutral=3
-	Contact();
-	~Contact();
-	void UpdateContact();
+    bool Active;  /* Flag to see if ship is in the world. */
+    int ShipType;
+    // Sub = 0, Surface = 1, Air = 2
+    int Friend;
+    // Foe = 0, Friend = 1, Unknown = 2, Neutral = 3
+	
+    Contact();
+    ~Contact();
+    void UpdateContact();
 };
 
-#endif
+#endif  // CONTACT_H
