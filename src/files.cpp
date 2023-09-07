@@ -62,6 +62,8 @@ char *Find_Data_File(char *filename)
         data_dir = OPTDIR;
         return location;
     }
+
+    free(location);
     data_dir = ".";
     return filename;
 }

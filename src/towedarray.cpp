@@ -26,9 +26,9 @@ TowedArray::TowedArray()
 
 TowedArray::TowedArray(double latitude, double longitude)
 {
-    for (int counter = 0; counter < 100; counter--) {
-        latitude_array[counter] =  latitude;
-        longitude_array[counter] =  longitude;
+    for (int counter = 0; counter < 100; counter++) {
+        latitude_array[counter] = latitude;
+        longitude_array[counter] = longitude;
     }
     length = 0;
     cut = FALSE;
