@@ -52,7 +52,7 @@ void BoatPositionLog::RecBoatPos(position temp)
 /** Remove the oldest record off stack. */
 void BoatPositionLog::PopRecord()
 {
-    for (int x = 0; x < size; x++) {
+    for (int x = 0; x < size - 1; x++) {
         storage[x] = storage[x + 1];
     }
     size--;
