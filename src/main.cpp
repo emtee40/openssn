@@ -72,9 +72,9 @@ void SetupScreen(bool full_screen)
 
     if (full_screen) {
         // Create main screen surface
-        screen = SDL_SetVideoMode(1024, 768, 16, SDL_FULLSCREEN);
+        screen = SDL_SetVideoMode(1024, 768, 32, SDL_FULLSCREEN);
     } else {
-        screen = SDL_SetVideoMode(1024, 768, 16, SDL_SWSURFACE);
+        screen = SDL_SetVideoMode(1024, 768, 32, SDL_SWSURFACE);
     }
 
     if (screen == NULL) {

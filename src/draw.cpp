@@ -8,7 +8,7 @@
 
 void DrawPixel(SDL_Surface *screen, int x, int y, Uint32 color)
 {
-    // this only works for 16bpp screens
+    // this only works for 32bpp screens
     // are we outside the screen?????
     // If we are bail out now before it's too late!
 
@@ -17,8 +17,8 @@ void DrawPixel(SDL_Surface *screen, int x, int y, Uint32 color)
     }
 
     // place the pixel on the screen
-    Uint16 *pixel_location;
-    pixel_location = (Uint16 *)screen->pixels + y * screen->pitch / 2 + x;
+    Uint32 *pixel_location;
+    pixel_location = (Uint32 *)screen->pixels + y * screen->pitch / 4 + x;
     *pixel_location = color;
 }
 

@@ -45,7 +45,7 @@ AnBqq5::~AnBqq5() {}
 void AnBqq5::InitGraphics()
 {
     screen = SDL_GetVideoSurface();
-    SDL_Surface *temp = SDL_CreateRGBSurface(SDL_SWSURFACE, 368, 280, 16,
+    SDL_Surface *temp = SDL_CreateRGBSurface(SDL_SWSURFACE, 368, 280, 32,
                         screen->format->Rmask,
                         screen->format->Gmask,
                         screen->format->Bmask,
@@ -82,10 +82,10 @@ void AnBqq5::ClearSonarData()  // when the display is switched from north center
 
 inline void AnBqq5::DPixel(SDL_Surface *screen, int x, int y, Uint32 color)
 {
-    // this only works for 16bpp screens
+    // this only works for 32bpp screens
     // place the pixel on the screen
-    Uint16 *pixel_location;
-    pixel_location = (Uint16 *)screen->pixels + y * screen->pitch / 2 + x;
+    Uint32 *pixel_location;
+    pixel_location = (Uint32 *)screen->pixels + y * screen->pitch / 4 + x;
     *pixel_location = color;
 }
 

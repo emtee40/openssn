@@ -40,7 +40,7 @@ msg::~msg()
 void msg::InitGraphics()
 {
     screen = SDL_GetVideoSurface();
-    SDL_Surface *temp = SDL_CreateRGBSurface(SDL_SWSURFACE, 800, 72, 16,
+    SDL_Surface *temp = SDL_CreateRGBSurface(SDL_SWSURFACE, 800, 72, 32,
                         screen->format->Rmask,
                         screen->format->Gmask,
                         screen->format->Bmask,

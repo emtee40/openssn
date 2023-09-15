@@ -75,7 +75,7 @@ void Radar::InitGraphics(SDL_Surface *temp, SDL_Surface *tempradarscreen)
     screen = temp;
     radarscreen = tempradarscreen;
 
-    temp = SDL_CreateRGBSurface(SDL_SWSURFACE, 420, 490, 16,
+    temp = SDL_CreateRGBSurface(SDL_SWSURFACE, 420, 490, 32,
                                 screen->format->Rmask,
                                 screen->format->Gmask,
                                 screen->format->Bmask,
@@ -1158,7 +1158,7 @@ int  Radar::ReciprocalBearing(int bearing)
 
 void Radar::DrawPixel(SDL_Surface *screen, int x, int y, Uint32 color)
 {
-    // this only works for 16bpp screens
+    // this only works for 32bpp screens
     // are we outside the screen?????
     // If we are bail out now before it's too late!
 
@@ -1167,8 +1167,8 @@ void Radar::DrawPixel(SDL_Surface *screen, int x, int y, Uint32 color)
     }
 
     // place the pixel on the screen
-    Uint16 *pixel_location;
-    pixel_location = (Uint16 *)screen->pixels + y * screen->pitch / 2 + x;
+    Uint32 *pixel_location;
+    pixel_location = (Uint32 *)screen->pixels + y * screen->pitch / 4 + x;
     *pixel_location = color;
 }
 

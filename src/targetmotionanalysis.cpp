@@ -171,7 +171,7 @@ void TargetMotionAnalysis::UnLock()
 void TargetMotionAnalysis::InitGraphics()
 {
     SDL_Surface *screen = SDL_GetVideoSurface();
-    SDL_Surface *temp = SDL_CreateRGBSurface(SDL_SWSURFACE, 500, 500, 16,
+    SDL_Surface *temp = SDL_CreateRGBSurface(SDL_SWSURFACE, 500, 500, 32,
                         screen->format->Rmask,
                         screen->format->Gmask,
                         screen->format->Bmask,
@@ -196,8 +196,8 @@ void TargetMotionAnalysis::PlotPixel(int x, int y, Uint32 color)
     }
 
     //place the pixel on the screen
-    Uint16 *pixel_location;
-    pixel_location = (Uint16 *)GeoPlotScreen->pixels + y * GeoPlotScreen->pitch / 2 + x;
+    Uint32 *pixel_location;
+    pixel_location = (Uint32 *)GeoPlotScreen->pixels + y * GeoPlotScreen->pitch / 4 + x;
     *pixel_location = color;
 }
 
