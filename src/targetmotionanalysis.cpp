@@ -19,6 +19,7 @@ $Id: targetmotionanalysis.cpp,v 1.7 2003/05/17 22:27:28 mbridak Exp $
 #include "SDL/SDL_image.h"
 #include "SDL/SDL_thread.h"
 #include "targetmotionanalysis.h"
+#include "draw.h"
 #include "math.h"
 
 TargetMotionAnalysis::TargetMotionAnalysis()
@@ -98,7 +99,7 @@ void TargetMotionAnalysis::DisplayLOS()
     ClearGeoPlot();
 
     // Draw LOS
-    DrawLine(250, 292, 250, 100, white);
+    DrawLine(GeoPlotScreen, 250, 292, 250, 100, white);
 
     // Draw our ships angle relative to the LOS
     if (our_heading > bearing_to_target) bearing_to_target += 360;
@@ -111,7 +112,7 @@ void TargetMotionAnalysis::DisplayLOS()
     var1 = direction * 0.017453;  // convert degrees to radians
     destinationx = (sin(var1) * our_speed) + x;
     destinationy = (-1) * (cos(var1) * our_speed) + y;
-    DrawLine(x, y, (int)destinationx, (int)destinationy, yellow);
+    DrawLine(GeoPlotScreen, x, y, (int)destinationx, (int)destinationy, yellow);
 
     // Draw targets angle relative to the LOS
     x = 250;
@@ -126,7 +127,7 @@ void TargetMotionAnalysis::DisplayLOS()
     var1 = direction * 0.017453;  // convert degrees to radians
     destinationx = (sin(var1) * target_speed) + x;
     destinationy = (-1) * (cos(var1) * target_speed) + y;
-    DrawLine(x, y, (int)destinationx, (int)destinationy, red);
+    DrawLine(GeoPlotScreen, x, y, (int)destinationx, (int)destinationy, red);
 
     SDL_Rect rectangle;
     rectangle.x = 0;
@@ -188,19 +189,6 @@ void TargetMotionAnalysis::InitGraphics()
     ClearGeoPlot();
 }
 
-/** No descriptions */
-void TargetMotionAnalysis::PlotPixel(int x, int y, Uint32 color)
-{
-    if (x > 499 || x < 0 || y > 499 || y < 0) {
-        return;
-    }
-
-    //place the pixel on the screen
-    Uint32 *pixel_location;
-    pixel_location = (Uint32 *)GeoPlotScreen->pixels + y * GeoPlotScreen->pitch / 4 + x;
-    *pixel_location = color;
-}
-
 /** erases the work screen */
 void TargetMotionAnalysis::ClearGeoPlot()
 {
@@ -243,69 +231,12 @@ void TargetMotionAnalysis::PlotHistory(int scale, int change_scrollx, int change
         if (x > 10 && x < 490 && y > 10 && y < 490) {
             x = x + xoffset;
             y = y + yoffset;
-            DrawDot(x, y, yellow);
+            DrawCircle(GeoPlotScreen, x, y, 2, yellow);
         }
         var1 = storage[index].bearing * 0.017453;  // convert degrees to radians
         destinationx = (sin(var1) * length) + x;
         destinationy = (-1) * (cos(var1) * (length / .75)) + y;  // adjust to account for 4:3 screen ratio
-        DrawLine(x, y, (int)destinationx, (int)destinationy, white);
-    }
-}
-
-/** Draws a line....What were you expecting? */
-void TargetMotionAnalysis::DrawLine(int X1, int Y1, int X2, int Y2, Uint32 Color)
-{
-    int dx, dy, sdx, sdy, py, px, x, y;
-    dx = X2 - X1;
-    dy = Y2 - Y1;
-    if (dx < 0) sdx = -1;
-    else sdx = 1;
-    if (dy < 0) sdy = -1;
-    else sdy = 1;
-    dx = sdx * dx + 1;
-    dy = sdy * dy + 1;
-    x = 0;
-    y = 0;
-    px = X1;
-    py = Y1;
-    if (dx >= dy) {
-        for (int x = 0; x < dx; x++) {
-            PlotPixel(px, py, Color);
-            y = y + dy;
-            if (y >= dx) {
-                y = y - dx;
-                py = py + sdy;
-            }
-            px = px + sdx;
-        }
-    } else {
-        for (int y = 0; y < dy; y++) {
-            PlotPixel(px, py, Color);
-            x = x + dx;
-            if (x >= dy) {
-                x = x - dy;
-                px = px + sdx;
-            }
-            py = py + sdy;
-        }
-    }
-}
-
-/** No descriptions */
-void TargetMotionAnalysis::DrawDot(int x, int y, Uint32 color)
-{
-    int xc, yc, radius;
-    int theta, theta1, theta2;
-    xc = x;
-    yc = y;
-    radius = 2;
-    theta1 = 0;
-    theta2 = 360;
-
-    for (theta = theta1; theta <= theta2; theta += 5) {
-        x = xc + int(radius * cos(theta * 3.14 / 180.0));
-        y = yc - int(radius * sin(theta * 3.14 / 180.0));
-        PlotPixel(x, y, color);
+        DrawLine(GeoPlotScreen, x, y, (int)destinationx, (int)destinationy, white);
     }
 }
 

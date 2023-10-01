@@ -20,6 +20,7 @@ $Id: esm.cpp,v 1.5 2003/04/14 05:51:03 mbridak Exp $
 #include "SDL/SDL_image.h"
 #include "SDL/SDL_thread.h"
 #include "dfont.h"
+#include "draw.h"
 #include "files.h"
 #include "submarine.h"
 
@@ -383,7 +384,7 @@ void Esm::DisplayContacts()
             // Clear Old Data from Heading Compass
             x = int(326.0 + (460.0 - 326.0) * cos(1.57 - radians_old[count]));
             y = int(383.0 - (460.0 - 326.0) * sin(1.57 - radians_old[count]));
-            DLine(screen, 326, 383, x, y, black);
+            DrawLine(screen, 326, 383, x, y, black);
         }
     }
     */
@@ -392,7 +393,7 @@ void Esm::DisplayContacts()
         radians_old = EsmStack.pop();
         x = int(326.0 + (460.0 - 326.0) * cos(1.57 - radians_old));
         y = int(383.0 - (460.0 - 326.0) * sin(1.57 - radians_old));
-        DLine(screen, 326, 383, x, y, black);
+        DrawLine(screen, 326, 383, x, y, black);
     }
 
     target = Subs->next;
@@ -411,7 +412,7 @@ void Esm::DisplayContacts()
             // Plot a line at the correct bearing
             x = int(326.0 + (460.0 - 326.0) * cos(1.57 - radians));
             y = int(383.0 - (460.0 - 326.0) * sin(1.57 - radians));
-            DLine(screen, 326, 383, x, y, orange);
+            DrawLine(screen, 326, 383, x, y, orange);
 
             sprintf(text, "BEARING  %i   SS %i", bearing,
                     getSignalStrength(target, range, 60, 100, true, 3));
@@ -423,59 +424,4 @@ void Esm::DisplayContacts()
         target = target->next;
     }
     SDL_UpdateRect(screen, 0, 0, 0, 0);
-}
-
-void Esm::DLine(SDL_Surface *screen, int X1, int Y1, int X2, int Y2, Uint32 Color)
-{
-    int dx, dy, sdx, sdy, py, px, x, y;
-    dx = X2 - X1;
-    dy = Y2 - Y1;
-    if (dx < 0) sdx = -1;
-    else sdx = 1;
-    if (dy < 0) sdy = -1;
-    else sdy = 1;
-    dx = sdx * dx + 1;
-    dy = sdy * dy + 1;
-    x = 0;
-    y = 0;
-    px = X1;
-    py = Y1;
-    if (dx >= dy) {
-        for (int x = 0; x < dx; x++) {
-            DPixel(screen, px, py, Color);
-            y = y + dy;
-            if (y >= dx) {
-                y = y - dx;
-                py = py + sdy;
-            }
-            px = px + sdx;
-        }
-    } else {
-        for (int y = 0; y < dy; y++) {
-            DPixel(screen, px, py, Color);
-            x = x + dx;
-            if (x >= dy) {
-                x = x - dy;
-                px = px + sdx;
-            }
-            py = py + sdy;
-        }
-    }
-}
-
-void Esm::DPixel(SDL_Surface *screen, int x, int y, Uint32 color)
-{
-    // this only works for 32bpp screens
-    // are we outside the screen?????
-    // If we are bail out now before it's too late!
-
-    // cerr << ".";
-    if (x > 1023 || x < 0 || y > 759 || y < 0) {
-        return;
-    }
-
-    // place the pixel on the screen
-    Uint32 *pixel_location;
-    pixel_location = (Uint32 *)screen->pixels + y * screen->pitch / 4 + x;
-    *pixel_location = color;
 }

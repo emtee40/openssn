@@ -21,6 +21,7 @@ $Id: sonar.cpp,v 1.14 2003/09/21 21:52:40 mbridak Exp $
 #include "SDL/SDL_image.h"
 #include "SDL/SDL_thread.h"
 #include "dfont.h"
+#include "draw.h"
 #include "files.h"
 #include "message.h"
 #include "submarine.h"
@@ -80,56 +81,6 @@ void AnBqq5::ClearSonarData()  // when the display is switched from north center
     SDL_FillRect(towedarrayscreen, &rectangle, black);
 }
 
-inline void AnBqq5::DPixel(SDL_Surface *screen, int x, int y, Uint32 color)
-{
-    // this only works for 32bpp screens
-    // place the pixel on the screen
-    Uint32 *pixel_location;
-    pixel_location = (Uint32 *)screen->pixels + y * screen->pitch / 4 + x;
-    *pixel_location = color;
-}
-
-inline void AnBqq5::DLine(SDL_Surface *screen, int X1, int Y1, int X2, int Y2, Uint32 Color)
-{
-    // don't even ask me about this stuff all I know is it works
-    // and thats ALL I care about...
-
-    int dx, dy, sdx, sdy, py, px, x, y;
-    dx = X2 - X1;
-    dy = Y2 - Y1;
-    if (dx < 0) sdx = -1;
-    else sdx = 1;
-    if (dy < 0) sdy = -1;
-    else sdy = 1;
-    dx = sdx * dx + 1;
-    dy = sdy * dy + 1;
-    x = 0;
-    y = 0;
-    px = X1;
-    py = Y1;
-    if (dx >= dy) {
-        for (int x = 0; x < dx; x++) {
-            DPixel(screen, px, py, Color);
-            y = y + dy;
-            if (y >= dx) {
-                y = y - dx;
-                py = py + sdy;
-            }
-            px = px + sdx;
-        }
-    } else {
-        for (int y = 0; y < dy; y++) {
-            DPixel(screen, px, py, Color);
-            x = x + dx;
-            if (x >= dy) {
-                x = x - dy;
-                px = px + sdx;
-            }
-            py = py + sdy;
-        }
-    }
-}
-
 void AnBqq5::Sonar(bool center)
 /********************************************
     This routine checks the sonar event queue
@@ -177,24 +128,24 @@ void AnBqq5::Sonar(bool center)
                 if (direction > 359) direction -= 360;
 
                 if (!center) {  // Do we want the sonar display to be north centered ?
-                    DPixel(sonarscreen, direction, 0, tracecolor);   // plots on 0-60 sec display
-                    DPixel(sonarscreen, direction, 70, tracecolor);  // plots on 0-30 min display
-                    DPixel(sonarscreen, direction, 140, tracecolor); // plots on 0-2 hr display
+                    DrawPixel(sonarscreen, direction, 0, tracecolor);   // plots on 0-60 sec display
+                    DrawPixel(sonarscreen, direction, 70, tracecolor);  // plots on 0-30 min display
+                    DrawPixel(sonarscreen, direction, 140, tracecolor); // plots on 0-2 hr display
                 } else {  // draw traces for south centered display
-                    DPixel(sonarscreen, ReciprocalBearing(direction),
+                    DrawPixel(sonarscreen, ReciprocalBearing(direction),
                            0, tracecolor); //plots on 0-60 sec display
-                    DPixel(sonarscreen, ReciprocalBearing(direction),
+                    DrawPixel(sonarscreen, ReciprocalBearing(direction),
                            70, tracecolor); //plots on 0-30 min display
-                    DPixel(sonarscreen, ReciprocalBearing(direction),
+                    DrawPixel(sonarscreen, ReciprocalBearing(direction),
                            140, tracecolor); //plots on 0-2 hr display
                 }
             }
         }
     }
     if (!center) {
-        DPixel(sonarscreen, (int) Subs->Heading, 0, white);  // plot our heading
+        DrawPixel(sonarscreen, (int) Subs->Heading, 0, white);  // plot our heading
     } else {
-        DPixel(sonarscreen, ReciprocalBearing((int)Subs->Heading),
+        DrawPixel(sonarscreen, ReciprocalBearing((int)Subs->Heading),
                0, white);  // plots our heading
     }
     AdvanceSonarDisplay();  // advance the screen
@@ -319,34 +270,34 @@ void AnBqq5::TowedSonar(bool center)
                 if (ambiguous_direction < 0) ambiguous_direction += 360;
                 if (ambiguous_direction > 359) ambiguous_direction -= 360;
                 if (!center) {  // Do we want the sonar display to be north centered?
-                    DPixel(towedarrayscreen, direction, 0, tracecolor);    // plots on 0-60 sec display
-                    DPixel(towedarrayscreen, direction, 70, tracecolor);   // plots on 0-30 min display
-                    DPixel(towedarrayscreen, direction, 140, tracecolor);  // plots on 0-2 hr display
-                    DPixel(towedarrayscreen, ambiguous_direction, 0, tracecolor);    // Do the same for the
-                    DPixel(towedarrayscreen, ambiguous_direction, 70, tracecolor);   // ambiguous bearing
-                    DPixel(towedarrayscreen, ambiguous_direction, 140, tracecolor);  // returned from towed array
+                    DrawPixel(towedarrayscreen, direction, 0, tracecolor);    // plots on 0-60 sec display
+                    DrawPixel(towedarrayscreen, direction, 70, tracecolor);   // plots on 0-30 min display
+                    DrawPixel(towedarrayscreen, direction, 140, tracecolor);  // plots on 0-2 hr display
+                    DrawPixel(towedarrayscreen, ambiguous_direction, 0, tracecolor);    // Do the same for the
+                    DrawPixel(towedarrayscreen, ambiguous_direction, 70, tracecolor);   // ambiguous bearing
+                    DrawPixel(towedarrayscreen, ambiguous_direction, 140, tracecolor);  // returned from towed array
                 } else {  // draw traces for south centered display
-                    DPixel(towedarrayscreen, ReciprocalBearing(direction),
+                    DrawPixel(towedarrayscreen, ReciprocalBearing(direction),
                            0, tracecolor);    // plots on 0-60 sec display
-                    DPixel(towedarrayscreen, ReciprocalBearing(direction),
+                    DrawPixel(towedarrayscreen, ReciprocalBearing(direction),
                            70, tracecolor);   // plots on 0-30 min display
-                    DPixel(towedarrayscreen, ReciprocalBearing(direction),
+                    DrawPixel(towedarrayscreen, ReciprocalBearing(direction),
                            140, tracecolor);  // plots on 0-2 hr display
 
-                    DPixel(towedarrayscreen, ReciprocalBearing(ambiguous_direction),
+                    DrawPixel(towedarrayscreen, ReciprocalBearing(ambiguous_direction),
                            0, tracecolor);    // plots on 0-60 sec display
-                    DPixel(towedarrayscreen, ReciprocalBearing(ambiguous_direction),
+                    DrawPixel(towedarrayscreen, ReciprocalBearing(ambiguous_direction),
                            70, tracecolor);   // plots on 0-30 min display
-                    DPixel(towedarrayscreen, ReciprocalBearing(ambiguous_direction),
+                    DrawPixel(towedarrayscreen, ReciprocalBearing(ambiguous_direction),
                            140, tracecolor);  // plots on 0-2 hr display
                 }
             }
         }
     }
     if (!center) {
-        DPixel(towedarrayscreen, (int) Subs->Heading, 0, white);  // plot our heading
+        DrawPixel(towedarrayscreen, (int) Subs->Heading, 0, white);  // plot our heading
     } else {
-        DPixel(towedarrayscreen, ReciprocalBearing((int)Subs->Heading),
+        DrawPixel(towedarrayscreen, ReciprocalBearing((int)Subs->Heading),
                0, white);  // plots our heading
     }
     AdvanceTB16Screen();  // advance the screen
@@ -394,9 +345,9 @@ void AnBqq5::AdvanceSonarDisplay()
             // noisecolor = SDL_MapRGB(sonarscreen->format, 0, (int) fabs((flowandambientnoise - RandInt(40))), 0);
             my_noise = (int) fabs((flowandambientnoise - RandInt(40))) / 2;
             noisecolor = SDL_MapRGB(sonarscreen->format, my_noise, my_noise, my_noise);
-            DPixel(sonarscreen, nbp, 0, noisecolor);
+            DrawPixel(sonarscreen, nbp, 0, noisecolor);
         } else {
-            DPixel(sonarscreen, nbp, 0, black);
+            DrawPixel(sonarscreen, nbp, 0, black);
         }
     }
 
@@ -436,9 +387,9 @@ void AnBqq5::AdvanceSonarDisplay()
                 // noisecolor = SDL_MapRGB(sonarscreen->format, 0, (int) fabs((flowandambientnoise - RandInt(40))), 0);
                 my_noise = (int) fabs((flowandambientnoise - RandInt(40))) / 2;
                 noisecolor = SDL_MapRGB(sonarscreen->format, my_noise, my_noise, my_noise);
-                DPixel(sonarscreen, nbp, 70, noisecolor);
+                DrawPixel(sonarscreen, nbp, 70, noisecolor);
             } else {
-                DPixel(sonarscreen, nbp, 70, black);
+                DrawPixel(sonarscreen, nbp, 70, black);
             }
         }
     }
@@ -480,9 +431,9 @@ void AnBqq5::AdvanceSonarDisplay()
 
                 my_noise = (int) fabs((flowandambientnoise - RandInt(40))) / 2;
                 noisecolor = SDL_MapRGB(sonarscreen->format, my_noise, my_noise, my_noise);
-                DPixel(sonarscreen, nbp, 140, noisecolor);
+                DrawPixel(sonarscreen, nbp, 140, noisecolor);
             } else {
-                DPixel(sonarscreen, nbp, 140, black);
+                DrawPixel(sonarscreen, nbp, 140, black);
             }
         }
     }
@@ -516,7 +467,7 @@ void AnBqq5::AdvanceTB16Screen()
     SDL_BlitSurface(towedarrayscreen, &source, towedarrayscreen, &destination);
 
     // erase portion of screen
-    DLine(towedarrayscreen, 0, 0, 360, 0, black);
+    DrawLine(towedarrayscreen, 0, 0, 360, 0, black);
     if (TB16.GetLength() > 240) {
         for (int nbp = 0; nbp < 360; nbp++) {
             bool sensordeaf = false;
@@ -534,9 +485,9 @@ void AnBqq5::AdvanceTB16Screen()
                 // noisecolor = SDL_MapRGB(towedarrayscreen->format, 0, (int) fabs((flowandambientnoise - RandInt(40))), 0);
                 my_noise = (int) fabs((flowandambientnoise - RandInt(40))) / 2;
                 noisecolor = SDL_MapRGB(towedarrayscreen->format, my_noise, my_noise, my_noise);
-                DPixel(towedarrayscreen, nbp, 0, noisecolor);
+                DrawPixel(towedarrayscreen, nbp, 0, noisecolor);
             } else {
-                DPixel(towedarrayscreen, nbp, 0, black);
+                DrawPixel(towedarrayscreen, nbp, 0, black);
             }
         }
     }
@@ -575,9 +526,9 @@ void AnBqq5::AdvanceTB16Screen()
                     // noisecolor = SDL_MapRGB(towedarrayscreen->format, 0, (int) fabs((flowandambientnoise - RandInt(40))), 0);
                     my_noise = (int) fabs((flowandambientnoise - RandInt(40))) / 2;
                     noisecolor = SDL_MapRGB(towedarrayscreen->format, my_noise, my_noise, my_noise);
-                    DPixel(towedarrayscreen, nbp, 70, noisecolor);
+                    DrawPixel(towedarrayscreen, nbp, 70, noisecolor);
                 } else {
-                    DPixel(towedarrayscreen, nbp, 70, black);
+                    DrawPixel(towedarrayscreen, nbp, 70, black);
                 }
             }
         }
@@ -617,9 +568,9 @@ void AnBqq5::AdvanceTB16Screen()
                     // noisecolor = SDL_MapRGB(towedarrayscreen->format, 0, (int) fabs((flowandambientnoise - RandInt(40))), 0);
                     my_noise = (int) fabs((flowandambientnoise - RandInt(40))) / 2;
                     noisecolor = SDL_MapRGB(towedarrayscreen->format, my_noise, my_noise, my_noise);
-                    DPixel(towedarrayscreen, nbp, 140, noisecolor);
+                    DrawPixel(towedarrayscreen, nbp, 140, noisecolor);
                 } else {
-                    DPixel(towedarrayscreen, nbp, 140, black);
+                    DrawPixel(towedarrayscreen, nbp, 140, black);
                 }
             }
         }
@@ -1181,11 +1132,11 @@ void AnBqq5::DisplayCursor()
     SDL_Rect rectangle;
     // Draw Cursor
     if (!northcenter) {
-        DLine(screen, 51 + cursorBearing, 140, 51 + cursorBearing, 147, green);
+        DrawLine(screen, 51 + cursorBearing, 140, 51 + cursorBearing, 147, green);
         rectangle.x = 51 + cursorBearing;
     } else {
         int recipCursorBearing = ReciprocalBearing(cursorBearing);
-        DLine(screen, 51 + recipCursorBearing, 140, 51 + recipCursorBearing, 147, green);
+        DrawLine(screen, 51 + recipCursorBearing, 140, 51 + recipCursorBearing, 147, green);
         rectangle.x = 51 + recipCursorBearing;
     }
     rectangle.y = 140;

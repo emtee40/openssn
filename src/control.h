@@ -74,10 +74,6 @@ public:
 
     void AdjustDepth(int x);
 
-    // void DPixel(SDL_Surface *screen, int x, int y, Uint32 color);  // rdm not needed
-
-    // void DLine(SDL_Surface *screen, int X1, int Y1, int X2, int Y2, Uint32 Color);  // rdm not needed
-
 private:
 
     SDL_Surface *screen;

@@ -39,10 +39,6 @@ public:
         display screen passed in from main. */
     void InitGraphics();
 
-    inline void DPixel(SDL_Surface *screen, int x, int y, Uint32 color);
-
-    inline void DLine(SDL_Surface *screen, int X1, int Y1, int X2, int Y2, Uint32 Color);
-
     void Sonar(bool center);
 
     void DisplaySonar();

@@ -12,7 +12,7 @@ void DrawPixel(SDL_Surface *screen, int x, int y, Uint32 color)
     // are we outside the screen?????
     // If we are bail out now before it's too late!
 
-    if (x > 1023 || x < 0 || y > 759 || y < 0) {
+    if (x >= screen->w || x < 0 || y >= screen->h || y < 0) {
         return;
     }
 
@@ -22,14 +22,14 @@ void DrawPixel(SDL_Surface *screen, int x, int y, Uint32 color)
     *pixel_location = color;
 }
 
-void DrawLine(SDL_Surface *screen, int X1, int Y1, int X2, int Y2, Uint32 Color)
+void DrawLine(SDL_Surface *screen, int x1, int y1, int x2, int y2, Uint32 color)
 {
     // don't even ask me about this stuff all I know is it works
     // and thats ALL I care about...
 
     int dx, dy, sdx, sdy, py, px, x, y;
-    dx = X2 - X1;
-    dy = Y2 - Y1;
+    dx = x2 - x1;
+    dy = y2 - y1;
     if (dx < 0) sdx = -1;
     else sdx = 1;
     if (dy < 0) sdy = -1;
@@ -38,11 +38,11 @@ void DrawLine(SDL_Surface *screen, int X1, int Y1, int X2, int Y2, Uint32 Color)
     dy = sdy * dy + 1;
     x = 0;
     y = 0;
-    px = X1;
-    py = Y1;
+    px = x1;
+    py = y1;
     if (dx >= dy) {
         for (int x = 0; x < dx; x++) {
-            DrawPixel(screen, px, py, Color);
+            DrawPixel(screen, px, py, color);
             y = y + dy;
             if (y >= dx) {
                 y = y - dx;
@@ -52,7 +52,7 @@ void DrawLine(SDL_Surface *screen, int X1, int Y1, int X2, int Y2, Uint32 Color)
         }
     } else {
         for (int y = 0; y < dy; y++) {
-            DrawPixel(screen, px, py, Color);
+            DrawPixel(screen, px, py, color);
             x = x + dx;
             if (x >= dy) {
                 x = x - dy;
@@ -63,105 +63,78 @@ void DrawLine(SDL_Surface *screen, int X1, int Y1, int X2, int Y2, Uint32 Color)
     }
 }
 
-void DrawArc(SDL_Surface *screen, int X1, int Y1, int Radius, int Theta1, int Theta2, Uint32 Color)
+void DrawArc(SDL_Surface *screen, int x, int y, int radius, int theta1, int theta2, Uint32 color)
 {
-    // Draw an arc  at (X1,Y1) of a given radius from theta1 to theta2 using specified color.
-    int x, y, xc, yc, radius;
-    int theta, theta1, theta2;
-    xc = X1;
-    yc = Y1;
-    radius = Radius;
-    theta1 = Theta1;
-    theta2 = Theta2;
+    // Draw an arc at (x,y) of a given radius from theta1 to theta2 using specified color.
+    int xa, ya;
+    int theta;
 
     for (theta = theta1; theta <= theta2; theta += 5) {
-        x = xc + int(radius * cos(theta * 3.14 / 180.0));
-        y = yc - int(radius * sin(theta * 3.14 / 180.0));
-        DrawPixel(screen, x, y, Color);
+        xa = x + int(radius * cos(theta * 3.14 / 180.0));
+        ya = y - int(radius * sin(theta * 3.14 / 180.0));
+        DrawPixel(screen, xa, ya, color);
     }
 }
 
-void DrawCircle(SDL_Surface *screen, int X1, int Y1, int Radius, Uint32 Color)
+void DrawCircle(SDL_Surface *screen, int x, int y, int radius, Uint32 color)
 {
-    // Draw a circle  at (X1,Y1) of a given radius using specified color.
-    /*
-    int xc, yc, radius;
-    xc = X1;
-    yc = Y1;
-    radius = Radius;
-    */
-    DrawArc(screen, X1, Y1, Radius, 0, 360, Color);
+    // Draw a circle at (x,y) of a given radius using specified color.
+    DrawArc(screen, x, y, radius, 0, 360, color);
 }
 
-void FillCircle(SDL_Surface *screen, int X1, int Y1, int Radius, Uint32 Color)
+void FillCircle(SDL_Surface *screen, int x, int y, int radius, Uint32 color)
 {
-    int my_radius;
-    my_radius = Radius;
-    while (my_radius > 1) {
-        DrawCircle(screen, X1, Y1, my_radius, Color);
-        my_radius--;
+    while (radius > 1) {
+        DrawCircle(screen, x, y, radius, color);
+        radius--;
     }
 }
 
-void DrawDiamond(SDL_Surface *screen, int X1, int Y1, int Size, char Direction, Uint32 Color)
+void DrawDiamond(SDL_Surface *screen, int x, int y, int size, char direction, Uint32 color)
 {
-    // Draw a diamond  at (X1,Y1) of Size using specified Color.
+    // Draw a diamond at (x,y) of size using specified color.
     // Direction: T = Top, B = Bottom, F = Full
-    int xc, yc;
-    int size;
-    xc = X1;
-    yc = Y1;
-    size = Size;
-
-    switch (Direction) {
+    switch (direction) {
         case 'B':
-            DrawLine(screen, xc - size, yc, xc, yc + size, Color);  // bottomleft
-            DrawLine(screen, xc + size, yc, xc, yc + size, Color);  // bottomright
+            DrawLine(screen, x - size, y, x, y + size, color);  // bottomleft
+            DrawLine(screen, x + size, y, x, y + size, color);  // bottomright
             break;
 
         case 'T':
-            DrawLine(screen, xc, yc - size, xc - size, yc, Color);  // topleft
-            DrawLine(screen, xc, yc - size, xc + size, yc, Color);  // topright
+            DrawLine(screen, x, y - size, x - size, y, color);  // topleft
+            DrawLine(screen, x, y - size, x + size, y, color);  // topright
             break;
 
         default:
-            DrawLine(screen, xc - size, yc, xc, yc + size, Color);  // bottomleft
-            DrawLine(screen, xc + size, yc, xc, yc + size, Color);  // bottomright
-            DrawLine(screen, xc, yc - size, xc - size, yc, Color);  // topleft
-            DrawLine(screen, xc, yc - size, xc + size, yc, Color);  // topright
+            DrawLine(screen, x - size, y, x, y + size, color);  // bottomleft
+            DrawLine(screen, x + size, y, x, y + size, color);  // bottomright
+            DrawLine(screen, x, y - size, x - size, y, color);  // topleft
+            DrawLine(screen, x, y - size, x + size, y, color);  // topright
     }
 }
 
-void DrawBox(SDL_Surface *screen, int X1, int Y1, int Size, char Direction, Uint32 Color)
+void DrawBox(SDL_Surface *screen, int x, int y, int size, char direction, Uint32 color)
 {
-    // Draw a Box  at (X1,Y1) of Size using specified Color.
+    // Draw a box at (x,y) of size using specified color.
     // Direction: T = Top, B = Bottom, F = Full
-    int xc, yc;
-    int size;
-    char direction;
-    xc = X1;
-    yc = Y1;
-    size = Size;
-    direction = Direction;
-
     switch (direction) {
         case 'T':
-            DrawLine(screen, xc - size, yc - size, xc - size, yc, Color);
-            DrawLine(screen, xc - size, yc - size, xc + size, yc - size, Color);
-            DrawLine(screen, xc + size, yc - size, xc + size, yc, Color);
+            DrawLine(screen, x - size, y - size, x - size, y, color);
+            DrawLine(screen, x - size, y - size, x + size, y - size, color);
+            DrawLine(screen, x + size, y - size, x + size, y, color);
             break;
 
         case 'B':
-            DrawLine(screen, xc - size, yc, xc - size, yc + size, Color);
-            DrawLine(screen, xc - size, yc + size, xc + size, yc + size, Color);
-            DrawLine(screen, xc + size, yc, xc + size, yc + size, Color);
+            DrawLine(screen, x - size, y, x - size, y + size, color);
+            DrawLine(screen, x - size, y + size, x + size, y + size, color);
+            DrawLine(screen, x + size, y, x + size, y + size, color);
             break;
 
         default:
-            DrawLine(screen, xc - size, yc - size, xc + size, yc - size, Color);
-            DrawLine(screen, xc + size, yc - size, xc + size, yc + size, Color);
-            DrawLine(screen, xc - size, yc - size, xc - size, yc + size, Color);
-            DrawLine(screen, xc - size, yc + size, xc + size, yc + size, Color);
+            DrawLine(screen, x - size, y - size, x + size, y - size, color);
+            DrawLine(screen, x + size, y - size, x + size, y + size, color);
+            DrawLine(screen, x - size, y - size, x - size, y + size, color);
+            DrawLine(screen, x - size, y + size, x + size, y + size, color);
     }
 }
 
@@ -184,51 +157,43 @@ void FillRectangle(SDL_Surface *screen, int x1, int y1, int x2, int y2, Uint32 c
     }
 }
 
-void DrawCross(SDL_Surface *screen, int X1, int Y1, int Size, char Direction, Uint32 Color)
+void DrawCross(SDL_Surface *screen, int x, int y, int size, char direction, Uint32 color)
 {
-    // Draw a Cross  at (X1,Y1) of Size using specified Color.
+    // Draw a Cross at (x,y) of size using specified color.
     // Direction: T = Top, B = Bottom, F = Full
-    int xc, yc;
-    int size;
-    char direction;
-    xc = X1;
-    yc = Y1;
-    size = Size;
-    direction = Direction;
-
     switch (direction) {
         case 'T':
-            DrawLine(screen, xc - size, yc - size / 2, xc - size, yc, Color);
-            DrawLine(screen, xc + size, yc - size / 2, xc + size, yc, Color);
-            DrawLine(screen, xc - size / 2, yc - size, xc + size / 2, yc - size, Color);
-            DrawLine(screen, xc - size / 2, yc - size, xc - size / 2, yc - size / 2, Color);
-            DrawLine(screen, xc + size / 2, yc - size, xc + size / 2, yc - size / 2, Color);
-            DrawLine(screen, xc + size / 2, yc - size / 2, xc + size, yc - size / 2, Color);
-            DrawLine(screen, xc - size, yc - size / 2, xc - size / 2, yc - size / 2, Color);
+            DrawLine(screen, x - size, y - size / 2, x - size, y, color);
+            DrawLine(screen, x + size, y - size / 2, x + size, y, color);
+            DrawLine(screen, x - size / 2, y - size, x + size / 2, y - size, color);
+            DrawLine(screen, x - size / 2, y - size, x - size / 2, y - size / 2, color);
+            DrawLine(screen, x + size / 2, y - size, x + size / 2, y - size / 2, color);
+            DrawLine(screen, x + size / 2, y - size / 2, x + size, y - size / 2, color);
+            DrawLine(screen, x - size, y - size / 2, x - size / 2, y - size / 2, color);
             break;
 
         case 'B':
-            DrawLine(screen, xc - size, yc, xc - size, yc + size / 2, Color);
-            DrawLine(screen, xc + size, yc, xc + size, yc + size / 2, Color);
-            DrawLine(screen, xc - size / 2, yc + size, xc + size / 2, yc + size, Color);
-            DrawLine(screen, xc - size / 2, yc + size / 2, xc - size / 2, yc + size, Color);
-            DrawLine(screen, xc + size / 2, yc + size / 2, xc + size / 2, yc + size, Color);
-            DrawLine(screen, xc - size, yc + size / 2, xc - size / 2, yc + size / 2, Color);
-            DrawLine(screen, xc + size / 2, yc + size / 2, xc + size, yc + size / 2, Color);
+            DrawLine(screen, x - size, y, x - size, y + size / 2, color);
+            DrawLine(screen, x + size, y, x + size, y + size / 2, color);
+            DrawLine(screen, x - size / 2, y + size, x + size / 2, y + size, color);
+            DrawLine(screen, x - size / 2, y + size / 2, x - size / 2, y + size, color);
+            DrawLine(screen, x + size / 2, y + size / 2, x + size / 2, y + size, color);
+            DrawLine(screen, x - size, y + size / 2, x - size / 2, y + size / 2, color);
+            DrawLine(screen, x + size / 2, y + size / 2, x + size, y + size / 2, color);
             break;
 
         default:
-            DrawLine(screen, xc - size, yc - size / 2, xc - size, yc + size / 2, Color);
-            DrawLine(screen, xc + size, yc - size / 2, xc + size, yc + size / 2, Color);
-            DrawLine(screen, xc - size / 2, yc - size, xc + size / 2, yc - size, Color);
-            DrawLine(screen, xc - size / 2, yc + size, xc + size / 2, yc + size, Color);
-            DrawLine(screen, xc - size / 2, yc - size, xc - size / 2, yc - size / 2, Color);
-            DrawLine(screen, xc - size / 2, yc + size / 2, xc - size / 2, yc + size, Color);
-            DrawLine(screen, xc + size / 2, yc - size, xc + size / 2, yc - size / 2, Color);
-            DrawLine(screen, xc + size / 2, yc + size / 2, xc + size / 2, yc + size, Color);
-            DrawLine(screen, xc - size, yc + size / 2, xc - size / 2, yc + size / 2, Color);
-            DrawLine(screen, xc + size / 2, yc - size / 2, xc + size, yc - size / 2, Color);
-            DrawLine(screen, xc - size, yc - size / 2, xc - size / 2, yc - size / 2, Color);
-            DrawLine(screen, xc + size / 2, yc + size / 2, xc + size, yc + size / 2, Color);
+            DrawLine(screen, x - size, y - size / 2, x - size, y + size / 2, color);
+            DrawLine(screen, x + size, y - size / 2, x + size, y + size / 2, color);
+            DrawLine(screen, x - size / 2, y - size, x + size / 2, y - size, color);
+            DrawLine(screen, x - size / 2, y + size, x + size / 2, y + size, color);
+            DrawLine(screen, x - size / 2, y - size, x - size / 2, y - size / 2, color);
+            DrawLine(screen, x - size / 2, y + size / 2, x - size / 2, y + size, color);
+            DrawLine(screen, x + size / 2, y - size, x + size / 2, y - size / 2, color);
+            DrawLine(screen, x + size / 2, y + size / 2, x + size / 2, y + size, color);
+            DrawLine(screen, x - size, y + size / 2, x - size / 2, y + size / 2, color);
+            DrawLine(screen, x + size / 2, y - size / 2, x + size, y - size / 2, color);
+            DrawLine(screen, x - size, y - size / 2, x - size / 2, y - size / 2, color);
+            DrawLine(screen, x + size / 2, y + size / 2, x + size, y + size / 2, color);
     }
 }

@@ -82,10 +82,6 @@ public:
     int DeltaBearing(int bearing1, int bearing2);
     int ReciprocalBearing(int bearing1);
 
-    void DrawPixel(SDL_Surface *screen, int x, int y, Uint32 color);
-    void DrawArc(SDL_Surface *screen, int X1, int Y1, int Radius, int Theta1, int Theta2, Uint32 Color);
-    void DrawCircle(SDL_Surface *screen, int X1, int Y1, int Radius, Uint32 Color);
-
     // Toggle Range Scale
     void ToggleRangeScale10();
     void ToggleRangeScale20();

@@ -97,20 +97,11 @@ public:
     /** Initialize the graphics */
     void InitGraphics();
 
-    /** No descriptions */
-    void PlotPixel(int x, int y, Uint32 color);
-
     /** erases the work screen */
     void ClearGeoPlot();
 
     /** Plot the boats history */
     void PlotHistory(int scale, int change_scrollx, int change_scrolly);
-
-    /** Draws a line....What were you expecting? */
-    void DrawLine(int X1, int Y1, int X2, int Y2, Uint32 Color);
-
-    /** No descriptions */
-    void DrawDot(int x, int y, Uint32 color);
 
     /** Increments plotscale to zoom in on the GeoPlot */
     void IncreasePlotScale();

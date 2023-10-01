@@ -21,6 +21,7 @@ $Id: radar.cpp,v 1.16 2003/05/17 22:25:34 mbridak Exp $
 #include "SDL/SDL_image.h"
 #include "SDL/SDL_thread.h"
 #include "dfont.h"
+#include "draw.h"
 #include "files.h"
 #include "submarine.h"
 
@@ -1154,48 +1155,4 @@ int  Radar::ReciprocalBearing(int bearing)
         recipbearing = bearing + 180;
     }
     return recipbearing;
-}
-
-void Radar::DrawPixel(SDL_Surface *screen, int x, int y, Uint32 color)
-{
-    // this only works for 32bpp screens
-    // are we outside the screen?????
-    // If we are bail out now before it's too late!
-
-    if (x > 1023 || x < 0 || y > 759 || y < 0) {
-        return;
-    }
-
-    // place the pixel on the screen
-    Uint32 *pixel_location;
-    pixel_location = (Uint32 *)screen->pixels + y * screen->pitch / 4 + x;
-    *pixel_location = color;
-}
-
-void Radar::DrawArc(SDL_Surface *screen, int X1, int Y1, int Radius, int Theta1, int Theta2, Uint32 Color)
-{
-    // Draw an arc  at (X1,Y1) of a given radius from theta1 to theta2 using specified color.
-    int x, y, xc, yc, radius;
-    int theta, theta1, theta2;
-    xc = X1;
-    yc = Y1;
-    radius = Radius;
-    theta1 = Theta1;
-    theta2 = Theta2;
-
-    for (theta = theta1; theta <= theta2; theta += 5) {
-        x = xc + int(radius * cos(theta * 3.14 / 180.0));
-        y = yc - int(radius * sin(theta * 3.14 / 180.0));
-        DrawPixel(screen, x, y, Color);
-    }
-}
-
-void Radar::DrawCircle(SDL_Surface *screen, int X1, int Y1, int Radius, Uint32 Color)
-{
-    // Draw a circle  at (X1,Y1) of a given radius using specified color.
-    int xc, yc, radius;
-    xc = X1;
-    yc = Y1;
-    radius = Radius;
-    DrawArc(screen, xc, yc, radius, 0, 360, Color);
 }
