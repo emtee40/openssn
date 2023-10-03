@@ -65,10 +65,6 @@ Radar::Radar(Submarine *temp): Subs(temp)
 
 Radar::~Radar()
 {
-    SDL_FreeSurface(blip);
-
-    // gotta free it, or we get a segfault
-    SDL_FreeSurface(sweep[0]);
 }
 
 void Radar::InitGraphics(SDL_Surface *temp, SDL_Surface *tempradarscreen)
