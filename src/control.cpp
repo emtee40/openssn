@@ -78,7 +78,6 @@ void Control::InitGraphics(SDL_Surface *temp, SDL_Surface *tempcontrolscreen)
 // orange = SDL_MapRGB(screen->format, 238, 118, 0);  // rdm 9/11 not needed
 // green = SDL_MapRGB(screen->format, 0, 128, 0);
 // black = SDL_MapRGB(screen->format, 0, 0, 0);
-
 }
 
 void Control::LoadWidgets()
@@ -101,6 +100,29 @@ void Control::LoadWidgets()
     depthdownon = Load_Image("images/depthdownon.png");
 
     ClearControl = Load_Image("images/ClearControl.png");
+}
+
+void Control::UnLoadWidgets()
+{
+    // free the surfaces
+    SDL_FreeSurface(STOPoff);
+    SDL_FreeSurface(STOPon);
+    SDL_FreeSurface(A13off);
+    SDL_FreeSurface(A13on);
+    SDL_FreeSurface(A23off);
+    SDL_FreeSurface(A23on);
+    SDL_FreeSurface(ASTDoff);
+    SDL_FreeSurface(ASTDon);
+    SDL_FreeSurface(AFULLoff);
+    SDL_FreeSurface(AFULLon);
+    SDL_FreeSurface(AFLKoff);
+    SDL_FreeSurface(AFLKon);
+    SDL_FreeSurface(depthupoff);
+    SDL_FreeSurface(depthupon);
+    SDL_FreeSurface(depthdownoff);
+    SDL_FreeSurface(depthdownon);
+
+    SDL_FreeSurface(ClearControl);
 }
 
 void Control::DisplayWidgets()

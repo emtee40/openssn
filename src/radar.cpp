@@ -88,10 +88,6 @@ void Radar::InitGraphics(SDL_Surface *temp, SDL_Surface *tempradarscreen)
     DisplayWidgets();
 
     orange = SDL_MapRGB(screen->format, 238, 118, 0);
-
-    // load the picture of a blip (blip.png)
-    blip = Load_Image("images/blip.png");
-    SDL_SetAlpha(blip, SDL_SRCALPHA, 128);
 }
 
 void Radar::LoadWidgets()
@@ -133,9 +129,55 @@ void Radar::LoadWidgets()
     // VENZON: only need 1 sweep image now
     sweep[0] = Load_Image("images/sweep0.png");
 
+    // Load the picture of a blip
+    blip = Load_Image("images/blip.png");
+    SDL_SetAlpha(blip, SDL_SRCALPHA, 128);
+
     // Clear Widgets
     ClearRadar = Load_Image("images/ClearRadar.png");
     ClearRadar2 = Load_Image("images/ClearRadar2.png");
+}
+
+void Radar::UnLoadWidgets()
+{
+    // free the surfaces
+    SDL_FreeSurface(range10off);
+    SDL_FreeSurface(range10on);
+    SDL_FreeSurface(range20off);
+    SDL_FreeSurface(range20on);
+    SDL_FreeSurface(range30off);
+    SDL_FreeSurface(range30on);
+    SDL_FreeSurface(range40off);
+    SDL_FreeSurface(range40on);
+    SDL_FreeSurface(range50off);
+    SDL_FreeSurface(range50on);
+    SDL_FreeSurface(range60off);
+    SDL_FreeSurface(range60on);
+
+    SDL_FreeSurface(ring0off);
+    SDL_FreeSurface(ring0on);
+    SDL_FreeSurface(ring5off);
+    SDL_FreeSurface(ring5on);
+    SDL_FreeSurface(ring10off);
+    SDL_FreeSurface(ring10on);
+    SDL_FreeSurface(ring15off);
+    SDL_FreeSurface(ring15on);
+    SDL_FreeSurface(ring20off);
+    SDL_FreeSurface(ring20on);
+    SDL_FreeSurface(ring25off);
+    SDL_FreeSurface(ring25on);
+
+    SDL_FreeSurface(mastdownoff);
+    SDL_FreeSurface(mastdownon);
+    SDL_FreeSurface(mastupoff);
+    SDL_FreeSurface(mastupon);
+
+    SDL_FreeSurface(sweep[0]);
+
+    SDL_FreeSurface(blip);
+
+    SDL_FreeSurface(ClearRadar);
+    SDL_FreeSurface(ClearRadar2);
 }
 
 void Radar::DisplayWidgets()

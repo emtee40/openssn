@@ -62,6 +62,9 @@ public:
     /** Loads in the widgets */
     void LoadWidgets();
 
+    /** Unloads the widgets */
+    void UnLoadWidgets();
+
     /** Displays the widgets needed for the sonar display */
     void DisplaySonarWidgets();
 

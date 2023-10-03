@@ -77,6 +77,19 @@ void Esm::LoadWidgets()
     ClearEsm2 = Load_Image("images/ClearEsm2.png");
 }
 
+void Esm::UnLoadWidgets()
+{
+    // free the surfaces
+    SDL_FreeSurface(mastdownoff);
+    SDL_FreeSurface(mastdownon);
+    SDL_FreeSurface(mastupoff);
+    SDL_FreeSurface(mastupon);
+    SDL_FreeSurface(styllus);
+
+    SDL_FreeSurface(ClearEsm);
+    SDL_FreeSurface(ClearEsm2);
+}
+
 void Esm::DisplayWidgets()
 {
     // Center of ESM screen at (316,325)

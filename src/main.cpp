@@ -273,16 +273,16 @@ void LoadWidgets()
     plusbuttondown = Load_Image("images/plusbuttondown.png");
     minusbuttonup = Load_Image("images/minusbuttonup.png");
     minusbuttondown = Load_Image("images/minusbuttondown.png");
-    centerbuttondown = Load_Image("images/centerbuttondown.png");
     centerbuttonup = Load_Image("images/centerbuttonup.png");
-    upbuttondown = Load_Image("images/upbuttondown.png");
+    centerbuttondown = Load_Image("images/centerbuttondown.png");
     upbuttonup = Load_Image("images/upbuttonup.png");
-    downbuttondown = Load_Image("images/downbuttondown.png");
+    upbuttondown = Load_Image("images/upbuttondown.png");
     downbuttonup = Load_Image("images/downbuttonup.png");
-    leftbuttondown = Load_Image("images/leftbuttondown.png");
+    downbuttondown = Load_Image("images/downbuttondown.png");
     leftbuttonup = Load_Image("images/leftbuttonup.png");
-    rightbuttondown = Load_Image("images/rightbuttondown.png");
+    leftbuttondown = Load_Image("images/leftbuttondown.png");
     rightbuttonup = Load_Image("images/rightbuttonup.png");
+    rightbuttondown = Load_Image("images/rightbuttondown.png");
     noisemaker_image = Load_Image("images/noisemaker.png");
     torpedo_image = Load_Image("images/torpedo.png");
 }
@@ -290,21 +290,39 @@ void LoadWidgets()
 void UnLoadWidgets()
 {
     // free the surfaces
-
-    SDL_FreeSurface(sonarbuttonup);
-    SDL_FreeSurface(sonarbuttondown);
     SDL_FreeSurface(navbuttonup);
     SDL_FreeSurface(navbuttondown);
     SDL_FreeSurface(tmabuttonup);
     SDL_FreeSurface(tmabuttondown);
+    SDL_FreeSurface(shipcontrolbuttonup);
+    SDL_FreeSurface(shipcontrolbuttondown);
+    SDL_FreeSurface(esmbuttonup);
+    SDL_FreeSurface(esmbuttondown);
+    SDL_FreeSurface(radarbuttonup);
+    SDL_FreeSurface(radarbuttondown);
     SDL_FreeSurface(quitbuttonup);
     SDL_FreeSurface(quitbuttondown);
     SDL_FreeSurface(plusbuttonup);
     SDL_FreeSurface(plusbuttondown);
     SDL_FreeSurface(minusbuttonup);
     SDL_FreeSurface(minusbuttondown);
+    SDL_FreeSurface(centerbuttonup);
+    SDL_FreeSurface(centerbuttondown);
+    SDL_FreeSurface(upbuttonup);
+    SDL_FreeSurface(upbuttondown);
+    SDL_FreeSurface(downbuttonup);
+    SDL_FreeSurface(downbuttondown);
+    SDL_FreeSurface(leftbuttonup);
+    SDL_FreeSurface(leftbuttondown);
+    SDL_FreeSurface(rightbuttonup);
+    SDL_FreeSurface(rightbuttondown);
     SDL_FreeSurface(torpedo_image);
     SDL_FreeSurface(noisemaker_image);
+
+    ControlStation.UnLoadWidgets();
+    EsmStation.UnLoadWidgets();
+    RadarStation.UnLoadWidgets();
+    SonarStation.UnLoadWidgets();
 }
 
 void DisplayNavigationWidgets()

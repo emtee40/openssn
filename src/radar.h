@@ -63,6 +63,7 @@ public:
     void ClearTextBox();
 
     void LoadWidgets();
+    void UnLoadWidgets();
 
     void DisplayWidgets();
 

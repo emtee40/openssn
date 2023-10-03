@@ -607,10 +607,10 @@ void AnBqq5::DisplayBearingScale(bool center)
 
 void AnBqq5::LoadWidgets()
 {
-    ncscale = Load_Image("images/nc_scale.png");
-    scscale = Load_Image("images/sc_scale.png");
     sonarbuttonup = Load_Image("images/sonarup.png");
     sonarbuttondown = Load_Image("images/sonardown.png");
+    ncscale = Load_Image("images/nc_scale.png");
+    scscale = Load_Image("images/sc_scale.png");
     truerel[0] = Load_Image("images/rel_true.png");
     truerel[1] = Load_Image("images/true_rel.png");
     sphertowed[0] = Load_Image("images/towedspherical.png");
@@ -637,6 +637,41 @@ void AnBqq5::LoadWidgets()
     tracker3[1] = Load_Image("images/track3assigned.png");
     tracker4[0] = Load_Image("images/track4.png");
     tracker4[1] = Load_Image("images/track4assigned.png");
+}
+
+void AnBqq5::UnLoadWidgets()
+{
+    // free the surfaces
+    SDL_FreeSurface(sonarbuttonup);
+    SDL_FreeSurface(sonarbuttondown);
+    SDL_FreeSurface(ncscale);
+    SDL_FreeSurface(scscale);
+    SDL_FreeSurface(truerel[0]);
+    SDL_FreeSurface(truerel[1]);
+    SDL_FreeSurface(sphertowed[0]);
+    SDL_FreeSurface(sphertowed[1]);
+    SDL_FreeSurface(uppercrtoff);
+    SDL_FreeSurface(uppercrton);
+    SDL_FreeSurface(lowercrtoff);
+    SDL_FreeSurface(lowercrton);
+    SDL_FreeSurface(tb16winchon);
+    SDL_FreeSurface(tb16winchoff);
+    SDL_FreeSurface(extendtb16[0]);
+    SDL_FreeSurface(extendtb16[1]);
+    SDL_FreeSurface(retracttb16[0]);
+    SDL_FreeSurface(retracttb16[1]);
+    SDL_FreeSurface(cutarray);
+    SDL_FreeSurface(sendping);
+    SDL_FreeSurface(assigntrackerwidget[0]);
+    SDL_FreeSurface(assigntrackerwidget[1]);
+    SDL_FreeSurface(tracker1[0]);
+    SDL_FreeSurface(tracker1[1]);
+    SDL_FreeSurface(tracker2[0]);
+    SDL_FreeSurface(tracker2[1]);
+    SDL_FreeSurface(tracker3[0]);
+    SDL_FreeSurface(tracker3[1]);
+    SDL_FreeSurface(tracker4[0]);
+    SDL_FreeSurface(tracker4[1]);
 }
 
 void AnBqq5::DisplaySonarWidgets()

@@ -54,6 +54,7 @@ public:
     void ClearOrdDepth();
 
     void LoadWidgets();
+    void UnLoadWidgets();
 
     void DisplayWidgets();
 
