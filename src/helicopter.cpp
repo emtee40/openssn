@@ -232,8 +232,7 @@ Submarine *Helicopter::Helicopter_AI(Submarine *all_ships, Submarine *all_torped
                             char *ship_file, filename[] = "ships/class5.shp";
                             ship_file = Find_Data_File(filename);
                             torpedo = Fire_Torpedo(target, ship_file);
-                            if ((ship_file) && (ship_file != filename))
-                                free(ship_file);
+                            free(ship_file);
                             if (torpedo) {
                                 #ifdef DEBUG_HELICOPTER
                                 printf("We fired a torpedo.\n");

@@ -85,8 +85,7 @@ int New_Mission(int next_prev, int old_mission)
 #endif
     mission_path = Find_Data_File(mission_filename);
     mission_file = fopen(mission_path, "r");
-    if ((mission_path) && (mission_path != mission_filename))
-        free(mission_path);
+    free(mission_path);
 
     // found mission file, return the new number
     if (mission_file) {
@@ -114,8 +113,7 @@ int Display_Mission(int mission_number)
 #endif
     full_path = Find_Data_File(filename);
     mission_file = fopen(full_path, "r");
-    if ((full_path) && (full_path != filename))
-        free(full_path);
+    free(full_path);
     if (mission_file) {
         FillRectangle(menu_screen, 440, 610, 980, 730, menu_background);
         full_path = fgets(line, 256, mission_file);

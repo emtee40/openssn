@@ -1028,8 +1028,7 @@ Submarine *Submarine::Sub_AI(Submarine *all_ships, Submarine *all_torpedoes, voi
                     char *ship_file, filename[] = "ships/class5.shp";
                     ship_file = Find_Data_File(filename);
                     torpedo = Fire_Tube(target, ship_file);
-                    if ((ship_file) && (ship_file != filename))
-                        free(ship_file);
+                    free(ship_file);
                     if (torpedo) {
                         #ifdef AIDEBUG
                         printf("Successfully fired torpedo.\n");
@@ -1182,8 +1181,7 @@ int Submarine::Check_Status()
             char *full_path, *explosion = "sounds/explosion.ogg";
             full_path = Find_Data_File(explosion);
             Play_Sound(full_path);
-            if ((full_path) && (explosion))
-                free(full_path);
+            free(full_path);
 
             return HIT_TARGET;
         }
@@ -1323,8 +1321,7 @@ Submarine *Submarine::Launch_Noisemaker(Submarine *all_noisemakers, Submarine *c
         char *ship_file, filename[] = "ships/class6.shp";
         ship_file = Find_Data_File(filename);
         new_noisemaker = Fire_Tube(NULL, ship_file);
-        if ((ship_file) && (ship_file != filename))
-            free(ship_file);
+        free(ship_file);
         if (new_noisemaker) {
             new_noisemaker->Friend = Friend;
             new_noisemaker->owner = this;
@@ -1415,8 +1412,7 @@ int Submarine::Send_Ping(Submarine *all_ships)
 
     full_path = Find_Data_File(ping_file);
     Play_Sound(full_path);
-    if ((full_path) && (full_path != ping_file))
-        free(full_path);
+    free(full_path);
 
     pinging = 2;
     current = all_ships;

@@ -607,308 +607,36 @@ void AnBqq5::DisplayBearingScale(bool center)
 
 void AnBqq5::LoadWidgets()
 {
-    // cerr << "LoadWidgets()" << endl;
-    SDL_Surface *temp;
-
-    temp = Load_Image("images/nc_scale.png");
-    if (temp != NULL) ncscale = SDL_DisplayFormat(temp);
-    if (ncscale == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/sc_scale.png");
-    if (temp != NULL) scscale = SDL_DisplayFormat(temp);
-    if (scscale == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/sonarup.png");
-    if (temp != NULL) sonarbuttonup = SDL_DisplayFormat(temp);
-    if (sonarbuttonup == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/sonardown.png");
-    if (temp != NULL) sonarbuttondown = SDL_DisplayFormat(temp);
-    if (sonarbuttondown == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/rel_true.png");
-    if (temp != NULL) truerel[0] = SDL_DisplayFormat(temp);
-    if (truerel[0] == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/true_rel.png");
-    if (temp != NULL) truerel[1] = SDL_DisplayFormat(temp);
-    if (truerel[1] == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/sphericaltowed.png");
-    if (temp != NULL) sphertowed[1] = SDL_DisplayFormat(temp);
-    if (sphertowed[1] == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/towedspherical.png");
-    if (temp != NULL) sphertowed[0] = SDL_DisplayFormat(temp);
-    if (sphertowed[0] == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/uppercrtoff.png");
-    if (temp != NULL) uppercrtoff = SDL_DisplayFormat(temp);
-    if (uppercrtoff == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/uppercrton.png");
-    if (temp != NULL) uppercrton = SDL_DisplayFormat(temp);
-    if (uppercrton == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/lowercrtoff.png");
-    if (temp != NULL) lowercrtoff = SDL_DisplayFormat(temp);
-    if (lowercrtoff == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/lowercrton.png");
-    if (temp != NULL) lowercrton = SDL_DisplayFormat(temp);
-    if (lowercrton == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/tb16winchon.png");
-    if (temp != NULL) tb16winchon = SDL_DisplayFormat(temp);
-    if (tb16winchon == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/tb16winchoff.png");
-    if (temp != NULL) tb16winchoff = SDL_DisplayFormat(temp);
-    if (tb16winchoff == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/extendtb16on.png");
-    if (temp != NULL) extendtb16[1] = SDL_DisplayFormat(temp);
-    if (extendtb16[1] == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/extendtb16off.png");
-    if (temp != NULL) extendtb16[0] = SDL_DisplayFormat(temp);
-    if (extendtb16[0] == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/retracttb16on.png");
-    if (temp != NULL) retracttb16[1] = SDL_DisplayFormat(temp);
-    if (retracttb16[1] == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/retracttb16off.png");
-    if (temp != NULL) retracttb16[0] = SDL_DisplayFormat(temp);
-    if (retracttb16[0] == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/cutarray.png");
-    if (temp != NULL)
-        cutarray = SDL_DisplayFormat(temp);
-    if (!cutarray) {
-        cerr << "Error loading cutarray.png in LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-
-    temp = Load_Image("images/ping_button.png");
-    if (temp != NULL)
-        sendping = SDL_DisplayFormat(temp);
-    if (!sendping) {
-        cerr << "Error loading ping_button.png in LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-
-    temp = Load_Image("images/assigntrackeroff.png");
-    if (temp != NULL) assigntrackerwidget[0] = SDL_DisplayFormat(temp);
-    if (assigntrackerwidget[0] == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/assigntrackeron.png");
-    if (temp != NULL) assigntrackerwidget[1] = SDL_DisplayFormat(temp);
-    if (assigntrackerwidget[1] == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/track1.png");
-    if (temp != NULL) tracker1[0] = SDL_DisplayFormat(temp);
-    if (tracker1[0] == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/track1assigned.png");
-    if (temp != NULL) tracker1[1] = SDL_DisplayFormat(temp);
-    if (tracker1[1] == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/track2.png");
-    if (temp != NULL) tracker2[0] = SDL_DisplayFormat(temp);
-    if (tracker2[0] == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/track2assigned.png");
-    if (temp != NULL) tracker2[1] = SDL_DisplayFormat(temp);
-    if (tracker2[1] == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/track3.png");
-    if (temp != NULL) tracker3[0] = SDL_DisplayFormat(temp);
-    if (tracker3[0] == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/track3assigned.png");
-    if (temp != NULL) tracker3[1] = SDL_DisplayFormat(temp);
-    if (tracker3[1] == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/track4.png");
-    if (temp != NULL) tracker4[0] = SDL_DisplayFormat(temp);
-    if (tracker4[0] == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/track4assigned.png");
-    if (temp != NULL) tracker4[1] = SDL_DisplayFormat(temp);
-    if (tracker4[1] == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
+    ncscale = Load_Image("images/nc_scale.png");
+    scscale = Load_Image("images/sc_scale.png");
+    sonarbuttonup = Load_Image("images/sonarup.png");
+    sonarbuttondown = Load_Image("images/sonardown.png");
+    truerel[0] = Load_Image("images/rel_true.png");
+    truerel[1] = Load_Image("images/true_rel.png");
+    sphertowed[0] = Load_Image("images/towedspherical.png");
+    sphertowed[1] = Load_Image("images/sphericaltowed.png");
+    uppercrtoff = Load_Image("images/uppercrtoff.png");
+    uppercrton = Load_Image("images/uppercrton.png");
+    lowercrtoff = Load_Image("images/lowercrtoff.png");
+    lowercrton = Load_Image("images/lowercrton.png");
+    tb16winchon = Load_Image("images/tb16winchon.png");
+    tb16winchoff = Load_Image("images/tb16winchoff.png");
+    extendtb16[0] = Load_Image("images/extendtb16off.png");
+    extendtb16[1] = Load_Image("images/extendtb16on.png");
+    retracttb16[0] = Load_Image("images/retracttb16off.png");
+    retracttb16[1] = Load_Image("images/retracttb16on.png");
+    cutarray = Load_Image("images/cutarray.png");
+    sendping = Load_Image("images/ping_button.png");
+    assigntrackerwidget[0] = Load_Image("images/assigntrackeroff.png");
+    assigntrackerwidget[1] = Load_Image("images/assigntrackeron.png");
+    tracker1[0] = Load_Image("images/track1.png");
+    tracker1[1] = Load_Image("images/track1assigned.png");
+    tracker2[0] = Load_Image("images/track2.png");
+    tracker2[1] = Load_Image("images/track2assigned.png");
+    tracker3[0] = Load_Image("images/track3.png");
+    tracker3[1] = Load_Image("images/track3assigned.png");
+    tracker4[0] = Load_Image("images/track4.png");
+    tracker4[1] = Load_Image("images/track4assigned.png");
 }
 
 void AnBqq5::DisplaySonarWidgets()

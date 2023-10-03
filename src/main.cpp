@@ -244,14 +244,7 @@ void LoadScreen(int item)
             cerr << "Unknown screen item" << endl;
             break;
     }
-    if (IMGFile == NULL) {  // Are we screwed??
-        cerr << "Function LoadScreen()" << endl
-             << "Couldn't load screen item# " << item << endl
-             << "SDL Error: " << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-        return;  // Whine Snivel and Bail..
-    }
+
     dest.x = 0;  // Blit destination x & y to the upper left
     dest.y = 0;
     dest.w = IMGFile->w;  // Height and width equal to the
@@ -264,285 +257,34 @@ void LoadScreen(int item)
 
 void LoadWidgets()
 {
-    SDL_Surface *temp;
-
-    temp = Load_Image("images/mapup.png");
-    if (temp != NULL) navbuttonup = SDL_DisplayFormat(temp);
-    if (navbuttonup == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/mapdown.png");
-    if (temp != NULL) navbuttondown = SDL_DisplayFormat(temp);
-    if (navbuttondown == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/tmaup.png");
-    if (temp != NULL) tmabuttonup = SDL_DisplayFormat(temp);
-    if (tmabuttonup == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/tmadown.png");
-    if (temp != NULL) tmabuttondown = SDL_DisplayFormat(temp);
-    if (tmabuttondown == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/shipcontrolup.png");
-    if (temp != NULL) shipcontrolbuttonup = SDL_DisplayFormat(temp);
-    if (shipcontrolbuttonup == NULL) {  // Are we screwed??
-
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/shipcontroldown.png");
-    if (temp != NULL) shipcontrolbuttondown = SDL_DisplayFormat(temp);
-    if (shipcontrolbuttondown == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/esmup.png");
-    if (temp != NULL) esmbuttonup = SDL_DisplayFormat(temp);
-    if (esmbuttonup == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/esmdown.png");
-    if (temp != NULL) esmbuttondown = SDL_DisplayFormat(temp);
-    if (esmbuttondown == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/radarup.png");
-    if (temp != NULL) radarbuttonup = SDL_DisplayFormat(temp);
-    if (radarbuttonup == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/radardown.png");
-    if (temp != NULL) radarbuttondown = SDL_DisplayFormat(temp);
-    if (radarbuttondown == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/quitbuttonup.png");
-    if (temp != NULL) quitbuttonup = SDL_DisplayFormat(temp);
-    if (quitbuttonup == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/quitbuttondown.png");
-    if (temp != NULL) quitbuttondown = SDL_DisplayFormat(temp);
-    if (quitbuttondown == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/plusbuttonup.png");
-    if (temp != NULL) plusbuttonup = SDL_DisplayFormat(temp);
-    if (quitbuttonup == NULL) {  // Are we screwed??
-
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/plusbuttondown.png");
-    if (temp != NULL) plusbuttondown = SDL_DisplayFormat(temp);
-    if (quitbuttondown == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/minusbuttonup.png");
-    if (temp != NULL) minusbuttonup = SDL_DisplayFormat(temp);
-    if (minusbuttonup == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/minusbuttondown.png");
-    if (temp != NULL) minusbuttondown = SDL_DisplayFormat(temp);
-    if (minusbuttondown == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/centerbuttondown.png");
-    if (temp != NULL) centerbuttondown = SDL_DisplayFormat(temp);
-    if (centerbuttondown == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/centerbuttonup.png");
-    if (temp != NULL) centerbuttonup = SDL_DisplayFormat(temp);
-    if (centerbuttonup == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/upbuttondown.png");
-    if (temp != NULL) upbuttondown = SDL_DisplayFormat(temp);
-    if (upbuttondown == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/upbuttonup.png");
-    if (temp != NULL) upbuttonup = SDL_DisplayFormat(temp);
-    if (upbuttonup == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/downbuttondown.png");
-    if (temp != NULL) downbuttondown = SDL_DisplayFormat(temp);
-    if (centerbuttondown == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/downbuttonup.png");
-    if (temp != NULL) downbuttonup = SDL_DisplayFormat(temp);
-    if (downbuttonup == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/leftbuttondown.png");
-    if (temp != NULL) leftbuttondown = SDL_DisplayFormat(temp);
-    if (leftbuttondown == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/leftbuttonup.png");
-    if (temp != NULL) leftbuttonup = SDL_DisplayFormat(temp);
-    if (leftbuttonup == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/rightbuttondown.png");
-    if (temp != NULL) rightbuttondown = SDL_DisplayFormat(temp);
-    if (rightbuttondown == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/rightbuttonup.png");
-    if (temp != NULL) rightbuttonup = SDL_DisplayFormat(temp);
-    if (rightbuttonup == NULL) {  // Are we screwed??
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/noisemaker.png");
-    if (temp) {
-        noisemaker_image = SDL_DisplayFormat(temp);
-        if (! noisemaker_image)
-            cerr << "Error loading noisemaker image." << endl;
-        SDL_FreeSurface(temp);
-    }
-
-    temp = Load_Image("images/torpedo.png");
-    if (temp) {
-        torpedo_image = SDL_DisplayFormat(temp);
-        if (! noisemaker_image)
-            cerr << "Error loading torpedo image." << endl;
-        SDL_FreeSurface(temp);
-    }
+    navbuttonup = Load_Image("images/mapup.png");
+    navbuttondown = Load_Image("images/mapdown.png");
+    tmabuttonup = Load_Image("images/tmaup.png");
+    tmabuttondown = Load_Image("images/tmadown.png");
+    shipcontrolbuttonup = Load_Image("images/shipcontrolup.png");
+    shipcontrolbuttondown = Load_Image("images/shipcontroldown.png");
+    esmbuttonup = Load_Image("images/esmup.png");
+    esmbuttondown = Load_Image("images/esmdown.png");
+    radarbuttonup = Load_Image("images/radarup.png");
+    radarbuttondown = Load_Image("images/radardown.png");
+    quitbuttonup = Load_Image("images/quitbuttonup.png");
+    quitbuttondown = Load_Image("images/quitbuttondown.png");
+    plusbuttonup = Load_Image("images/plusbuttonup.png");
+    plusbuttondown = Load_Image("images/plusbuttondown.png");
+    minusbuttonup = Load_Image("images/minusbuttonup.png");
+    minusbuttondown = Load_Image("images/minusbuttondown.png");
+    centerbuttondown = Load_Image("images/centerbuttondown.png");
+    centerbuttonup = Load_Image("images/centerbuttonup.png");
+    upbuttondown = Load_Image("images/upbuttondown.png");
+    upbuttonup = Load_Image("images/upbuttonup.png");
+    downbuttondown = Load_Image("images/downbuttondown.png");
+    downbuttonup = Load_Image("images/downbuttonup.png");
+    leftbuttondown = Load_Image("images/leftbuttondown.png");
+    leftbuttonup = Load_Image("images/leftbuttonup.png");
+    rightbuttondown = Load_Image("images/rightbuttondown.png");
+    rightbuttonup = Load_Image("images/rightbuttonup.png");
+    noisemaker_image = Load_Image("images/noisemaker.png");
+    torpedo_image = Load_Image("images/torpedo.png");
 }
 
 void UnLoadWidgets()
@@ -1179,8 +921,7 @@ void CreateShips(int mission_number, MAP *map)
 
     ship_file = Find_Data_File(filename);
     my_file = fopen(ship_file, "r");
-    if ((ship_file) && (ship_file != filename))
-        free(ship_file);
+    free(ship_file);
 
     // idiot check
     if (!my_file) {
@@ -1195,8 +936,7 @@ void CreateShips(int mission_number, MAP *map)
 #endif
     mission_name = Find_Data_File(filename);
     mission_file = fopen(mission_name, "r");
-    if ((mission_name) && (mission_name != filename))
-        free(mission_name);
+    free(mission_name);
 
     // Read in the data from the ship file
     // Format of ship file: 1 row of data per ship
@@ -1252,10 +992,9 @@ void CreateShips(int mission_number, MAP *map)
                 sprintf(filename, "ships/class%d.shp", new_helicopter->ShipClass);
                 ship_file = Find_Data_File(filename);
                 new_helicopter->Load_Class(ship_file);
+                free(ship_file);
                 // add helicopter to list
                 helicopters = Add_Helicopter(helicopters, new_helicopter);
-                if ((ship_file) && (ship_file != filename))
-                    free(ship_file);
             }  // end of created a helicopter
         }  // end of helicopter
 
@@ -1320,8 +1059,7 @@ void CreateShips(int mission_number, MAP *map)
                 ship_file = Find_Data_File(filename);
                 new_ship->Load_Class(ship_file);
                 Subs = Add_Ship(Subs, new_ship);
-                if ((ship_file) && (ship_file != filename))
-                    free(ship_file);
+                free(ship_file);
                 // i+=1;
             }  // end of successfully created new ship
         }  // end of other classes
@@ -3525,8 +3263,7 @@ int main(int argc, char **argv)
                         char *ship_file, filename[] = "ships/class6.shp";
                         ship_file = Find_Data_File(filename);
                         new_torpedo = Subs->Fire_Tube(NULL, ship_file);
-                        if ((ship_file) && (ship_file != filename))
-                            free(ship_file);
+                        free(ship_file);
                         if (new_torpedo) {
                             new_torpedo->Friend = player->Friend;
                             new_torpedo->owner = player;
@@ -3542,18 +3279,16 @@ int main(int argc, char **argv)
                         }
                     } else if ((status == TUBE_ERROR_FIRE_SUCCESS) && (current_target)) {
                         char *ship_file, filename[] = "ships/class5.shp";
-                        ship_file = Find_Data_File(filename);
                         if (current_target) {
                             Submarine *new_torpedo;
+                            ship_file = Find_Data_File(filename);
                             new_torpedo = Subs->Fire_Tube(current_target, ship_file);
-                            if ((ship_file) && (ship_file != filename))
-                                free(ship_file);
+                            free(ship_file);
                             if (new_torpedo) {
                                 char *sound_file, *file_name = "sounds/torpedo-launch.ogg";
                                 sound_file = Find_Data_File(file_name);
                                 Play_Sound(sound_file);
-                                if ((sound_file) && (sound_file != file_name))
-                                    free(sound_file);
+                                free(sound_file);
                                 new_torpedo->Friend = FRIEND;
                                 new_torpedo->owner = Subs;
                                 torpedoes = Add_Ship(torpedoes, new_torpedo);

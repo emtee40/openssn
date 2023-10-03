@@ -25,16 +25,7 @@ DFont::~DFont()
 
 void DFont::loadImage(char *name)
 {
-    SDL_Surface *temp;
-    temp = Load_Image(name);
-    fontSurface = SDL_DisplayFormat(temp);
-    SDL_FreeSurface(temp);
-    if (fontSurface == NULL) {
-        cerr << "Error loading font!\n";
-        abort();
-    }
-    // SDL_SetColorKey(fontSurface, SDL_SRCCOLORKEY,
-    //                 GetPixel(fontSurface, 0, 1));
+    fontSurface = Load_Image(name);
 }
 
 Uint32 DFont::GetPixel(SDL_Surface *screen, Sint32 x, Sint32 y)

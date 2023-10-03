@@ -61,8 +61,8 @@ Radar::Radar(Submarine *temp): Subs(temp)
     // radar sweep counter
     tick = 0;
     ALPHA = 255;
-
 }
+
 Radar::~Radar()
 {
     SDL_FreeSurface(blip);
@@ -90,313 +90,52 @@ void Radar::InitGraphics(SDL_Surface *temp, SDL_Surface *tempradarscreen)
     orange = SDL_MapRGB(screen->format, 238, 118, 0);
 
     // load the picture of a blip (blip.png)
-    temp = Load_Image("images/blip.png");
-    if (temp != NULL) {
-        blip = SDL_DisplayFormat(temp);
-        SDL_SetAlpha(blip, SDL_SRCALPHA, 128);
-    }
-    if (blip == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
+    blip = Load_Image("images/blip.png");
+    SDL_SetAlpha(blip, SDL_SRCALPHA, 128);
 }
 
 void Radar::LoadWidgets()
 {
-    SDL_Surface *temp;
-
     // Load Range Scale Widgets
-
-    temp = Load_Image("images/range10off.png");
-    if (temp != NULL) range10off = SDL_DisplayFormat(temp);
-    if (range10off == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/range10on.png");
-    if (temp != NULL) range10on = SDL_DisplayFormat(temp);
-    if (range10on == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/range20off.png");
-    if (temp != NULL) range20off = SDL_DisplayFormat(temp);
-    if (range20off == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/range20on.png");
-    if (temp != NULL) range20on = SDL_DisplayFormat(temp);
-    if (range20on == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/range30off.png");
-    if (temp != NULL) range30off = SDL_DisplayFormat(temp);
-    if (range30off == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/range30on.png");
-    if (temp != NULL) range30on = SDL_DisplayFormat(temp);
-    if (range30on == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/range40off.png");
-    if (temp != NULL) range40off = SDL_DisplayFormat(temp);
-    if (range40off == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/range40on.png");
-    if (temp != NULL) range40on = SDL_DisplayFormat(temp);
-    if (range40on == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-
-    temp = Load_Image("images/range50off.png");
-    if (temp != NULL) range50off = SDL_DisplayFormat(temp);
-    if (range50off == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/range50on.png");
-    if (temp != NULL) range50on = SDL_DisplayFormat(temp);
-    if (range50on == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/range60off.png");
-    if (temp != NULL) range60off = SDL_DisplayFormat(temp);
-    if (range60off == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/range60on.png");
-    if (temp != NULL) range60on = SDL_DisplayFormat(temp);
-    if (range60on == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
+    range10off = Load_Image("images/range10off.png");
+    range10on = Load_Image("images/range10on.png");
+    range20off = Load_Image("images/range20off.png");
+    range20on = Load_Image("images/range20on.png");
+    range30off = Load_Image("images/range30off.png");
+    range30on = Load_Image("images/range30on.png");
+    range40off = Load_Image("images/range40off.png");
+    range40on = Load_Image("images/range40on.png");
+    range50off = Load_Image("images/range50off.png");
+    range50on = Load_Image("images/range50on.png");
+    range60off = Load_Image("images/range60off.png");
+    range60on = Load_Image("images/range60on.png");
 
     // Load Range Ring Widgets
-
-    temp = Load_Image("images/ring0off.png");
-    if (temp != NULL) ring0off = SDL_DisplayFormat(temp);
-    if (ring0off == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/ring0on.png");
-    if (temp != NULL) ring0on = SDL_DisplayFormat(temp);
-    if (ring0on == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/ring5off.png");
-    if (temp != NULL) ring5off = SDL_DisplayFormat(temp);
-    if (ring5off == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/ring5on.png");
-    if (temp != NULL) ring5on = SDL_DisplayFormat(temp);
-    if (ring5on == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/ring10off.png");
-    if (temp != NULL) ring10off = SDL_DisplayFormat(temp);
-    if (ring10off == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/ring10on.png");
-    if (temp != NULL) ring10on = SDL_DisplayFormat(temp);
-    if (ring10on == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/ring15off.png");
-    if (temp != NULL) ring15off = SDL_DisplayFormat(temp);
-    if (ring15off == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/ring15on.png");
-    if (temp != NULL) ring15on = SDL_DisplayFormat(temp);
-    if (ring15on == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/ring20off.png");
-    if (temp != NULL) ring20off = SDL_DisplayFormat(temp);
-    if (ring20off == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/ring20on.png");
-    if (temp != NULL) ring20on = SDL_DisplayFormat(temp);
-    if (ring20on == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/ring25off.png");
-    if (temp != NULL) ring25off = SDL_DisplayFormat(temp);
-    if (ring25off == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/ring25on.png");
-    if (temp != NULL) ring25on = SDL_DisplayFormat(temp);
-    if (ring25on == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
+    ring0off = Load_Image("images/ring0off.png");
+    ring0on = Load_Image("images/ring0on.png");
+    ring5off = Load_Image("images/ring5off.png");
+    ring5on = Load_Image("images/ring5on.png");
+    ring10off = Load_Image("images/ring10off.png");
+    ring10on = Load_Image("images/ring10on.png");
+    ring15off = Load_Image("images/ring15off.png");
+    ring15on = Load_Image("images/ring15on.png");
+    ring20off = Load_Image("images/ring20off.png");
+    ring20on = Load_Image("images/ring20on.png");
+    ring25off = Load_Image("images/ring25off.png");
+    ring25on = Load_Image("images/ring25on.png");
 
     // Load Mast Widgets
-
-    temp = Load_Image("images/mastdownoff.png");
-    if (temp != NULL) mastdownoff = SDL_DisplayFormat(temp);
-    if (mastdownoff == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/mastdownon.png");
-    if (temp != NULL) mastdownon = SDL_DisplayFormat(temp);
-    if (mastdownon == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/mastupoff.png");
-    if (temp != NULL) mastupoff = SDL_DisplayFormat(temp);
-    if (mastupoff == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/mastupon.png");
-    if (temp != NULL) mastupon = SDL_DisplayFormat(temp);
-    if (mastupon == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
+    mastdownoff = Load_Image("images/mastdownoff.png");
+    mastdownon = Load_Image("images/mastdownon.png");
+    mastupoff = Load_Image("images/mastupoff.png");
+    mastupon = Load_Image("images/mastupon.png");
 
     // VENZON: only need 1 sweep image now
     sweep[0] = Load_Image("images/sweep0.png");
+
+    // Clear Widgets
+    ClearRadar = Load_Image("images/ClearRadar.png");
+    ClearRadar2 = Load_Image("images/ClearRadar2.png");
 }
 
 void Radar::DisplayWidgets()
@@ -636,17 +375,7 @@ void Radar::DisplayWidgets()
 
 void Radar::ClearScreen()
 {
-    // Clear the screen
-    SDL_Surface *temp;
-    temp = Load_Image("images/ClearRadar.png");
-    if (temp != NULL) ClearRadar = SDL_DisplayFormat(temp);
-    if (ClearRadar == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-
+    // Clear the whole radar area (scope + text boxes) on the screen
     src.x = 0;
     src.y = 0;
     src.w = ClearRadar->w;
@@ -658,41 +387,25 @@ void Radar::ClearScreen()
     dest.h = ClearRadar->h;  // source images....
     SDL_BlitSurface(ClearRadar, NULL, screen, &dest);  // Do the actual blit
 
-    SDL_FreeSurface(temp);
-
     SDL_UpdateRects(screen, 1, &dest);  // Show the screen.
-    SDL_FreeSurface(ClearRadar);  // Free up the surface memory.
     DisplayWidgets();
 }
 
 void Radar::ClearTextBox()
 {
-    // Clear the screen
-    SDL_Surface *temp;
-    temp = Load_Image("images/ClearRadar2.png");
-    if (temp != NULL) ClearRadar = SDL_DisplayFormat(temp);
-    if (ClearRadar == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-
+    // Clear the text boxes area on the screen
     src.x = 0;
     src.y = 0;
-    src.w = ClearRadar->w;
-    src.h = ClearRadar->h;
+    src.w = ClearRadar2->w;
+    src.h = ClearRadar2->h;
 
     dest.x = 139; // Blit destination x & y to the upper left
     dest.y = 572;
-    dest.w = ClearRadar->w;  // Height and width equal to the
-    dest.h = ClearRadar->h;  // source images....
-    SDL_BlitSurface(ClearRadar, NULL, screen, &dest);  // Do the actual blit
-
-    SDL_FreeSurface(temp);
+    dest.w = ClearRadar2->w;  // Height and width equal to the
+    dest.h = ClearRadar2->h;  // source images....
+    SDL_BlitSurface(ClearRadar2, NULL, screen, &dest);  // Do the actual blit
 
     SDL_UpdateRects(screen, 1, &dest);  // Show the screen.
-    SDL_FreeSurface(ClearRadar);  // Free up the surface memory.
     DisplayWidgets();
 }
 

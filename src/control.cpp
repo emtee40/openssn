@@ -83,167 +83,24 @@ void Control::InitGraphics(SDL_Surface *temp, SDL_Surface *tempcontrolscreen)
 
 void Control::LoadWidgets()
 {
-    SDL_Surface *temp;
+    STOPoff = Load_Image("images/STOPoff.png");
+    STOPon = Load_Image("images/STOPon.png");
+    A13off = Load_Image("images/A13off.png");
+    A13on = Load_Image("images/A13on.png");
+    A23off = Load_Image("images/A23off.png");
+    A23on = Load_Image("images/A23on.png");
+    ASTDoff = Load_Image("images/ASTDoff.png");
+    ASTDon = Load_Image("images/ASTDon.png");
+    AFULLoff = Load_Image("images/AFULLoff.png");
+    AFULLon = Load_Image("images/AFULLon.png");
+    AFLKoff = Load_Image("images/AFLKoff.png");
+    AFLKon = Load_Image("images/AFLKon.png");
+    depthupoff = Load_Image("images/depthupoff.png");
+    depthupon = Load_Image("images/depthupon.png");
+    depthdownoff = Load_Image("images/depthdownoff.png");
+    depthdownon = Load_Image("images/depthdownon.png");
 
-    temp = Load_Image("images/STOPoff.png");
-    if (temp != NULL) STOPoff = SDL_DisplayFormat(temp);
-    if (STOPoff == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/STOPon.png");
-    if (temp != NULL) STOPon = SDL_DisplayFormat(temp);
-    if (STOPon == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/A13off.png");
-    if (temp != NULL) A13off = SDL_DisplayFormat(temp);
-    if (A13off == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/A13on.png");
-    if (temp != NULL) A13on = SDL_DisplayFormat(temp);
-    if (A13on == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/A23off.png");
-    if (temp != NULL) A23off = SDL_DisplayFormat(temp);
-    if (A23off == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/A23on.png");
-    if (temp != NULL) A23on = SDL_DisplayFormat(temp);
-    if (A23on == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/ASTDoff.png");
-    if (temp != NULL) ASTDoff = SDL_DisplayFormat(temp);
-    if (ASTDoff == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/ASTDon.png");
-    if (temp != NULL) ASTDon = SDL_DisplayFormat(temp);
-    if (ASTDon == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/AFULLoff.png");
-    if (temp != NULL) AFULLoff = SDL_DisplayFormat(temp);
-    if (AFULLoff == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/AFULLon.png");
-    if (temp != NULL) AFULLon = SDL_DisplayFormat(temp);
-    if (AFULLon == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/AFLKoff.png");
-    if (temp != NULL) AFLKoff = SDL_DisplayFormat(temp);
-    if (AFLKoff == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/AFLKon.png");
-    if (temp != NULL) AFLKon = SDL_DisplayFormat(temp);
-    if (AFLKon == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/depthupoff.png");
-    if (temp != NULL) depthupoff = SDL_DisplayFormat(temp);
-    if (depthupoff == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/depthupon.png");
-    if (temp != NULL) depthupon = SDL_DisplayFormat(temp);
-    if (depthupon == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/depthdownoff.png");
-    if (temp != NULL) depthdownoff = SDL_DisplayFormat(temp);
-    if (depthdownoff == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/depthdownon.png");
-    if (temp != NULL) depthdownon = SDL_DisplayFormat(temp);
-    if (depthdownon == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
+    ClearControl = Load_Image("images/ClearControl.png");
 }
 
 void Control::DisplayWidgets()
@@ -440,18 +297,7 @@ void Control::DisplayWidgets()
 
 void Control::ClearHeading()
 {
-    // Clear the screen
-    SDL_Surface *temp;
-    temp = Load_Image("images/ClearControl.png");
-    if (temp != NULL) ClearControl = SDL_DisplayFormat(temp);
-    if (ClearControl == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
+    // Clear the heading area on the screen
     src.x = 0;
     src.y = 0;
     src.w = ClearControl->w;
@@ -464,7 +310,6 @@ void Control::ClearHeading()
     SDL_BlitSurface(ClearControl, NULL, screen, &dest);  // Do the actual blit
 
     SDL_UpdateRects(screen, 1, &dest);  // Show the screen.
-    SDL_FreeSurface(ClearControl);  // Free up the surface memory.
 }
 
 void Control::ClearOrdHeading()
@@ -484,18 +329,7 @@ void Control::ClearOrdHeading()
 
     filledTrigonRGBA(screen, x1, y1, x2, y2, x, y, 0, 0, 0, 255);
 
-    // Clear the screen
-    SDL_Surface *temp;
-    temp = Load_Image("images/ClearControl.png");
-    if (temp != NULL) ClearControl = SDL_DisplayFormat(temp);
-    if (ClearControl == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
+    // Clear the ordered heading area on the screen
     src.x = 0;
     src.y = 0;
     src.w = ClearControl->w;
@@ -508,24 +342,12 @@ void Control::ClearOrdHeading()
     SDL_BlitSurface(ClearControl, NULL, screen, &dest);  // Do the actual blit
 
     SDL_UpdateRects(screen, 1, &dest);  // Show the screen.
-    SDL_FreeSurface(ClearControl);  // Free up the surface memory.
     DisplayWidgets();
 }
 
 void Control::ClearDepth()
 {
-    // Clear the screen
-    SDL_Surface *temp;
-    temp = Load_Image("images/ClearControl.png");
-    if (temp != NULL) ClearControl = SDL_DisplayFormat(temp);
-    if (ClearControl == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
+    // Clear the depth area on the screen
     src.x = 0;
     src.y = 0;
     src.w = ClearControl->w;
@@ -538,23 +360,11 @@ void Control::ClearDepth()
     SDL_BlitSurface(ClearControl, NULL, screen, &dest);  // Do the actual blit
 
     SDL_UpdateRects(screen, 1, &dest);  // Show the screen.
-    SDL_FreeSurface(ClearControl);  // Free up the surface memory.
 }
 
 void Control::ClearOrdDepth()
 {
-    // Clear the screen
-    SDL_Surface *temp;
-    temp = Load_Image("images/ClearControl.png");
-    if (temp != NULL) ClearControl = SDL_DisplayFormat(temp);
-    if (ClearControl == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
+    // Clear the ordered depth area on the screen
     src.x = 0;
     src.y = 0;
     src.w = ClearControl->w;
@@ -567,7 +377,6 @@ void Control::ClearOrdDepth()
     SDL_BlitSurface(ClearControl, NULL, screen, &dest);  // Do the actual blit
 
     SDL_UpdateRects(screen, 1, &dest);  // Show the screen.
-    SDL_FreeSurface(ClearControl);  // Free up the surface memory.
     DisplayWidgets();
 }
 
@@ -584,18 +393,7 @@ void Control::ClearOrdSpeed()
     AFULL = false;
     AFLK = false;
 
-    // Clear the screen
-    SDL_Surface *temp;
-    temp = Load_Image("images/ClearControl.png");
-    if (temp != NULL) ClearControl = SDL_DisplayFormat(temp);
-    if (ClearControl == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
+    // Clear the ordered speed area on the screen
     src.x = 0;
     src.y = 0;
     src.w = ClearControl->w;
@@ -608,24 +406,12 @@ void Control::ClearOrdSpeed()
     SDL_BlitSurface(ClearControl, NULL, screen, &dest);  // Do the actual blit
 
     SDL_UpdateRects(screen, 1, &dest);  // Show the screen.
-    SDL_FreeSurface(ClearControl);  // Free up the surface memory.
     DisplayWidgets();
 }
 
 void Control::ClearSpeed()
 {
-    // Clear the screen
-    SDL_Surface *temp;
-    temp = Load_Image("images/ClearControl.png");
-    if (temp != NULL) ClearControl = SDL_DisplayFormat(temp);
-    if (ClearControl == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
+    // Clear the speed area on the screen
     src.x = 0;
     src.y = 0;
     src.w = ClearControl->w;
@@ -638,7 +424,6 @@ void Control::ClearSpeed()
     SDL_BlitSurface(ClearControl, NULL, screen, &dest);  // Do the actual blit
 
     SDL_UpdateRects(screen, 1, &dest); //Show the screen.
-    SDL_FreeSurface(ClearControl); //Free up the surface memory.
 }
 
 void Control::ToggleBEMER()

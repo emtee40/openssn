@@ -39,6 +39,7 @@ public:
     SDL_Surface *blip;
     SDL_Surface *sweep[1];  // only need 1 now
     SDL_Surface *ClearRadar;
+    SDL_Surface *ClearRadar2;
     SDL_Rect src, dest;
 
     bool rangescale10, rangescale20, rangescale30;

@@ -67,57 +67,14 @@ void Esm::InitGraphics(SDL_Surface *temp, SDL_Surface *tempesmscreen)
 
 void Esm::LoadWidgets()
 {
-    SDL_Surface *temp;
+    mastdownoff = Load_Image("images/mastdownoff.png");
+    mastdownon = Load_Image("images/mastdownon.png");
+    mastupoff = Load_Image("images/mastupoff.png");
+    mastupon = Load_Image("images/mastupon.png");
+    styllus = Load_Image("images/styllus.png");
 
-    temp = Load_Image("images/mastdownoff.png");
-    if (temp != NULL) mastdownoff = SDL_DisplayFormat(temp);
-    if (mastdownoff == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/mastdownon.png");
-    if (temp != NULL) mastdownon = SDL_DisplayFormat(temp);
-    if (mastdownon == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/mastupoff.png");
-    if (temp != NULL) mastupoff = SDL_DisplayFormat(temp);
-    if (mastupoff == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/mastupon.png");
-    if (temp != NULL) mastupon = SDL_DisplayFormat(temp);
-    if (mastupon == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/styllus.png");
-    if (temp != NULL) styllus = SDL_DisplayFormat(temp);
-    if (styllus == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
+    ClearEsm = Load_Image("images/ClearEsm.png");
+    ClearEsm2 = Load_Image("images/ClearEsm2.png");
 }
 
 void Esm::DisplayWidgets()
@@ -166,28 +123,7 @@ void Esm::DisplayWidgets()
 
 void Esm::ClearScreen()
 {
-    // Clear the screen
-    SDL_Surface *temp;
-    temp = Load_Image("images/ClearEsm.png");
-    if (temp != NULL) ClearEsm = SDL_DisplayFormat(temp);
-    if (ClearEsm == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
-    temp = Load_Image("images/ClearEsm2.png");
-    if (temp != NULL) ClearEsm2 = SDL_DisplayFormat(temp);
-    if (ClearEsm2 == NULL) {
-        cerr << "Function LoadWidgets()" << endl
-             << SDL_GetError() << endl;
-        SDL_Quit();
-        exit(0);
-    }
-    SDL_FreeSurface(temp);
-
+    // Clear the ESM and contact areas on the screen
     src.x = 0;
     src.y = 0;
     src.w = ClearEsm->w;
@@ -199,7 +135,6 @@ void Esm::ClearScreen()
     dest.h = ClearEsm->h;  // source images....
     SDL_BlitSurface(ClearEsm, NULL, screen, &dest);  // Do the actual blit
     SDL_UpdateRects(screen, 1, &dest);  // Show the screen...
-    SDL_FreeSurface(ClearEsm);  // Free up the surface memory.
 
     src.x = 0;
     src.y = 0;
@@ -212,7 +147,6 @@ void Esm::ClearScreen()
     dest.h = ClearEsm2->h;  // source images....
     SDL_BlitSurface(ClearEsm2, NULL, screen, &dest);  // Do the actual blit
     SDL_UpdateRects(screen, 1, &dest);  // Show the screen...
-    SDL_FreeSurface(ClearEsm2);  // Free up the surface memory.
 }
 
 void Esm::LowerMast()

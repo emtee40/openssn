@@ -13,9 +13,9 @@
 // Find the full path of a file based on its name.
 // The return value should be freed UNLESS the return
 // value is equal to the filename passed in.
-char *Find_Data_File(char *filename);
+char *Find_Data_File(const char *filename);
 
 // Try to find the image file in various locations
-SDL_Surface *Load_Image(char *filename);
+SDL_Surface *Load_Image(const char *filename);
 
 #endif  // FILES_HEADER_FILE__
