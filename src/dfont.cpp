@@ -65,18 +65,12 @@ void DFont::loadMap(char *name)
 
 void DFont::PutString(SDL_Surface *screen, Sint16 x, Sint16 y, char *str)
 {
-    SDL_Rect dest;
     for ( ; *str != '\0'; ++str) {
         if (*str == ' ')
             x += gap;
         else {
-            dest.w = fonts[*str].w;
-            dest.h = fonts[*str].h;
-            dest.x = x;
-            dest.y = y;
-            SDL_BlitSurface(fontSurface, &fonts[*str], screen, &dest);
-            SDL_UpdateRects(screen, 1, &dest);
-            x += dest.w;
+            PutChar(screen, x, y, *str);
+            x += fonts[*str].w;
         }
     }
 }

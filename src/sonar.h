@@ -39,6 +39,18 @@ public:
         display screen passed in from main. */
     void InitGraphics();
 
+    /** Loads in the widgets */
+    void LoadWidgets();
+
+    /** Unloads the widgets */
+    void UnLoadWidgets();
+
+    /** Displays a single widget at the given coordinates */
+    void DisplayWidget(SDL_Surface *dest, int x, int y, SDL_Surface *source);
+
+    /** Displays the widgets needed for the sonar display */
+    void DisplaySonarWidgets();
+
     void Sonar(bool center);
 
     void DisplaySonar();
@@ -58,15 +70,6 @@ public:
         the bool center flag is to check if we want north (0 degree)
         or south (180 degree) as the scales center. */
     void DisplayBearingScale(bool center);
-
-    /** Loads in the widgets */
-    void LoadWidgets();
-
-    /** Unloads the widgets */
-    void UnLoadWidgets();
-
-    /** Displays the widgets needed for the sonar display */
-    void DisplaySonarWidgets();
 
     /** Switches the upper sonar waterfall display screen to show the
         history of the spherical array. */
@@ -129,8 +132,6 @@ public:
     void UpdateCursor();
 
 private:
-    SDL_Rect destination_rectangle;
-    SDL_Rect source_rectangle;
     SDL_Surface *screen;
     SDL_Surface *sonarscreen;
     SDL_Surface *towedarrayscreen;

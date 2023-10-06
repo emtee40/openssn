@@ -201,58 +201,77 @@ void DirectionalPointer(int x, int y, int heading, int speed, Uint32 color)
     DrawLine(screen, x, y, (int) destinationx, (int) destinationy, color);
 }
 
-void LoadScreen(int item)
+void LoadScreens()
 {
-    // Loads a PN file into an SDL surface then
-    // blits it to the display surface.
-    // then deletes the temporary surface.
+    // Loads all background PNG files into SDL surfaces.
+    titlescreen   = Load_Image("images/tittle.png");
+    sonarscreen   = Load_Image("images/Sonarscreen.png");
+    mapscreen     = Load_Image("images/Mapscreen.png");
+    controlscreen = Load_Image("images/ControlScreen.png");
+    radarscreen   = Load_Image("images/RadarScreen.png");
+    esmscreen     = Load_Image("images/ESMScreen.png");
+    successscreen = Load_Image("images/sub_surfacing.png");
+    failurescreen = Load_Image("images/sub_rising.png");
+    menuscreen    = Load_Image("images/sub_menu.png");
+}
 
-    SDL_Surface *IMGFile = NULL;  // Get our selfs a surface to work with..
-    SDL_Rect dest;  // A rectangle structure to define a blit area
+void UnLoadScreens()
+{
+    // Free all surfaces.
+    SDL_FreeSurface(titlescreen);
+    SDL_FreeSurface(sonarscreen);
+    SDL_FreeSurface(mapscreen);
+    SDL_FreeSurface(controlscreen);
+    SDL_FreeSurface(radarscreen);
+    SDL_FreeSurface(esmscreen);
+    SDL_FreeSurface(successscreen);
+    SDL_FreeSurface(failurescreen);
+    SDL_FreeSurface(menuscreen);
+}
+
+void DisplayScreen(int item)
+{
+    // Blit the required SDL surface to the display surface.
+
+    SDL_Surface *IMGFile = NULL;
+
     switch (item) {
         case 0:
-            IMGFile = Load_Image("images/tittle.png");  // fill the surface w/ the bmp
+            IMGFile = titlescreen;
             break;
         case 1:
-            IMGFile = Load_Image("images/Sonarscreen.png");  // fill the surface w/ the bmp
+            IMGFile = sonarscreen;
             break;
         case 2:
-            IMGFile = Load_Image("images/Mapscreen.png");  // fill the surface w/ the bmp
+            IMGFile = mapscreen;
             break;
         case 3:
-            IMGFile = Load_Image("images/Mapscreen.png");  // fill the surface w/ the bmp
+            IMGFile = mapscreen;
             break;
         case 4:
-            IMGFile = Load_Image("images/ControlScreen.png");  // fill the surface w/ the bmp
+            IMGFile = controlscreen;
             break;
         case 5:
-            IMGFile = Load_Image("images/RadarScreen.png");  // fill the surface w/ the bmp
+            IMGFile = radarscreen;
             break;
         case 6:
-            IMGFile = Load_Image("images/ESMScreen.png");  // fill the surface w/ the bmp
+            IMGFile = esmscreen;
             break;
         case 7:
-            IMGFile = Load_Image("images/sub_surfacing.png");
+            IMGFile = successscreen;
             break;
         case 8:
-            IMGFile = Load_Image("images/sub_rising.png");
+            IMGFile = failurescreen;
             break;
         case 9:
-            IMGFile = Load_Image("images/sub_menu.png");
+            IMGFile = menuscreen;
             break;
         default:
             cerr << "Unknown screen item" << endl;
             break;
     }
 
-    dest.x = 0;  // Blit destination x & y to the upper left
-    dest.y = 0;
-    dest.w = IMGFile->w;  // Height and width equal to the
-    dest.h = IMGFile->h;  // source images...
-    SDL_BlitSurface(IMGFile, NULL, screen, &dest);  // Do the actual blit
-    SDL_UpdateRects(screen, 1, &dest);  // Show the screen...
-    SDL_FreeSurface(IMGFile);  // Free up the surface memory...
-    return;
+    DisplayWidget(screen, 0, 0, IMGFile);
 }
 
 void LoadWidgets()
@@ -325,199 +344,74 @@ void UnLoadWidgets()
     SonarStation.UnLoadWidgets();
 }
 
+void DisplayWidget(SDL_Surface *dest, int x, int y, SDL_Surface *source)
+{
+    SDL_Rect rect;
+
+    // Blit destination x & y to the upper left
+    rect.x = x;
+    rect.y = y;
+    // Height and width equal to the source images...
+    rect.h = source->h;
+    rect.w = source->w;
+    // Do the actual blit
+    SDL_BlitSurface(source, NULL, dest, &rect);
+    // Show the screen...
+    SDL_UpdateRects(dest, 1, &rect);
+}
+
 void DisplayNavigationWidgets()
 {
-    if (navwidget) {  // is the nav button down?
-        destination_rectangle.x = 280;  // upper left corner to
-        destination_rectangle.y = 710;  // place the button.
-        destination_rectangle.h = navbuttondown->h;  // height &
-        destination_rectangle.w = navbuttondown->w;  // width of button.
-        SDL_BlitSurface(navbuttondown, NULL, screen, &destination_rectangle);  // Do the blit.
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        if (mapcenter) {
-            destination_rectangle.x = 225;  // upper left corner to
-            destination_rectangle.y = 269;  // place the button.
-            destination_rectangle.h = centerbuttondown->h;  // height &
-            destination_rectangle.w = centerbuttondown->w;  // width of button.
-            SDL_BlitSurface(centerbuttondown, NULL, screen, &destination_rectangle);  // Do the blit.
-            SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        } else {
-            destination_rectangle.x = 225;  // upper left corner to
-            destination_rectangle.y = 269;  // place the button.
-            destination_rectangle.h = centerbuttonup->h;  // height &
-            destination_rectangle.w = centerbuttonup->w;  // width of button.
-            SDL_BlitSurface(centerbuttonup, NULL, screen, &destination_rectangle);  // Do the blit.
-            SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        }
-        destination_rectangle.x = 225;  // upper left corner to
-        destination_rectangle.y = 219;  // place the button.
-        destination_rectangle.h = upbuttonup->h;  // height &
-        destination_rectangle.w = upbuttonup->w;  // width of button.
-        SDL_BlitSurface(upbuttonup, NULL, screen, &destination_rectangle);  // Do the blit.
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        destination_rectangle.x = 225;  // upper left corner to
-        destination_rectangle.y = 319;  // place the button.
-        destination_rectangle.h = downbuttonup->h;  // height &
-        destination_rectangle.w = downbuttonup->w;  // width of button.
-        SDL_BlitSurface(downbuttonup, NULL, screen, &destination_rectangle);  // Do the blit.
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        destination_rectangle.x = 175;  // upper left corner to
-        destination_rectangle.y = 269;  // place the button.
-        destination_rectangle.h = leftbuttonup->h;  // height &
-        destination_rectangle.w = leftbuttonup->w;  // width of button.
-        SDL_BlitSurface(leftbuttonup, NULL, screen, &destination_rectangle);  // Do the blit.
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        destination_rectangle.x = 275;  // upper left corner to
-        destination_rectangle.y = 269;  // place the button.
-        destination_rectangle.h = rightbuttonup->h;  // height &
-        destination_rectangle.w = rightbuttonup->w;  // width of button.
-        SDL_BlitSurface(rightbuttonup, NULL, screen, &destination_rectangle);  // Do the blit.
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        destination_rectangle.x = 175;  // upper left corner to
-        destination_rectangle.y = 359;  // place the button.
-        destination_rectangle.h = plusbuttonup->h;  // height &
-        destination_rectangle.w = plusbuttonup->w;  // width of button.
-        SDL_BlitSurface(plusbuttonup, NULL, screen, &destination_rectangle);  // Do the blit.
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        destination_rectangle.x = 275;  // upper left corner to
-        destination_rectangle.y = 359;  // place the button.
-        destination_rectangle.h = minusbuttonup->h;  // height &
-        destination_rectangle.w = minusbuttonup->w;  // width of button.
-        SDL_BlitSurface(minusbuttonup, NULL, screen, &destination_rectangle);  // Do the blit.
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-    } else {  // our button must be up...
-        destination_rectangle.x = 280;  // upper left corner to
-        destination_rectangle.y = 710;  // place the button.
-        destination_rectangle.h = navbuttonup->h;  // height &
-        destination_rectangle.w = navbuttonup->w;  // width of button.
-        SDL_BlitSurface(navbuttonup, NULL, screen, &destination_rectangle);  // Do the blit.
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-    }
+    DisplayWidget(screen, 280, 710, navwidget ? navbuttondown : navbuttonup);
+
+    // is the nav button down?
+    if (!navwidget)
+        return;
+
+    DisplayWidget(screen, 225, 269, mapcenter ? centerbuttondown : centerbuttonup);
+    DisplayWidget(screen, 225, 219, upbuttonup);
+    DisplayWidget(screen, 225, 319, downbuttonup);
+    DisplayWidget(screen, 175, 269, leftbuttonup);
+    DisplayWidget(screen, 275, 269, rightbuttonup);
+    DisplayWidget(screen, 175, 359, plusbuttonup);
+    DisplayWidget(screen, 275, 359, minusbuttonup);
 }
 
 void DisplayTMAWidgets()
 {
-    if (tmawidget) {  // is the TMA button down?
-        destination_rectangle.x = 380;  // upper left corner to
-        destination_rectangle.y = 710;  // place the button.
-        destination_rectangle.h = tmabuttondown->h;  // height &
-        destination_rectangle.w = tmabuttondown->w;  // width of button.
-        SDL_BlitSurface(tmabuttondown, NULL, screen, &destination_rectangle);  // Do the blit.
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        if (Tma.centerGeoPlot) {
-            destination_rectangle.x = 225;  // upper left corner to
-            destination_rectangle.y = 269;  // place the button.
-            destination_rectangle.h = centerbuttondown->h;  // height &
-            destination_rectangle.w = centerbuttondown->w;  // width of button.
-            SDL_BlitSurface(centerbuttondown, NULL, screen, &destination_rectangle);  // Do the blit.
-            SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        } else {
-            destination_rectangle.x = 225;  // upper left corner to
-            destination_rectangle.y = 269;  // place the button.
-            destination_rectangle.h = centerbuttonup->h;  // height &
-            destination_rectangle.w = centerbuttonup->w;  // width of button.
-            SDL_BlitSurface(centerbuttonup, NULL, screen, &destination_rectangle);  // Do the blit.
-            SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        }
-        destination_rectangle.x = 225;  // upper left corner to
-        destination_rectangle.y = 219;  // place the button.
-        destination_rectangle.h = upbuttonup->h;  // height &
-        destination_rectangle.w = upbuttonup->w;  // width of button.
-        SDL_BlitSurface(upbuttonup, NULL, screen, &destination_rectangle);  // Do the blit.
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        destination_rectangle.x = 225;  // upper left corner to
-        destination_rectangle.y = 319;  // place the button.
-        destination_rectangle.h = downbuttonup->h;  // height &
-        destination_rectangle.w = downbuttonup->w;  // width of button.
-        SDL_BlitSurface(downbuttonup, NULL, screen, &destination_rectangle);  // Do the blit.
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        destination_rectangle.x = 175;  // upper left corner to
-        destination_rectangle.y = 269;  // place the button.
-        destination_rectangle.h = leftbuttonup->h;  // height &
-        destination_rectangle.w = leftbuttonup->w;  // width of button.
-        SDL_BlitSurface(leftbuttonup, NULL, screen, &destination_rectangle);  // Do the blit.
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        destination_rectangle.x = 275;  // upper left corner to
-        destination_rectangle.y = 269;  // place the button.
-        destination_rectangle.h = rightbuttonup->h;  // height &
-        destination_rectangle.w = rightbuttonup->w;  // width of button.
-        SDL_BlitSurface(rightbuttonup, NULL, screen, &destination_rectangle);  // Do the blit.
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        destination_rectangle.x = 175;  // upper left corner to
-        destination_rectangle.y = 359;  // place the button.
-        destination_rectangle.h = plusbuttonup->h;  // height &
-        destination_rectangle.w = plusbuttonup->w;  // width of button.
-        SDL_BlitSurface(plusbuttonup, NULL, screen, &destination_rectangle);  // Do the blit.
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        destination_rectangle.x = 275;  // upper left corner to
-        destination_rectangle.y = 359;  // place the button.
-        destination_rectangle.h = minusbuttonup->h;  // height &
-        destination_rectangle.w = minusbuttonup->w;  // width of button.
-        SDL_BlitSurface(minusbuttonup, NULL, screen, &destination_rectangle);  // Do the blit.
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-    } else {  // our button must be up...
-        destination_rectangle.x = 380;  // upper left corner to
-        destination_rectangle.y = 710;  // place the button.
-        destination_rectangle.h = tmabuttonup->h;  // height &
-        destination_rectangle.w = tmabuttonup->w;  // width of button.
-        SDL_BlitSurface(tmabuttonup, NULL, screen, &destination_rectangle);  // Do the blit.
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-    }
+    DisplayWidget(screen, 380, 710, tmawidget ? tmabuttondown : tmabuttonup);
+
+    // is the TMA button down?
+    if (!tmawidget)
+        return;
+
+    DisplayWidget(screen, 225, 269, Tma.centerGeoPlot ? centerbuttondown : centerbuttonup);
+    DisplayWidget(screen, 225, 219, upbuttonup);
+    DisplayWidget(screen, 225, 319, downbuttonup);
+    DisplayWidget(screen, 175, 269, leftbuttonup);
+    DisplayWidget(screen, 275, 269, rightbuttonup);
+    DisplayWidget(screen, 175, 359, plusbuttonup);
+    DisplayWidget(screen, 275, 359, minusbuttonup);
 }
 
 void DisplayESMWidgets()
 {
-    destination_rectangle.x = 580;  // upper left corner to
-    destination_rectangle.y = 710;  // place the button.
-
-    if (esmwidget) {  // is the nav button down?
-        destination_rectangle.h = esmbuttondown->h;  // height &
-        destination_rectangle.w = esmbuttondown->w;  // width of button.
-        SDL_BlitSurface(esmbuttondown, NULL, screen, &destination_rectangle);  // Do the blit.
-    } else {  // our button must be up...
-        destination_rectangle.h = esmbuttonup->h;  // height &
-        destination_rectangle.w = esmbuttonup->w;  // width of button.
-        SDL_BlitSurface(esmbuttonup, NULL, screen, &destination_rectangle);  // Do the blit.
-    }
-    SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
+    DisplayWidget(screen, 580, 710, esmwidget ? esmbuttondown : esmbuttonup);
 }
 
 void DisplayRADARWidgets()
 {
-    destination_rectangle.x = 680;  // upper left corner to
-    destination_rectangle.y = 710;  // place the button.
-
-    if (radarwidget) {  // is the nav button down?
-        destination_rectangle.h = radarbuttondown->h;  // height &
-        destination_rectangle.w = radarbuttondown->w;  // width of button.
-        SDL_BlitSurface(radarbuttondown, NULL, screen, &destination_rectangle);  // Do the blit.
-    } else {  // our button must be up...
-        destination_rectangle.h = radarbuttonup->h;  // height &
-        destination_rectangle.w = radarbuttonup->w;  // width of button.
-        SDL_BlitSurface(radarbuttonup, NULL, screen, &destination_rectangle);  // Do the blit.
-    }
-    SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
+    DisplayWidget(screen, 680, 710, radarwidget ? radarbuttondown : radarbuttonup);
 }
 
 void DisplayShipControlWidgets()
 {
-    destination_rectangle.x = 480;  // upper left corner to
-    destination_rectangle.y = 710;  // place the button.
-
-    if (shipcontrolwidget) {  // is the nav button down?
-        destination_rectangle.h = shipcontrolbuttondown->h;  // height &
-        destination_rectangle.w = shipcontrolbuttondown->w;  // width of button.
-        SDL_BlitSurface(shipcontrolbuttondown, NULL, screen, &destination_rectangle);  // Do the blit.
-    } else {  // our button must be up...
-        destination_rectangle.h = shipcontrolbuttonup->h;  // height &
-        destination_rectangle.w = shipcontrolbuttonup->w;  // width of button.
-        SDL_BlitSurface(shipcontrolbuttonup, NULL, screen, &destination_rectangle);  // Do the blit.
-    }
-    SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
+    DisplayWidget(screen, 480, 710, shipcontrolwidget ? shipcontrolbuttondown : shipcontrolbuttonup);
 }
 
 void DisplayWidgets()
 {
+    // All stations
     SonarStation.DisplaySonarWidgets();
     DisplayNavigationWidgets();
     DisplayTMAWidgets();
@@ -525,31 +419,12 @@ void DisplayWidgets()
     DisplayESMWidgets();
     DisplayRADARWidgets();
 
-    destination_rectangle.x = 780;  // upper left corner to
-    destination_rectangle.y = 710;  // place the button.
-    if (quitwidget) {  // is the quit button down?
-        destination_rectangle.h = quitbuttondown->h;  // height &
-        destination_rectangle.w = quitbuttondown->w;  // width of button.
-        SDL_BlitSurface(quitbuttondown, NULL, screen, &destination_rectangle);  // Do the blit.
-    } else {  // our button must be up...
-        destination_rectangle.h = quitbuttonup->h;  // height &
-        destination_rectangle.w = quitbuttonup->w;  // width of button.
-        SDL_BlitSurface(quitbuttonup, NULL, screen, &destination_rectangle);  // Do the blit.
-    }
-    SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
+    // Quit button
+    DisplayWidget(screen, 780, 710, quitwidget ? quitbuttondown : quitbuttonup);
 
-    destination_rectangle.x = 880;  // upper left corner to
-    destination_rectangle.y = 710;  // place the button.
-    destination_rectangle.h = plusbuttonup->h;  // height &
-    destination_rectangle.w = plusbuttonup->w;  // width of button.
-    SDL_BlitSurface(plusbuttonup, NULL, screen, &destination_rectangle);  // Do the blit.
-    SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show button on the screen...
-    destination_rectangle.x = 970;  // upper left corner to
-    destination_rectangle.y = 710;  // place the button.
-    destination_rectangle.h = minusbuttonup->h;  // height &
-    destination_rectangle.w = minusbuttonup->w;  // width of button.
-    SDL_BlitSurface(minusbuttonup, NULL, screen, &destination_rectangle);  // Do the blit.
-    SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show button on the screen...
+    // Plus/minus buttons for the time compression
+    DisplayWidget(screen, 880, 710, plusbuttonup);
+    DisplayWidget(screen, 970, 710, minusbuttonup);
 }
 
 // This function adds a torpedo to the linked-list of torpedoes
@@ -1663,15 +1538,6 @@ int InBaffles(Submarine *observer, Submarine *target, int sensor)
 
 void DisplayTMA(int xoffset, int yoffset)
 {
-    SDL_Rect source, destination;
-    source.x = 0;
-    source.y = 0;
-    source.w = 500;
-    source.h = 500;
-    destination.x = 374;
-    destination.y = 145;
-    destination.w = 500;
-    destination.h = 500;
     Tma.Lock();
     Tma.our_heading = (double) Subs->Heading;
     Tma.our_speed = (float) Subs->Speed;
@@ -1679,8 +1545,7 @@ void DisplayTMA(int xoffset, int yoffset)
     Tma.target_speed = (float) Subs->Speed;
     Tma.DisplayGeoPlot(xoffset, yoffset);
     // Tma.DisplayLOS();
-    SDL_BlitSurface(Tma.GeoPlotScreen, &source, screen, &destination);
-    SDL_UpdateRects(screen, 1, &destination);
+    DisplayWidget(screen, 374, 145, Tma.GeoPlotScreen);
     Tma.UnLock();
 }
 
@@ -1745,15 +1610,15 @@ void DisplayWeapons()
     // put stuff in the tubes
     y1 = 151;
     for (index = 0; index < MAX_TUBES; index++) {
-        tubes.x = 391;
-        tubes.y = y1;
-        tubes.w = 105;
-        tubes.h = 35;
         if (Subs->torpedo_tube[index] == TUBE_TORPEDO)
-            SDL_BlitSurface(torpedo_image, NULL, screen, &tubes);
+            DisplayWidget(screen, 391, y1, torpedo_image);
         else if (Subs->torpedo_tube[index] == TUBE_NOISEMAKER)
-            SDL_BlitSurface(noisemaker_image, NULL, screen, &tubes);
+            DisplayWidget(screen, 391, y1, noisemaker_image);
         else {
+            tubes.x = 391;
+            tubes.y = y1;
+            tubes.w = 105;
+            tubes.h = 35;
             SDL_FillRect(screen, &tubes, black);
             sprintf(text, "Tube %d", index + 1);
             fnt.PutString(screen, 420, y1 + 10, text);
@@ -1810,28 +1675,28 @@ void ShowStation(int station)
     navwidget = shipcontrolwidget = radarwidget = esmwidget = 0;
     switch (station) {  // which station are we at?
         case 1:  // sonar screen
-            LoadScreen(1);  // load in the screen for the SONAR station
+            DisplayScreen(1);  // load in the screen for the SONAR station
             ResetWidgetFlags();  // self explanatory
             SonarStation.sonarwidget = true;  // depress the widget
             DisplayWidgets();  // display the widgets
             drawsonar = 1;  // tell the sonar it's ok to draw itself
             break;
         case 2:  // nav screen
-            LoadScreen(2);  // load in the screen for the NAV station
+            DisplayScreen(2);  // load in the screen for the NAV station
             ResetWidgetFlags();  // self explanatory
             navwidget = 1;  // depress the widget
             DisplayWidgets();  // display the widgets
             drawmap = 1;  // tell the map it's ok to draw itself
             break;
         case 3:  // tma screen
-            LoadScreen(3);  // load in the screen for the TMA station
+            DisplayScreen(3);  // load in the screen for the TMA station
             ResetWidgetFlags();  // self explanatory
             // tmawidget = 1;  // depress the widget
             DisplayWidgets();  // display the widgets
             drawweapons = 1;  // Turn on TMA screen updates
             break;
         case 4:  // shipcontrol screen
-            LoadScreen(4);  // load in the screen for the shipcontrol station
+            DisplayScreen(4);  // load in the screen for the shipcontrol station
             ResetWidgetFlags();  // self explanatory
             shipcontrolwidget = 1;  // depress the widget
             DisplayWidgets();  // display the widgets
@@ -1839,7 +1704,7 @@ void ShowStation(int station)
             ControlStation.InitGraphics(screen, controlscreen);
             break;
         case 5:  // RADAR screen
-            LoadScreen(5);  // load in the screen for the RADAR station
+            DisplayScreen(5);  // load in the screen for the RADAR station
             ResetWidgetFlags();  // self explanatory
             radarwidget = 1;  // depress the widget
             DisplayWidgets();  // display the widgets
@@ -1847,7 +1712,7 @@ void ShowStation(int station)
             RadarStation.InitGraphics(screen, radarscreen);
             break;
         case 6:  // ESM screen
-            LoadScreen(6);  // load in the screen for the ESM station
+            DisplayScreen(6);  // load in the screen for the ESM station
             ResetWidgetFlags();  // self explanitory
             esmwidget = 1;  // depress the widget
             DisplayWidgets();  // display the widgets
@@ -2610,8 +2475,9 @@ int main(int argc, char **argv)
     Clock.InitTime(12, 15, 0);
     SonarStation.LoadWidgets();
     SDL_EnableKeyRepeat(150, 100);
-    LoadWidgets();
-    LoadScreen(0);  // Display intro screen
+    LoadScreens();
+    LoadWidgets();  //load up the buttons
+    DisplayScreen(0);  // Display intro screen
     DFont fnt(file1, file2);
     static DFont fnt2(file3, file4);
     my_map = new MAP();
@@ -2622,8 +2488,7 @@ int main(int argc, char **argv)
     timer1 = SDL_GetTicks();  // initialize the timer
     SDL_Delay(1000);  // show splash screen for one second
     quit = false;  // reset loop exit flag
-    //LoadWidgets();  //load up the buttons
-    LoadScreen(9);
+    DisplayScreen(9);
     // main menu stuff goes here
     status = Main_Menu(&mission_number, screen);
     if (status == ACTION_QUIT)
@@ -2761,12 +2626,7 @@ int main(int argc, char **argv)
                     quit = true;
                     break;
                 case COMPRESSTIME:  // Make Einstein proud.
-                    destination_rectangle.x = 880;  // upper left corner to
-                    destination_rectangle.y = 710;  // place the button.
-                    destination_rectangle.h = plusbuttondown->h;  // height &
-                    destination_rectangle.w = plusbuttondown->w;  // width of button.
-                    SDL_BlitSurface(plusbuttondown, NULL, screen, &destination_rectangle);  // Do the blit.
-                    SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show button on the screen...
+                    DisplayWidget(screen, 880, 710, plusbuttondown);
                     timecompression++;
                     if (timecompression > 8) {
                         timecompression = 8;
@@ -2784,12 +2644,7 @@ int main(int argc, char **argv)
                     DisplayWidgets();
                     break;
                 case UNCOMPRESSTIME:  // Take A Downer
-                    destination_rectangle.x = 970;  // upper left corner to
-                    destination_rectangle.y = 710;  // place the button.
-                    destination_rectangle.h = minusbuttondown->h;  // height &
-                    destination_rectangle.w = minusbuttondown->w;  // width of button.
-                    SDL_BlitSurface(minusbuttondown, NULL, screen, &destination_rectangle);  // Do the blit.
-                    SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show button on the screen...
+                    DisplayWidget(screen, 970, 710, minusbuttondown);
                     timecompression--;
                     if (timecompression < 1) {
                         timecompression = 1;
@@ -2845,24 +2700,14 @@ int main(int argc, char **argv)
                     if (drawmap) {
                         mapscale++;
                         if (mapscale > MAX_MAP_SCALE) mapscale = MAX_MAP_SCALE;
-                        destination_rectangle.x = 175;  // upper left corner to
-                        destination_rectangle.y = 359;  // place the button.
-                        destination_rectangle.h = plusbuttondown->h;  // height &
-                        destination_rectangle.w = plusbuttondown->w;  // width of button.
-                        SDL_BlitSurface(plusbuttondown, NULL, screen, &destination_rectangle);  // Do the blit.
-                        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
+                        DisplayWidget(screen, 175, 359, plusbuttondown);
                         DrawMap();
                         // UpdateDisplay();
                         SDL_Delay(100);
                         DisplayNavigationWidgets();
                     }
                     if (drawtma) {
-                        destination_rectangle.x = 175;  // upper left corner to
-                        destination_rectangle.y = 359;  // place the button.
-                        destination_rectangle.h = plusbuttondown->h;  // height &
-                        destination_rectangle.w = plusbuttondown->w;  // width of button.
-                        SDL_BlitSurface(plusbuttondown, NULL, screen, &destination_rectangle);  // Do the blit.
-                        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
+                        DisplayWidget(screen, 175, 359, plusbuttondown);
                         Tma.IncreasePlotScale();
                         DisplayTMA();
                         SDL_Delay(100);
@@ -2873,12 +2718,7 @@ int main(int argc, char **argv)
                     if (drawmap) {
                         mapscale--;
                         if (mapscale < 1) mapscale = 1;
-                        destination_rectangle.x = 275;  // upper left corner to
-                        destination_rectangle.y = 359;  // place the button.
-                        destination_rectangle.h = minusbuttondown->h;  // height &
-                        destination_rectangle.w = minusbuttondown->w;  // width of button.
-                        SDL_BlitSurface(minusbuttondown, NULL, screen, &destination_rectangle);  // Do the blit.
-                        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
+                        DisplayWidget(screen, 275, 359, minusbuttondown);
                         DrawMap();
                         // UpdateDisplay();
                         SDL_Delay(100);
@@ -2886,12 +2726,7 @@ int main(int argc, char **argv)
                     }
                     if (drawtma) {
                         Tma.DecreasePlotScale();
-                        destination_rectangle.x = 275;  // upper left corner to
-                        destination_rectangle.y = 359;  // place the button.
-                        destination_rectangle.h = minusbuttondown->h;  // height &
-                        destination_rectangle.w = minusbuttondown->w;  // width of button.
-                        SDL_BlitSurface(minusbuttondown, NULL, screen, &destination_rectangle);  // Do the blit.
-                        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
+                        DisplayWidget(screen, 275, 359, minusbuttondown);
                         DisplayTMA();
                         SDL_Delay(100);
                         DisplayTMAWidgets();
@@ -2899,24 +2734,14 @@ int main(int argc, char **argv)
                     break;
                 case SCROLLMAPUP:
                     if (drawmap) {
-                        destination_rectangle.x = 225;  // upper left corner to
-                        destination_rectangle.y = 219;  // place the button.
-                        destination_rectangle.h = upbuttondown->h;  // height &
-                        destination_rectangle.w = upbuttondown->w;  // width of button.
-                        SDL_BlitSurface(upbuttondown, NULL, screen, &destination_rectangle);  // Do the blit.
-                        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
+                        DisplayWidget(screen, 225, 219, upbuttondown);
                         PlaceShips(mapscale, 0, -10, current_target);
                         DrawMap();
                         SDL_Delay(100);
                         DisplayNavigationWidgets();
                     }
                     if (drawtma) {
-                        destination_rectangle.x = 225;  // upper left corner to
-                        destination_rectangle.y = 219;  // place the button.
-                        destination_rectangle.h = upbuttondown->h;  // height &
-                        destination_rectangle.w = upbuttondown->w;  // width of button.
-                        SDL_BlitSurface(upbuttondown, NULL, screen, &destination_rectangle);  // Do the blit.
-                        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
+                        DisplayWidget(screen, 225, 219, upbuttondown);
                         PlaceShips(mapscale, 0, -10, current_target);
                         DisplayTMA(0, -10);
                         SDL_Delay(100);
@@ -2925,24 +2750,14 @@ int main(int argc, char **argv)
                     break;
                 case SCROLLMAPDOWN:
                     if (drawmap) {
-                        destination_rectangle.x = 225;  // upper left corner to
-                        destination_rectangle.y = 319;  // place the button.
-                        destination_rectangle.h = downbuttondown->h;  // height &
-                        destination_rectangle.w = downbuttondown->w;  // width of button.
-                        SDL_BlitSurface(downbuttondown, NULL, screen, &destination_rectangle);  // Do the blit.
-                        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
+                        DisplayWidget(screen, 225, 319, downbuttondown);
                         PlaceShips(mapscale, 0, 10, current_target);
                         DrawMap();
                         SDL_Delay(100);
                         DisplayNavigationWidgets();
                     }
                     if (drawtma) {
-                        destination_rectangle.x = 225;  // upper left corner to
-                        destination_rectangle.y = 319;  // place the button.
-                        destination_rectangle.h = downbuttondown->h;  // height &
-                        destination_rectangle.w = downbuttondown->w;  // width of button.
-                        SDL_BlitSurface(downbuttondown, NULL, screen, &destination_rectangle);  // Do the blit.
-                        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
+                        DisplayWidget(screen, 225, 319, downbuttondown);
                         PlaceShips(mapscale, 0, 10, current_target);
                         DisplayTMA(0, 10);
                         SDL_Delay(100);
@@ -2951,24 +2766,14 @@ int main(int argc, char **argv)
                     break;
                 case SCROLLMAPLEFT:
                     if (drawmap) {
-                        destination_rectangle.x = 175;  // upper left corner to
-                        destination_rectangle.y = 269;  // place the button.
-                        destination_rectangle.h = leftbuttondown->h;  // height &
-                        destination_rectangle.w = leftbuttondown->w;  // width of button.
-                        SDL_BlitSurface(leftbuttondown, NULL, screen, &destination_rectangle); // Do the blit.
-                        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
+                        DisplayWidget(screen, 175, 269, leftbuttondown);
                         PlaceShips(mapscale, -10, 0, current_target);
                         DrawMap();
                         SDL_Delay(100);
                         DisplayNavigationWidgets();
                     }
                     if (drawtma) {
-                        destination_rectangle.x = 175;  // upper left corner to
-                        destination_rectangle.y = 269;  // place the button.
-                        destination_rectangle.h = leftbuttondown->h;  // height &
-                        destination_rectangle.w = leftbuttondown->w;  // width of button.
-                        SDL_BlitSurface(leftbuttondown, NULL, screen, &destination_rectangle); // Do the blit.
-                        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
+                        DisplayWidget(screen, 175, 269, leftbuttondown);
                         PlaceShips(mapscale, -10, 0, current_target);
                         DisplayTMA(-10, 0);
                         SDL_Delay(100);
@@ -2977,24 +2782,14 @@ int main(int argc, char **argv)
                     break;
                 case SCROLLMAPRIGHT:
                     if (drawmap) {
-                        destination_rectangle.x = 275;  // upper left corner to
-                        destination_rectangle.y = 269;  // place the button.
-                        destination_rectangle.h = rightbuttondown->h;  // height &
-                        destination_rectangle.w = rightbuttondown->w;  // width of button.
-                        SDL_BlitSurface(rightbuttondown, NULL, screen, &destination_rectangle);  // Do the blit.
-                        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
+                        DisplayWidget(screen, 275, 269, rightbuttondown);
                         PlaceShips(mapscale, 10, 0, current_target);
                         DrawMap();
                         SDL_Delay(100);
                         DisplayNavigationWidgets();
                     }
                     if (drawtma) {
-                        destination_rectangle.x = 275;  // upper left corner to
-                        destination_rectangle.y = 269;  // place the button.
-                        destination_rectangle.h = rightbuttondown->h;  // height &
-                        destination_rectangle.w = rightbuttondown->w;  // width of button.
-                        SDL_BlitSurface(rightbuttondown, NULL, screen, &destination_rectangle);  // Do the blit.
-                        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
+                        DisplayWidget(screen, 275, 269, rightbuttondown);
                         DisplayTMA(10, 0);
                         SDL_Delay(100);
                         DisplayTMAWidgets();
@@ -3355,12 +3150,12 @@ int main(int argc, char **argv)
         }
         if (my_mission_status == MISSION_SUCCESS) {
             printf("Mission completed successfully!\n");
-            LoadScreen(7);
+            DisplayScreen(7);
             SDL_Delay(5000);
             quit = true;
         } else if (my_mission_status == MISSION_FAILED) {
             printf("Mission failed.\n");
-            LoadScreen(8);
+            DisplayScreen(8);
             SDL_Delay(5000);
             quit = true;
         }
@@ -3372,6 +3167,7 @@ int main(int argc, char **argv)
     printf("Unloading widgets.\n");
     #endif
     UnLoadWidgets();
+    UnLoadScreens();
     // get rid of torpedoes
     #ifdef DEBUG
     printf("Destroying torpedoes\n");

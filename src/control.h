@@ -27,8 +27,6 @@ class Control
 public:
     Submarine *Subs;
 
-    SDL_Rect src, dest;
-
     SDL_Surface *controlscreen;
     SDL_Surface *tempscreen;
 
@@ -56,6 +54,7 @@ public:
     void LoadWidgets();
     void UnLoadWidgets();
 
+    void DisplayWidget(SDL_Surface *dest, int x, int y, SDL_Surface *source);
     void DisplayWidgets();
 
     void ToggleBEMER();

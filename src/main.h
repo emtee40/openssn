@@ -135,12 +135,18 @@ float flowandambientnoise;
 SDL_Surface *screen = NULL;  // The screen we are going to be looking at
 SDL_Surface *towedarrayscreen = NULL;  // scratch blit surface
 
-// rdm
-SDL_Surface *radarscreen = NULL;       // scratch blit surface
-SDL_Surface *esmscreen = NULL;         // scratch blit surface
-SDL_Surface *controlscreen = NULL;
-
 SDL_Surface *tempscreen = NULL;        // scratch screen
+
+SDL_Surface *titlescreen = NULL;       // screen
+SDL_Surface *sonarscreen = NULL;       // screen
+SDL_Surface *mapscreen = NULL;         // screen
+SDL_Surface *controlscreen = NULL;     // screen
+SDL_Surface *radarscreen = NULL;       // screen
+SDL_Surface *esmscreen = NULL;         // screen
+SDL_Surface *successscreen = NULL;     // screen
+SDL_Surface *failurescreen = NULL;     // screen
+SDL_Surface *menuscreen = NULL;        // screen
+
 SDL_Surface *sonarbuttonup = NULL;     // button element
 SDL_Surface *sonarbuttondown = NULL;   // button element
 SDL_Surface *navbuttonup = NULL;       // button element
@@ -193,8 +199,6 @@ SDL_Surface *torpedo_image = NULL;
 // when accessing the same globals
 // in a callback function.
 SDL_mutex *tmamutex;
-
-SDL_Rect destination_rectangle;  // rectangle structure for blitting
 
 DFont fnt(const char*, const char *);
 DFont fnt2(const char*, const char *);
@@ -270,13 +274,16 @@ void Display_Target(void);
 void DrawMap(void);
 void Draw_Depth_Meter(Submarine *my_sub, int which_screen);
 void PlaceShips(int, int = 0, int = 0, Submarine *target = NULL);  // the int = 0's are default values
-void LoadScreen(int screen_to_load);
+void LoadScreens();
+void UnLoadScreens();
+void DisplayScreen(int screen_to_display);
 void ShowStation(int station);
 void DisplaySonar();
 void DisplayTMA(int xoffset = 0, int yoffset = 0);
 void DisplayWeapons(void);
 void LoadWidgets(void);
 void UnLoadWidgets(void);
+void DisplayWidget(SDL_Surface *dest, int x, int y, SDL_Surface *source);
 void DisplayWidgets(void);
 void DisplayNavigationWidgets();
 void DisplayTMAWidgets();

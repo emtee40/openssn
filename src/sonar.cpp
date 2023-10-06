@@ -69,6 +69,118 @@ void AnBqq5::InitGraphics()
     // dark_green = SDL_MapRGB(screen->format, 0, 100, 0);
 }
 
+void AnBqq5::LoadWidgets()
+{
+    sonarbuttonup = Load_Image("images/sonarup.png");
+    sonarbuttondown = Load_Image("images/sonardown.png");
+    ncscale = Load_Image("images/nc_scale.png");
+    scscale = Load_Image("images/sc_scale.png");
+    truerel[0] = Load_Image("images/rel_true.png");
+    truerel[1] = Load_Image("images/true_rel.png");
+    sphertowed[0] = Load_Image("images/towedspherical.png");
+    sphertowed[1] = Load_Image("images/sphericaltowed.png");
+    uppercrtoff = Load_Image("images/uppercrtoff.png");
+    uppercrton = Load_Image("images/uppercrton.png");
+    lowercrtoff = Load_Image("images/lowercrtoff.png");
+    lowercrton = Load_Image("images/lowercrton.png");
+    tb16winchon = Load_Image("images/tb16winchon.png");
+    tb16winchoff = Load_Image("images/tb16winchoff.png");
+    extendtb16[0] = Load_Image("images/extendtb16off.png");
+    extendtb16[1] = Load_Image("images/extendtb16on.png");
+    retracttb16[0] = Load_Image("images/retracttb16off.png");
+    retracttb16[1] = Load_Image("images/retracttb16on.png");
+    cutarray = Load_Image("images/cutarray.png");
+    sendping = Load_Image("images/ping_button.png");
+    assigntrackerwidget[0] = Load_Image("images/assigntrackeroff.png");
+    assigntrackerwidget[1] = Load_Image("images/assigntrackeron.png");
+    tracker1[0] = Load_Image("images/track1.png");
+    tracker1[1] = Load_Image("images/track1assigned.png");
+    tracker2[0] = Load_Image("images/track2.png");
+    tracker2[1] = Load_Image("images/track2assigned.png");
+    tracker3[0] = Load_Image("images/track3.png");
+    tracker3[1] = Load_Image("images/track3assigned.png");
+    tracker4[0] = Load_Image("images/track4.png");
+    tracker4[1] = Load_Image("images/track4assigned.png");
+}
+
+void AnBqq5::UnLoadWidgets()
+{
+    // free the surfaces
+    SDL_FreeSurface(sonarbuttonup);
+    SDL_FreeSurface(sonarbuttondown);
+    SDL_FreeSurface(ncscale);
+    SDL_FreeSurface(scscale);
+    SDL_FreeSurface(truerel[0]);
+    SDL_FreeSurface(truerel[1]);
+    SDL_FreeSurface(sphertowed[0]);
+    SDL_FreeSurface(sphertowed[1]);
+    SDL_FreeSurface(uppercrtoff);
+    SDL_FreeSurface(uppercrton);
+    SDL_FreeSurface(lowercrtoff);
+    SDL_FreeSurface(lowercrton);
+    SDL_FreeSurface(tb16winchon);
+    SDL_FreeSurface(tb16winchoff);
+    SDL_FreeSurface(extendtb16[0]);
+    SDL_FreeSurface(extendtb16[1]);
+    SDL_FreeSurface(retracttb16[0]);
+    SDL_FreeSurface(retracttb16[1]);
+    SDL_FreeSurface(cutarray);
+    SDL_FreeSurface(sendping);
+    SDL_FreeSurface(assigntrackerwidget[0]);
+    SDL_FreeSurface(assigntrackerwidget[1]);
+    SDL_FreeSurface(tracker1[0]);
+    SDL_FreeSurface(tracker1[1]);
+    SDL_FreeSurface(tracker2[0]);
+    SDL_FreeSurface(tracker2[1]);
+    SDL_FreeSurface(tracker3[0]);
+    SDL_FreeSurface(tracker3[1]);
+    SDL_FreeSurface(tracker4[0]);
+    SDL_FreeSurface(tracker4[1]);
+}
+
+void AnBqq5::DisplayWidget(SDL_Surface *dest, int x, int y, SDL_Surface *source)
+{
+    SDL_Rect rect;
+
+    // Blit destination x & y to the upper left
+    rect.x = x;
+    rect.y = y;
+    // Height and width equal to the source images...
+    rect.h = source->h;
+    rect.w = source->w;
+    // Do the actual blit
+    SDL_BlitSurface(source, NULL, dest, &rect);
+    // Show the screen...
+    SDL_UpdateRects(dest, 1, &rect);
+}
+
+void AnBqq5::DisplaySonarWidgets()
+{
+    DisplayWidget(screen, 180, 710, sonarwidget ? sonarbuttondown : sonarbuttonup);
+
+    if (!sonarwidget)
+        return;
+
+    // True/relative bearing / Spherical/towed array
+    DisplayWidget(screen, 614, 161, truerel[bearingdisplay5by6]);
+    DisplayWidget(screen, 614, 215, sphertowed[arraychoice5by6]);
+    // Upper CRT / Lower CRT
+    DisplayWidget(screen, 661, 161, uppercrtoff);
+    DisplayWidget(screen, 661, 215, lowercrtoff);
+    // Assign tracker / tracker 1 / tracker 2 / tracker 3 / tracker 4
+    DisplayWidget(screen, 473, 403, assigntrackerwidget[assigntracker]);
+    DisplayWidget(screen, 520, 403, tracker1[Tma.GetTrackerState(0)]);
+    DisplayWidget(screen, 567, 403, tracker2[Tma.GetTrackerState(1)]);
+    DisplayWidget(screen, 614, 403, tracker3[Tma.GetTrackerState(2)]);
+    DisplayWidget(screen, 661, 403, tracker4[Tma.GetTrackerState(3)]);
+    // Send ping / Cut array / Stop winch / Extend / Retract
+    DisplayWidget(screen, 472, 590, sendping);
+    DisplayWidget(screen, 520, 590, cutarray);
+    DisplayWidget(screen, 567, 590, tb16winchoff);
+    DisplayWidget(screen, 614, 590, extendtb16[TB16.winch == 1]);
+    DisplayWidget(screen, 661, 590, retracttb16[TB16.winch == 2]);
+}
+
 void AnBqq5::ClearSonarData()  // when the display is switched from north centered
 {
     // to south centered, we must erase the old display data
@@ -579,203 +691,8 @@ void AnBqq5::AdvanceTB16Screen()
 
 void AnBqq5::DisplayBearingScale(bool center)
 {
-    SDL_Rect destination_rectangle;
-    if (center) {
-        destination_rectangle.x = 50;   // upper left corner to
-        destination_rectangle.y = 130;  // place the scale
-        destination_rectangle.h = ncscale->h;  // height &
-        destination_rectangle.w = ncscale->w;  // width of button
-        SDL_BlitSurface(ncscale, NULL, screen, &destination_rectangle);  // Do the blit
-        SDL_UpdateRects(screen, 1, &destination_rectangle);
-        destination_rectangle.x = 50;   // upper left corner to
-        destination_rectangle.y = 430;  // place the scale
-        SDL_BlitSurface(ncscale, NULL, screen, &destination_rectangle);  // Do the blit
-        SDL_UpdateRects(screen, 1, &destination_rectangle);
-    } else {
-        destination_rectangle.x = 50;   // upper left corner to
-        destination_rectangle.y = 130;  // place the scale
-        destination_rectangle.h = scscale->h;  // height &
-        destination_rectangle.w = scscale->w;  // width of button
-        SDL_BlitSurface(scscale, NULL, screen, &destination_rectangle);  // Do the blit
-        SDL_UpdateRects(screen, 1, &destination_rectangle);
-        destination_rectangle.x = 50; //upper left corner to
-        destination_rectangle.y = 430; //place the scale
-        SDL_BlitSurface(scscale, NULL, screen, &destination_rectangle);  // Do the blit
-        SDL_UpdateRects(screen, 1, &destination_rectangle);
-    }
-}
-
-void AnBqq5::LoadWidgets()
-{
-    sonarbuttonup = Load_Image("images/sonarup.png");
-    sonarbuttondown = Load_Image("images/sonardown.png");
-    ncscale = Load_Image("images/nc_scale.png");
-    scscale = Load_Image("images/sc_scale.png");
-    truerel[0] = Load_Image("images/rel_true.png");
-    truerel[1] = Load_Image("images/true_rel.png");
-    sphertowed[0] = Load_Image("images/towedspherical.png");
-    sphertowed[1] = Load_Image("images/sphericaltowed.png");
-    uppercrtoff = Load_Image("images/uppercrtoff.png");
-    uppercrton = Load_Image("images/uppercrton.png");
-    lowercrtoff = Load_Image("images/lowercrtoff.png");
-    lowercrton = Load_Image("images/lowercrton.png");
-    tb16winchon = Load_Image("images/tb16winchon.png");
-    tb16winchoff = Load_Image("images/tb16winchoff.png");
-    extendtb16[0] = Load_Image("images/extendtb16off.png");
-    extendtb16[1] = Load_Image("images/extendtb16on.png");
-    retracttb16[0] = Load_Image("images/retracttb16off.png");
-    retracttb16[1] = Load_Image("images/retracttb16on.png");
-    cutarray = Load_Image("images/cutarray.png");
-    sendping = Load_Image("images/ping_button.png");
-    assigntrackerwidget[0] = Load_Image("images/assigntrackeroff.png");
-    assigntrackerwidget[1] = Load_Image("images/assigntrackeron.png");
-    tracker1[0] = Load_Image("images/track1.png");
-    tracker1[1] = Load_Image("images/track1assigned.png");
-    tracker2[0] = Load_Image("images/track2.png");
-    tracker2[1] = Load_Image("images/track2assigned.png");
-    tracker3[0] = Load_Image("images/track3.png");
-    tracker3[1] = Load_Image("images/track3assigned.png");
-    tracker4[0] = Load_Image("images/track4.png");
-    tracker4[1] = Load_Image("images/track4assigned.png");
-}
-
-void AnBqq5::UnLoadWidgets()
-{
-    // free the surfaces
-    SDL_FreeSurface(sonarbuttonup);
-    SDL_FreeSurface(sonarbuttondown);
-    SDL_FreeSurface(ncscale);
-    SDL_FreeSurface(scscale);
-    SDL_FreeSurface(truerel[0]);
-    SDL_FreeSurface(truerel[1]);
-    SDL_FreeSurface(sphertowed[0]);
-    SDL_FreeSurface(sphertowed[1]);
-    SDL_FreeSurface(uppercrtoff);
-    SDL_FreeSurface(uppercrton);
-    SDL_FreeSurface(lowercrtoff);
-    SDL_FreeSurface(lowercrton);
-    SDL_FreeSurface(tb16winchon);
-    SDL_FreeSurface(tb16winchoff);
-    SDL_FreeSurface(extendtb16[0]);
-    SDL_FreeSurface(extendtb16[1]);
-    SDL_FreeSurface(retracttb16[0]);
-    SDL_FreeSurface(retracttb16[1]);
-    SDL_FreeSurface(cutarray);
-    SDL_FreeSurface(sendping);
-    SDL_FreeSurface(assigntrackerwidget[0]);
-    SDL_FreeSurface(assigntrackerwidget[1]);
-    SDL_FreeSurface(tracker1[0]);
-    SDL_FreeSurface(tracker1[1]);
-    SDL_FreeSurface(tracker2[0]);
-    SDL_FreeSurface(tracker2[1]);
-    SDL_FreeSurface(tracker3[0]);
-    SDL_FreeSurface(tracker3[1]);
-    SDL_FreeSurface(tracker4[0]);
-    SDL_FreeSurface(tracker4[1]);
-}
-
-void AnBqq5::DisplaySonarWidgets()
-{
-    SDL_Rect destination_rectangle;
-    destination_rectangle.x = 180;  // upper left corner to
-    destination_rectangle.y = 710;  // place the button
-    if (sonarwidget) { // Is our button down?
-        destination_rectangle.h = sonarbuttondown->h;  // height &
-        destination_rectangle.w = sonarbuttondown->w;  // width of button
-        SDL_BlitSurface(sonarbuttondown, NULL, screen, &destination_rectangle);  // Do the blit
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        destination_rectangle.x = 614;
-        destination_rectangle.y = 161;
-        destination_rectangle.h = truerel[bearingdisplay5by6]->h;  // height &
-        destination_rectangle.w = truerel[bearingdisplay5by6]->w;  // width of button
-        SDL_BlitSurface(truerel[bearingdisplay5by6], NULL, screen, &destination_rectangle);  // Do the blit
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        destination_rectangle.x = 614;
-        destination_rectangle.y = 215;
-        destination_rectangle.h = sphertowed[arraychoice5by6]->h;  // height &
-        destination_rectangle.w = sphertowed[arraychoice5by6]->w;  // width of button
-        SDL_BlitSurface(sphertowed[arraychoice5by6], NULL, screen, &destination_rectangle);  // Do the blit
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        destination_rectangle.x = 661;
-        destination_rectangle.y = 161;
-        destination_rectangle.h = uppercrtoff->h;  // height &
-        destination_rectangle.w = uppercrtoff->w;  // width of button
-        SDL_BlitSurface(uppercrtoff, NULL, screen, &destination_rectangle);  // Do the blit
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        destination_rectangle.x = 661;
-        destination_rectangle.y = 215;
-        destination_rectangle.h = lowercrtoff->h;  // height &
-        destination_rectangle.w = lowercrtoff->w;  // width of button
-        SDL_BlitSurface(lowercrtoff, NULL, screen, &destination_rectangle);  // Do the blit
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        destination_rectangle.x = 520;
-        destination_rectangle.y = 590;
-        destination_rectangle.h = cutarray->h;
-        destination_rectangle.w = cutarray->w;
-        SDL_BlitSurface(cutarray, NULL, screen, &destination_rectangle);
-        SDL_UpdateRects(screen, 1, &destination_rectangle);
-
-        destination_rectangle.x = 472;
-        destination_rectangle.y = 590;
-        destination_rectangle.h = sendping->h;
-        destination_rectangle.w = sendping->w;
-        SDL_BlitSurface(sendping, NULL, screen, &destination_rectangle);
-        SDL_UpdateRects(screen, 1, &destination_rectangle);
-
-        destination_rectangle.x = 567;
-        destination_rectangle.y = 590;
-        destination_rectangle.h = tb16winchoff->h;  // height &
-        destination_rectangle.w = tb16winchoff->w;  // width of button
-        SDL_BlitSurface(tb16winchoff, NULL, screen, &destination_rectangle);  // Do the blit
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        destination_rectangle.x = 614;
-        destination_rectangle.y = 590;
-        destination_rectangle.h = extendtb16[TB16.winch == 1]->h;  // height &
-        destination_rectangle.w = extendtb16[TB16.winch == 1]->w;  // width of button
-        SDL_BlitSurface(extendtb16[TB16.winch == 1], NULL, screen, &destination_rectangle);  // Do the blit
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        destination_rectangle.x = 661;
-        destination_rectangle.y = 590;
-        destination_rectangle.h = retracttb16[TB16.winch == 2]->h;  // height &
-        destination_rectangle.w = retracttb16[TB16.winch == 2]->w;  // width of button
-        SDL_BlitSurface(retracttb16[TB16.winch == 2], NULL, screen, &destination_rectangle);  // Do the blit
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        destination_rectangle.x = 473;
-        destination_rectangle.y = 403;
-        destination_rectangle.h = assigntrackerwidget[0]->h;  // height &
-        destination_rectangle.w = assigntrackerwidget[0]->w;  // width of button
-        SDL_BlitSurface(assigntrackerwidget[assigntracker], NULL, screen, &destination_rectangle);  // Do the blit
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        destination_rectangle.x = 520;
-        destination_rectangle.y = 403;
-        destination_rectangle.h = tracker1[0]->h;  // height &
-        destination_rectangle.w = tracker1[0]->w;  // width of button
-        SDL_BlitSurface(tracker1[Tma.GetTrackerState(0)], NULL, screen, &destination_rectangle);  // Do the blit
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        destination_rectangle.x = 567;
-        destination_rectangle.y = 403;
-        destination_rectangle.h = tracker2[0]->h;  // height &
-        destination_rectangle.w = tracker2[0]->w;  // width of button
-        SDL_BlitSurface(tracker2[Tma.GetTrackerState(1)], NULL, screen, &destination_rectangle);  // Do the blit
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        destination_rectangle.x = 614;
-        destination_rectangle.y = 403;
-        destination_rectangle.h = tracker3[0]->h;  // height &
-        destination_rectangle.w = tracker3[0]->w;  // width of button
-        SDL_BlitSurface(tracker3[Tma.GetTrackerState(2)], NULL, screen, &destination_rectangle);  // Do the blit
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-        destination_rectangle.x = 661;
-        destination_rectangle.y = 403;
-        destination_rectangle.h = tracker4[0]->h;  // height &
-        destination_rectangle.w = tracker4[0]->w;  // width of button
-        SDL_BlitSurface(tracker4[Tma.GetTrackerState(3)], NULL, screen, &destination_rectangle);  // Do the blit
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-    } else {  // our button must be up...
-        destination_rectangle.h = sonarbuttonup->h;  // height &
-        destination_rectangle.w = sonarbuttonup->w;  // width of button.
-        SDL_BlitSurface(sonarbuttonup, NULL, screen, &destination_rectangle);  // Do the blit
-        SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
-    }
+    DisplayWidget(screen, 50, 130, center ? ncscale : scscale);
+    DisplayWidget(screen, 50, 430, center ? ncscale : scscale);
 }
 
 void AnBqq5::UpperCRT_Spherical()
@@ -825,13 +742,8 @@ void AnBqq5::ToggleNorthCenter()
 
 void AnBqq5::UpperCRT_Button()
 {
-    SDL_Rect destination_rectangle;
-    destination_rectangle.x = 661;
-    destination_rectangle.y = 161;
-    destination_rectangle.h = uppercrton->h;  // height &
-    destination_rectangle.w = uppercrton->w;  // width of button
-    SDL_BlitSurface(uppercrton, NULL, screen, &destination_rectangle);  // Do the blit
-    SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
+    DisplayWidget(screen, 661, 161, uppercrton);
+
     SDL_Delay(200);
     if (arraychoice5by6) {
         UpperCRT_Spherical();
@@ -843,13 +755,8 @@ void AnBqq5::UpperCRT_Button()
 
 void AnBqq5::LowerCRT_Button()
 {
-    SDL_Rect destination_rectangle;
-    destination_rectangle.x = 661;
-    destination_rectangle.y = 215;
-    destination_rectangle.h = lowercrton->h;  // height &
-    destination_rectangle.w = lowercrton->w;  // width of button
-    SDL_BlitSurface(lowercrton, NULL, screen, &destination_rectangle);  // Do the blit
-    SDL_UpdateRects(screen, 1, &destination_rectangle);  // Show the screen...
+    DisplayWidget(screen, 661, 215, lowercrton);
+
     SDL_Delay(200);
     if (arraychoice5by6) {
         LowerCRT_Spherical();
@@ -861,13 +768,7 @@ void AnBqq5::LowerCRT_Button()
 
 void AnBqq5::StopWinch()
 {
-    SDL_Rect destination_rectangle;
-    destination_rectangle.x = 567;
-    destination_rectangle.y = 590;
-    destination_rectangle.h = tb16winchon->h;  // height &
-    destination_rectangle.w = tb16winchon->w;  // width of button
-    SDL_BlitSurface(tb16winchon, NULL, screen, &destination_rectangle);  // do the blit
-    SDL_UpdateRects(screen, 1, &destination_rectangle);  // show the screen...
+    DisplayWidget(screen, 567, 590, tb16winchon);
     TB16.Stop();
     SDL_Delay(200);
     DisplaySonarWidgets();

@@ -90,45 +90,30 @@ void Esm::UnLoadWidgets()
     SDL_FreeSurface(ClearEsm2);
 }
 
+void Esm::DisplayWidget(SDL_Surface *dest, int x, int y, SDL_Surface *source)
+{
+    SDL_Rect rect;
+
+    // Blit destination x & y to the upper left
+    rect.x = x;
+    rect.y = y;
+    // Height and width equal to the source images...
+    rect.h = source->h;
+    rect.w = source->w;
+    // Do the actual blit
+    SDL_BlitSurface(source, NULL, dest, &rect);
+    // Show the screen...
+    SDL_UpdateRects(dest, 1, &rect);
+}
+
 void Esm::DisplayWidgets()
 {
     // Center of ESM screen at (316,325)
-    // dest.x = 316;
-    // dest.y = 325;
-    // dest.h = styllus->h;
-    // dest.w = styllus->w;
-    // SDL_BlitSurface(styllus, NULL, screen, &dest);
-    // SDL_UpdateRects(screen, 1, &dest);
+    // DisplayWidget(screen, 316, 325, styllus);
 
-    if (Mast) {
-        dest.x = 845;
-        dest.y = 187;
-        dest.h = mastupon->h;
-        dest.w = mastupon->w;
-        SDL_BlitSurface(mastupon, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-
-        dest.x = 740;
-        dest.y = 187;
-        dest.h = mastdownoff->h;
-        dest.w = mastdownoff->w;
-        SDL_BlitSurface(mastdownoff, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    } else {
-        dest.x = 845;
-        dest.y = 187;
-        dest.h = mastupoff->h;
-        dest.w = mastupoff->w;
-        SDL_BlitSurface(mastupoff, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-
-        dest.x = 740;
-        dest.y = 187;
-        dest.h = mastdownon->h;
-        dest.w = mastdownon->w;
-        SDL_BlitSurface(mastdownon, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    }
+    // Mast up/down buttons
+    DisplayWidget(screen, 845, 187, Mast ? mastupon : mastupoff);
+    DisplayWidget(screen, 740, 187, Mast ? mastdownoff : mastdownon);
 
     // Need this for the time compression??
     // SDL_UpdateRect(screen,0, 0, 0, 0);
@@ -137,29 +122,8 @@ void Esm::DisplayWidgets()
 void Esm::ClearScreen()
 {
     // Clear the ESM and contact areas on the screen
-    src.x = 0;
-    src.y = 0;
-    src.w = ClearEsm->w;
-    src.h = ClearEsm->h;
-
-    dest.x = 105;  // Blit destination x & y to the upper left
-    dest.y = 169;
-    dest.w = ClearEsm->w;  // Height and width equal to the
-    dest.h = ClearEsm->h;  // source images....
-    SDL_BlitSurface(ClearEsm, NULL, screen, &dest);  // Do the actual blit
-    SDL_UpdateRects(screen, 1, &dest);  // Show the screen...
-
-    src.x = 0;
-    src.y = 0;
-    src.w = ClearEsm2->w;
-    src.h = ClearEsm2->h;
-
-    dest.x = 693;  // Blit destination x & y to the upper left
-    dest.y = 308;
-    dest.w = ClearEsm2->w;  // Height and width equal to the
-    dest.h = ClearEsm2->h;  // source images....
-    SDL_BlitSurface(ClearEsm2, NULL, screen, &dest);  // Do the actual blit
-    SDL_UpdateRects(screen, 1, &dest);  // Show the screen...
+    DisplayWidget(screen, 105, 169, ClearEsm);
+    DisplayWidget(screen, 693, 308, ClearEsm2);
 }
 
 void Esm::LowerMast()
@@ -315,11 +279,6 @@ void Esm::DisplayContacts()
 
     // Note: Center of radar screen at (x,y) = (323,330)
     // set dx = 144 dy = 144
-
-    src.x = 695;
-    src.y = 417; // define a rectangle on the screen and make it black
-    src.h = 50;
-    src.w = 174;
 
     /*
     if (!EsmStack.empty())  // Is there is data on the stack?

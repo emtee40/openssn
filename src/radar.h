@@ -40,7 +40,6 @@ public:
     SDL_Surface *sweep[1];  // only need 1 now
     SDL_Surface *ClearRadar;
     SDL_Surface *ClearRadar2;
-    SDL_Rect src, dest;
 
     bool rangescale10, rangescale20, rangescale30;
     bool rangescale40, rangescale50, rangescale60;
@@ -65,6 +64,7 @@ public:
     void LoadWidgets();
     void UnLoadWidgets();
 
+    void DisplayWidget(SDL_Surface *dest, int x, int y, SDL_Surface *source);
     void DisplayWidgets();
 
     void DisplayContacts();
@@ -119,8 +119,6 @@ public:
 
     bool isTargetVisible(Submarine *, int, int, int, int);  // Can we see the target
 
-    SDL_Rect destination_rectangle;
-    SDL_Rect source_rectangle;
     SDL_Surface *screen;
     SDL_Surface *range10off;
     SDL_Surface *range10on;

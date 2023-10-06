@@ -125,213 +125,44 @@ void Control::UnLoadWidgets()
     SDL_FreeSurface(ClearControl);
 }
 
+void Control::DisplayWidget(SDL_Surface *dest, int x, int y, SDL_Surface *source)
+{
+    SDL_Rect rect;
+
+    // Blit destination x & y to the upper left
+    rect.x = x;
+    rect.y = y;
+    // Height and width equal to the source images...
+    rect.h = source->h;
+    rect.w = source->w;
+    // Do the actual blit
+    SDL_BlitSurface(source, NULL, dest, &rect);
+    // Show the screen...
+    SDL_UpdateRects(dest, 1, &rect);
+}
+
 void Control::DisplayWidgets()
 {
-    if (ASTOP) {
-        dest.x = 231;
-        dest.y = 582;
-        dest.h = STOPon->h;
-        dest.w = STOPon->w;
-        SDL_BlitSurface(STOPon, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    } else {
-        dest.x = 231;
-        dest.y = 582;
-        dest.h = STOPoff->h;
-        dest.w = STOPoff->w;
-        SDL_BlitSurface(STOPoff, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    }
-
-    if (A13) {
-        dest.x = 264;
-        dest.y = 582;
-        dest.h = A13on->h;
-        dest.w = A13on->w;
-        SDL_BlitSurface(A13on, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    } else {
-        dest.x = 264;
-        dest.y = 582;
-        dest.h = A13off->h;
-        dest.w = A13off->w;
-        SDL_BlitSurface(A13off, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    }
-
-    if (A23) {
-        dest.x = 297;
-        dest.y = 581;
-        dest.h = A23on->h;
-        dest.w = A23on->w;
-        SDL_BlitSurface(A23on, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    } else {
-        dest.x = 297;
-        dest.y = 581;
-        dest.h = A23off->h;
-        dest.w = A23off->w;
-        SDL_BlitSurface(A23off, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    }
-
-    if (ASTD) {
-        dest.x = 330;
-        dest.y = 581;
-        dest.h = ASTDon->h;
-        dest.w = ASTDon->w;
-        SDL_BlitSurface(ASTDon, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    } else {
-        dest.x = 330;
-        dest.y = 581;
-        dest.h = ASTDoff->h;
-        dest.w = ASTDoff->w;
-        SDL_BlitSurface(ASTDoff, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    }
-
-    if (AFULL) {
-        dest.x = 363;
-        dest.y = 581;
-        dest.h = AFULLon->h;
-        dest.w = AFULLon->w;
-        SDL_BlitSurface(AFULLon, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    } else {
-        dest.x = 363;
-        dest.y = 581;
-        dest.h = AFULLoff->h;
-        dest.w = AFULLoff->w;
-        SDL_BlitSurface(AFULLoff, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    }
-
-    if (AFLK) {
-        dest.x = 396;
-        dest.y = 581;
-        dest.h = AFLKon->h;
-        dest.w = AFLKon->w;
-        SDL_BlitSurface(AFLKon, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    } else {
-        dest.x = 396;
-        dest.y = 581;
-        dest.h = AFLKoff->h;
-        dest.w = AFLKoff->w;
-        SDL_BlitSurface(AFLKoff, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    }
-
-    if (B13) {
-        dest.x = 198;
-        dest.y = 582;
-        dest.h = A13on->h;
-        dest.w = A13on->w;
-        SDL_BlitSurface(A13on, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    } else {
-        dest.x = 198;
-        dest.y = 582;
-        dest.h = A13off->h;
-        dest.w = A13off->w;
-        SDL_BlitSurface(A13off, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    }
-    if (B23) {
-        dest.x = 165;
-        dest.y = 581;
-        dest.h = A23on->h;
-        dest.w = A23on->w;
-        SDL_BlitSurface(A23on, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    } else {
-        dest.x = 165;
-        dest.y = 581;
-        dest.h = A23off->h;
-        dest.w = A23off->w;
-        SDL_BlitSurface(A23off, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    }
-    if (BSTD) {
-        dest.x = 132;
-        dest.y = 581;
-        dest.h = ASTDon->h;
-        dest.w = ASTDon->w;
-        SDL_BlitSurface(ASTDon, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    } else {
-        dest.x = 132;
-        dest.y = 581;
-        dest.h = ASTDoff->h;
-        dest.w = ASTDoff->w;
-        SDL_BlitSurface(ASTDoff, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    }
-
-    if (BEMER) {
-        dest.x = 99;
-        dest.y = 581;
-        dest.h = AFLKon->h;
-        dest.w = AFLKon->w;
-        SDL_BlitSurface(AFLKon, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    } else {
-        dest.x = 99;
-        dest.y = 581;
-        dest.h = AFLKoff->h;
-        dest.w = AFLKoff->w;
-        SDL_BlitSurface(AFLKoff, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    }
-
-    if (depthdown) {
-        dest.x = 111;
-        dest.y = 253;
-        dest.h = depthdownon->h;
-        dest.w = depthdownon->w;
-        SDL_BlitSurface(depthdownon, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    } else {
-        dest.x = 111;
-        dest.y = 253;
-        dest.h = depthdownoff->h;
-        dest.w = depthdownoff->w;
-        SDL_BlitSurface(depthdownoff, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    }
-    if (depthup) {
-        dest.x = 384;
-        dest.y = 256;
-        dest.h = depthupon->h;
-        dest.w = depthupon->w;
-        SDL_BlitSurface(depthupon, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    } else {
-        dest.x = 384;
-        dest.y = 256;
-        dest.h = depthupoff->h;
-        dest.w = depthupoff->w;
-        SDL_BlitSurface(depthupoff, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    }
+    // Engine Order Telegraph
+    DisplayWidget(screen, 231, 582, ASTOP ? STOPon : STOPoff);
+    DisplayWidget(screen, 264, 582, A13 ? A13on : A13off);
+    DisplayWidget(screen, 297, 581, A23 ? A23on : A23off);
+    DisplayWidget(screen, 330, 581, ASTD ? ASTDon : ASTDoff);
+    DisplayWidget(screen, 363, 581, AFULL ? AFULLon : AFULLoff);
+    DisplayWidget(screen, 396, 581, AFLK ? AFLKon : AFLKoff);
+    DisplayWidget(screen, 198, 582, B13 ? A13on : A13off);
+    DisplayWidget(screen, 165, 581, B23 ? A23on : A23off);
+    DisplayWidget(screen, 132, 581, BSTD ? ASTDon : ASTDoff);
+    DisplayWidget(screen, 99, 581, BEMER ? AFLKon : AFLKoff);
+    // Depth up/down buttons
+    DisplayWidget(screen, 111, 253, depthdown ? depthdownon : depthdownoff);
+    DisplayWidget(screen, 384, 256, depthup ? depthupon : depthupoff);
 }
 
 void Control::ClearHeading()
 {
     // Clear the heading area on the screen
-    src.x = 0;
-    src.y = 0;
-    src.w = ClearControl->w;
-    src.h = ClearControl->h;
-
-    dest.x = 107;  // Blit destination x & y to the upper left
-    dest.y = 140;
-    dest.w = ClearControl->w;  // Height and width equal to the
-    dest.h = ClearControl->h;  // source images....
-    SDL_BlitSurface(ClearControl, NULL, screen, &dest);  // Do the actual blit
-
-    SDL_UpdateRects(screen, 1, &dest);  // Show the screen.
+    DisplayWidget(screen, 107, 140, ClearControl);
 }
 
 void Control::ClearOrdHeading()
@@ -352,53 +183,22 @@ void Control::ClearOrdHeading()
     filledTrigonRGBA(screen, x1, y1, x2, y2, x, y, 0, 0, 0, 255);
 
     // Clear the ordered heading area on the screen
-    src.x = 0;
-    src.y = 0;
-    src.w = ClearControl->w;
-    src.h = ClearControl->h;
+    DisplayWidget(screen, 107, 195, ClearControl);
 
-    dest.x = 107;  // Blit destination x & y to the upper left
-    dest.y = 195;
-    dest.w = ClearControl->w;  // Height and width equal to the
-    dest.h = ClearControl->h;  // source images....
-    SDL_BlitSurface(ClearControl, NULL, screen, &dest);  // Do the actual blit
-
-    SDL_UpdateRects(screen, 1, &dest);  // Show the screen.
     DisplayWidgets();
 }
 
 void Control::ClearDepth()
 {
     // Clear the depth area on the screen
-    src.x = 0;
-    src.y = 0;
-    src.w = ClearControl->w;
-    src.h = ClearControl->h;
-
-    dest.x = 211;  // Blit destination x & y to the upper left
-    dest.y = 140;
-    dest.w = ClearControl->w;  // Height and width equal to the
-    dest.h = ClearControl->h;  // source images....
-    SDL_BlitSurface(ClearControl, NULL, screen, &dest);  // Do the actual blit
-
-    SDL_UpdateRects(screen, 1, &dest);  // Show the screen.
+    DisplayWidget(screen, 211, 140, ClearControl);
 }
 
 void Control::ClearOrdDepth()
 {
     // Clear the ordered depth area on the screen
-    src.x = 0;
-    src.y = 0;
-    src.w = ClearControl->w;
-    src.h = ClearControl->h;
+    DisplayWidget(screen, 211, 195, ClearControl);
 
-    dest.x = 211;  // Blit destination x & y to the upper left
-    dest.y = 195;
-    dest.w = ClearControl->w;  // Height and width equal to the
-    dest.h = ClearControl->h;  // source images....
-    SDL_BlitSurface(ClearControl, NULL, screen, &dest);  // Do the actual blit
-
-    SDL_UpdateRects(screen, 1, &dest);  // Show the screen.
     DisplayWidgets();
 }
 
@@ -416,36 +216,15 @@ void Control::ClearOrdSpeed()
     AFLK = false;
 
     // Clear the ordered speed area on the screen
-    src.x = 0;
-    src.y = 0;
-    src.w = ClearControl->w;
-    src.h = ClearControl->h;
+    DisplayWidget(screen, 317, 194, ClearControl);
 
-    dest.x = 317;  // Blit destination x & y to the upper left
-    dest.y = 194;
-    dest.w = ClearControl->w;  // Height and width equal to the
-    dest.h = ClearControl->h;  // source images....
-    SDL_BlitSurface(ClearControl, NULL, screen, &dest);  // Do the actual blit
-
-    SDL_UpdateRects(screen, 1, &dest);  // Show the screen.
     DisplayWidgets();
 }
 
 void Control::ClearSpeed()
 {
     // Clear the speed area on the screen
-    src.x = 0;
-    src.y = 0;
-    src.w = ClearControl->w;
-    src.h = ClearControl->h;
-
-    dest.x = 317;  // Blit destination x & y to the upper left
-    dest.y = 139;
-    dest.w = ClearControl->w;  // Height and width equal to the
-    dest.h = ClearControl->h;  // source images....
-    SDL_BlitSurface(ClearControl, NULL, screen, &dest);  // Do the actual blit
-
-    SDL_UpdateRects(screen, 1, &dest); //Show the screen.
+    DisplayWidget(screen, 317, 139, ClearControl);
 }
 
 void Control::ToggleBEMER()
@@ -532,20 +311,10 @@ void Control::Display()
     if (depthdown) Subs->DesiredDepth++;  // Take her down!!
 
     // Heading Screen
-    src.x = 110;
-    src.y = 142;  // define a rectangle on the screen and make it black
-    src.h = 15;
-    src.w = 75;
-
     sprintf(text, "%i", (int)Subs[0].Heading);
     fnt.PutString(screen, 145, 144, text);
 
     // Ordered Heading Screen
-    src.x = 110;
-    src.y = 196;  // define a rectangle on the screen and make it black
-    src.h = 15;
-    src.w = 75;
-
     sprintf(text, "%i", (int)Subs[0].DesiredHeading);
     fnt.PutString(screen, 145, 198, text);
 
@@ -564,20 +333,10 @@ void Control::Display()
     }
 
     // Depth Screen
-    src.x = 212;
-    src.y = 142;
-    src.h = 15;
-    src.w = 75;
-
     sprintf(text, "%i", (int)Subs[0].Depth);
     fnt.PutString(screen, 247, 144, text);
 
     // Desired Depth Screen
-    src.x = 212;
-    src.y = 197;
-    src.h = 15;
-    src.w = 75;
-
     sprintf(text, "%i", (int)Subs[0].DesiredDepth);
     fnt.PutString(screen, 247, 199, text);
 
@@ -586,20 +345,10 @@ void Control::Display()
     if (Subs->DesiredDepth == 1000.0) ClearOrdDepth();
 
     // Speed Screen
-    src.x = 320;
-    src.y = 142;
-    src.h = 15;
-    src.w = 75;
-
     sprintf(text, "%d", int(Subs->Speed));
     fnt.PutString(screen, 355, 144, text);
 
     // Desired Speed Screen
-    src.x = 320;
-    src.y = 197;
-    src.h = 15;
-    src.w = 75;
-
     sprintf(text, "%i", (int)Subs->DesiredSpeed);
     fnt.PutString(screen, 355, 199, text);
 

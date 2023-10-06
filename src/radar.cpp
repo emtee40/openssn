@@ -176,236 +176,43 @@ void Radar::UnLoadWidgets()
     SDL_FreeSurface(ClearRadar2);
 }
 
+void Radar::DisplayWidget(SDL_Surface *dest, int x, int y, SDL_Surface *source)
+{
+    SDL_Rect rect;
+
+    // Blit destination x & y to the upper left
+    rect.x = x;
+    rect.y = y;
+    // Height and width equal to the source images...
+    rect.h = source->h;
+    rect.w = source->w;
+    // Do the actual blit
+    SDL_BlitSurface(source, NULL, dest, &rect);
+    // Show the screen...
+    SDL_UpdateRects(dest, 1, &rect);
+}
+
 void Radar::DisplayWidgets()
 {
     // Range Scale Widgets
-
-    if (rangescale10) {
-        dest.x = 748;
-        dest.y = 320;
-        dest.h = range10on->h;
-        dest.w = range10on->w;
-        SDL_BlitSurface(range10on, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    } else {
-        dest.x = 748;
-        dest.y = 320;
-        dest.h = range10off->h;
-        dest.w = range10off->w;
-        SDL_BlitSurface(range10off, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    }
-
-    if (rangescale20) {
-        dest.x = 795;
-        dest.y = 320;
-        dest.h = range20on->h;
-        dest.w = range20on->w;
-        SDL_BlitSurface(range20on, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    } else {
-        dest.x = 795;
-        dest.y = 320;
-        dest.h = range20off->h;
-        dest.w = range20off->w;
-        SDL_BlitSurface(range20off, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    }
-
-    if (rangescale30) {
-        dest.x = 842;
-        dest.y = 320;
-        dest.h = range30on->h;
-        dest.w = range30on->w;
-        SDL_BlitSurface(range30on, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    } else {
-        dest.x = 842;
-        dest.y = 320;
-        dest.h = range30off->h;
-        dest.w = range30off->w;
-        SDL_BlitSurface(range30off, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    }
-
-    if (rangescale40) {
-        dest.x = 748;
-        dest.y = 367;
-        dest.h = range40on->h;
-        dest.w = range40on->w;
-        SDL_BlitSurface(range40on, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    } else {
-        dest.x = 748;
-        dest.y = 367;
-        dest.h = range40off->h;
-        dest.w = range40off->w;
-        SDL_BlitSurface(range40off, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    }
-
-    if (rangescale50) {
-        dest.x = 795;
-        dest.y = 367;
-        dest.h = range50on->h;
-        dest.w = range50on->w;
-        SDL_BlitSurface(range50on, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    } else {
-        dest.x = 795;
-        dest.y = 367;
-        dest.h = range50off->h;
-        dest.w = range50off->w;
-        SDL_BlitSurface(range50off, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    }
-
-    if (rangescale60) {
-        dest.x = 842;
-        dest.y = 367;
-
-        dest.h = range60on->h;
-        dest.w = range60on->w;
-        SDL_BlitSurface(range60on, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    } else {
-        dest.x = 842;
-        dest.y = 367;
-        dest.h = range60off->h;
-        dest.w = range60off->w;
-        SDL_BlitSurface(range60off, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    }
+    DisplayWidget(screen, 748, 320, rangescale10 ? range10on : range10off);
+    DisplayWidget(screen, 795, 320, rangescale20 ? range20on : range20off);
+    DisplayWidget(screen, 842, 320, rangescale30 ? range30on : range30off);
+    DisplayWidget(screen, 748, 367, rangescale40 ? range40on : range40off);
+    DisplayWidget(screen, 795, 367, rangescale50 ? range50on : range50off);
+    DisplayWidget(screen, 842, 367, rangescale60 ? range60on : range60off);
 
     // Mast Widgets
-
-    if (Mast) {
-        dest.x = 850;
-        dest.y = 185;
-        dest.h = mastupon->h;
-        dest.w = mastupon->w;
-        SDL_BlitSurface(mastupon, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-
-        dest.x = 744;
-        dest.y = 185;
-        dest.h = mastdownoff->h;
-        dest.w = mastdownoff->w;
-        SDL_BlitSurface(mastdownoff, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    } else {
-        dest.x = 850;
-        dest.y = 185;
-        dest.h = mastupoff->h;
-        dest.w = mastupoff->w;
-        SDL_BlitSurface(mastupoff, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-
-        dest.x = 744;
-        dest.y = 185;
-        dest.h = mastdownon->h;
-        dest.w = mastdownon->w;
-        SDL_BlitSurface(mastdownon, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    }
+    DisplayWidget(screen, 850, 185, Mast ? mastupon : mastupoff);
+    DisplayWidget(screen, 744, 185, Mast ? mastdownoff : mastdownon);
 
     // Range Ring Widgets
-
-    if (rangering0) {
-        dest.x = 749;
-        dest.y = 501;
-        dest.h = ring0on->h;
-        dest.w = ring0on->w;
-        SDL_BlitSurface(ring0on, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    } else {
-        dest.x = 749;
-        dest.y = 501;
-        dest.h = ring0off->h;
-        dest.w = ring0off->w;
-        SDL_BlitSurface(ring0off, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    }
-
-    if (rangering5) {
-        dest.x = 796;
-        dest.y = 501;
-        dest.h = ring5on->h;
-        dest.w = ring5on->w;
-        SDL_BlitSurface(ring5on, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    } else {
-        dest.x = 796;
-        dest.y = 501;
-        dest.h = ring5off->h;
-        dest.w = ring5off->w;
-        SDL_BlitSurface(ring5off, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    }
-
-    if (rangering10) {
-        dest.x = 843;
-        dest.y = 501;
-        dest.h = ring10on->h;
-        dest.w = ring10on->w;
-        SDL_BlitSurface(ring10on, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    } else {
-        dest.x = 843;
-        dest.y = 501;
-        dest.h = ring10off->h;
-        dest.w = ring10off->w;
-        SDL_BlitSurface(ring10off, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    }
-
-    if (rangering15) {
-        dest.x = 749;
-        dest.y = 548;
-        dest.h = ring15on->h;
-        dest.w = ring15on->w;
-        SDL_BlitSurface(ring15on, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    } else {
-        dest.x = 749;
-        dest.y = 548;
-        dest.h = ring15off->h;
-        dest.w = ring15off->w;
-        SDL_BlitSurface(ring15off, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    }
-
-    if (rangering20) {
-        dest.x = 796;
-        dest.y = 548;
-        dest.h = ring20on->h;
-        dest.w = ring20on->w;
-        SDL_BlitSurface(ring20on, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    } else {
-        dest.x = 796;
-        dest.y = 548;
-        dest.h = ring20off->h;
-        dest.w = ring20off->w;
-        SDL_BlitSurface(ring20off, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    }
-
-    if (rangering25) {
-        dest.x = 843;
-        dest.y = 548;
-        dest.h = ring25on->h;
-        dest.w = ring25on->w;
-        SDL_BlitSurface(ring25on, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    } else {
-        dest.x = 843;
-        dest.y = 548;
-        dest.h = ring25off->h;
-        dest.w = ring25off->w;
-        SDL_BlitSurface(ring25off, NULL, screen, &dest);
-        SDL_UpdateRects(screen, 1, &dest);
-    }
+    DisplayWidget(screen, 749, 501, rangering0 ? ring0on : ring0off);
+    DisplayWidget(screen, 796, 501, rangering5 ? ring5on : ring5off);
+    DisplayWidget(screen, 843, 501, rangering10 ? ring10on : ring10off);
+    DisplayWidget(screen, 749, 548, rangering15 ? ring15on : ring15off);
+    DisplayWidget(screen, 796, 548, rangering20 ? ring20on : ring20off);
+    DisplayWidget(screen, 843, 548, rangering25 ? ring25on : ring25off);
 
     // Need this for the time compression??
     SDL_UpdateRect(screen, 0, 0, 0, 0);
@@ -414,36 +221,16 @@ void Radar::DisplayWidgets()
 void Radar::ClearScreen()
 {
     // Clear the whole radar area (scope + text boxes) on the screen
-    src.x = 0;
-    src.y = 0;
-    src.w = ClearRadar->w;
-    src.h = ClearRadar->h;
+    DisplayWidget(screen, 98, 154, ClearRadar);
 
-    dest.x = 98;  // Blit destination x & y to the upper left
-    dest.y = 154;
-    dest.w = ClearRadar->w;  // Height and width equal to the
-    dest.h = ClearRadar->h;  // source images....
-    SDL_BlitSurface(ClearRadar, NULL, screen, &dest);  // Do the actual blit
-
-    SDL_UpdateRects(screen, 1, &dest);  // Show the screen.
     DisplayWidgets();
 }
 
 void Radar::ClearTextBox()
 {
     // Clear the text boxes area on the screen
-    src.x = 0;
-    src.y = 0;
-    src.w = ClearRadar2->w;
-    src.h = ClearRadar2->h;
+    DisplayWidget(screen, 139, 572, ClearRadar2);
 
-    dest.x = 139; // Blit destination x & y to the upper left
-    dest.y = 572;
-    dest.w = ClearRadar2->w;  // Height and width equal to the
-    dest.h = ClearRadar2->h;  // source images....
-    SDL_BlitSurface(ClearRadar2, NULL, screen, &dest);  // Do the actual blit
-
-    SDL_UpdateRects(screen, 1, &dest);  // Show the screen.
     DisplayWidgets();
 }
 
@@ -458,12 +245,9 @@ void Radar::Sweep(float gametime)
 
 void Radar::DisplaySweep()
 {
-    if (getMastStatus()) {  // If the mast is up start sweep
+    SDL_Rect dest;
 
-        src.x = 0;
-        src.y = 0;
-        src.w = sweep[0]->w;
-        src.h = sweep[0]->h;
+    if (getMastStatus()) {  // If the mast is up start sweep
 
         dest.x = 193;
         dest.y = 245;
@@ -479,19 +263,16 @@ void Radar::DisplaySweep()
         // (but much crappier looking) rotozooming
         sweeprot = rotozoomSurface(sweep[0], -tick, 1.0, 1);
 
-        // the rotozoomer seems to create a surface with whatever width and
-        // height necessary, so we have to recompute the destination coords
-        src.w = sweeprot->w;
-        src.h = sweeprot->h;
-        dest.x = sweep[0]->w / 2 + dest.x - sweeprot->w / 2;
-        dest.y = sweep[0]->h / 2 + dest.y - sweeprot->h / 2;
-        dest.w = src.w;
-        dest.h = src.h;
-
         // I'm not sure what this alpha stuff is for, but hopefully
         // the rotozoomer won't mess it up
         SDL_SetAlpha(sweeprot, SDL_SRCALPHA, 128);
-        SDL_BlitSurface(sweeprot, NULL, screen, &dest);  // Do the actual blit
+
+        // the rotozoomer seems to create a surface with whatever width and
+        // height necessary, so we have to recompute the destination coords
+        DisplayWidget(screen,
+                      sweep[0]->w / 2 + dest.x - sweeprot->w / 2,
+                      sweep[0]->h / 2 + dest.y - sweeprot->h / 2,
+                      sweeprot);
         SDL_FreeSurface(sweeprot);
     }
 }
@@ -516,6 +297,7 @@ void Radar::DisplayContacts()
     float radians;
     int bearing, range, depth;
     Submarine *target;
+    SDL_Rect dest;
 
     DisplaySweep();  // Start the radar sweep
 
@@ -536,11 +318,6 @@ void Radar::DisplayContacts()
             // Find where we plot the dot
             x = 316 + int((460 - 316) * (range / float(1000 * RangeScale)) * cos(1.57 - radians));
             y = 374 - int((374 - 230) * (range / float(1000 * RangeScale)) * sin(1.57 - radians));
-
-            src.x = 0;
-            src.y = 0;
-            src.w = blip->w;
-            src.h = blip->h;
 
             dest.x = x;
             dest.y = y;
@@ -855,18 +632,8 @@ void Radar::ShowData(SDL_Surface *screen, int x, int y)
 
     range = int(1000.0 * sqrt(pow(((double(x) - c1) / c2), 2) + pow(((double(y) - c3) / c4), 2)));
 
-    src.x = 166;
-    src.y = 608;  // define a rectangle on the screen and make it black
-    src.h = 30;
-    src.w = 90;
-
     sprintf(text, "  %i  ", bearing);
     largeFont.PutString(screen, 170, 615, text);
-
-    src.x = 383;
-    src.y = 608;  // define a rectangle on the screen and make it black
-    src.h = 30;
-    src.w = 90;
 
     sprintf(text, "  %i  ", range);
     largeFont.PutString(screen, 370, 615, text);

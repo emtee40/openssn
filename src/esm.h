@@ -26,7 +26,6 @@ class Esm
 {
 public:
     Submarine *Subs;
-    SDL_Rect src, dest;
 
     SDL_Surface *esmscreen;
     SDL_Surface *tempscreen;
@@ -62,14 +61,13 @@ public:
     void LoadWidgets();
     void UnLoadWidgets();
 
+    void DisplayWidget(SDL_Surface *dest, int x, int y, SDL_Surface *source);
     void DisplayWidgets();
 
     void DisplayContacts();
     void InitGraphics(SDL_Surface *temp, SDL_Surface *tempradarscreen);
 
 private:
-    SDL_Rect destination_rectangle;
-    SDL_Rect source_rectangle;
     SDL_Surface *screen;
 
     SDL_Surface *mastdownoff;
