@@ -1769,7 +1769,6 @@ Uint32 TmaTimer(Uint32 interval, void *param)
 
 int HandleInput(SDL_Event &event, int &mousex, int &mousey)
 {
-    static string textline;
     int y1, y2, x_checks_out;
     int index;
 
@@ -2390,7 +2389,6 @@ int main(int argc, char **argv)
     bool quit = false;  // Quit flag Duh!
     int station;  // flag to decide which work station to display
     bool full_screen = false;
-    char *textline = "";
     char file1[] = "images/font.png";
     char file2[] = "data/font.dat";
     char file3[] = "images/largefont.png";
@@ -2504,11 +2502,9 @@ int main(int argc, char **argv)
     timecompression = 1;
     station = 2;  // default station
     ShowStation(station);
-    // textline = "OpenSSN VERSION 0.5";
     sprintf(text, "OpenSSN version %2.1f", VERSION);
     Message.post_message(text);
-    textline = "http://openssn.sourceforge.net";
-    Message.post_message(textline);
+    Message.post_message("http://openssn.sourceforge.net");
     Message.display_message();
     sprintf(text, "[%i] ", timecompression);
     fnt.PutString(screen, 933, 718, text);
@@ -2937,8 +2933,8 @@ int main(int argc, char **argv)
                     }
                     break;
                 case DESIGNATECONTACT:
-                    // textline="CON, SONAR, NEW CONTACT BEARING 123. DESIGNATEING CONTACT S1.";
-                    // Message.post_message(textline);
+                    // Message.post_message("CON, SONAR, NEW CONTACT "
+                    //                      "BEARING 123. DESIGNATING CONTACT S1.");
                     break;
                 case TOGGLER10:
                     RadarStation.ToggleRangeScale10();
@@ -3098,7 +3094,8 @@ int main(int argc, char **argv)
                             new_torpedo = Subs->Fire_Tube(current_target, ship_file);
                             free(ship_file);
                             if (new_torpedo) {
-                                char *sound_file, *file_name = "sounds/torpedo-launch.ogg";
+                                char *sound_file;
+                                const char *file_name = "sounds/torpedo-launch.ogg";
                                 sound_file = Find_Data_File(file_name);
                                 Play_Sound(sound_file);
                                 free(sound_file);

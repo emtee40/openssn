@@ -3,13 +3,12 @@
 #include "dfont.h"
 #include "files.h"
 
-DFont::DFont(char *IFile, char *DFile)
+DFont::DFont(const char *IFile, const char *DFile)
 {
-    loadImage(IFile);
+    fontSurface = Load_Image(IFile);
 
     ifstream inCredit(DFile, ios::in);
     if (!inCredit)
-        // if (!fstream(DFile, ios::in))  // does the file exist?
         initMap(DFile);  // if the font file doesn't exist then create one
     else
         loadMap(DFile);
@@ -23,47 +22,7 @@ DFont::~DFont()
     SDL_FreeSurface(fontSurface);
 }
 
-void DFont::loadImage(char *name)
-{
-    fontSurface = Load_Image(name);
-}
-
-Uint32 DFont::GetPixel(SDL_Surface *screen, Sint32 x, Sint32 y)
-{
-    switch (screen->format->BytesPerPixel) {
-        case 1: {  /* Assuming 8-bpp */
-            return *((Uint8 *)screen->pixels + y * screen->pitch + x);
-        }
-        break;
-
-        case 2: {  /* Probably 15-bpp or 16-bpp */
-            return *((Uint16 *)screen->pixels + y * screen->pitch / 2 + x);
-        }
-        break;
-
-        case 3: {  /* Slow 24-bpp mode, usually not used */
-            // Fixme
-            return 0;
-        }
-        break;
-
-        case 4: {  /* Probably 32-bpp */
-            return *((Uint32 *)screen->pixels + y * screen->pitch / 4 + x);
-        }
-        break;
-    }
-    return 0xffffffff;
-}
-
-void DFont::loadMap(char *name)
-{
-    ifstream file(name);
-    char c = '!';  // all fonts must start with ! and then increment through the
-                   // ASCII table!!
-    while (file >> fonts[c++]) ;
-}
-
-void DFont::PutString(SDL_Surface *screen, Sint16 x, Sint16 y, char *str)
+void DFont::PutString(SDL_Surface *screen, Sint16 x, Sint16 y, const char *str)
 {
     for ( ; *str != '\0'; ++str) {
         if (*str == ' ')
@@ -95,7 +54,7 @@ writes to the file to avoid this. We ship with the proper
 font files in the tarball, that should be enough.
 -- Jesse
 */
-void DFont::initMap(char * name)
+void DFont::initMap(const char * name)
 {
     // ofstream file(name);
     // Sentry value
@@ -117,6 +76,41 @@ void DFont::initMap(char * name)
         } else
             ++x;
     }
+}
+
+void DFont::loadMap(const char *name)
+{
+    ifstream file(name);
+    char c = '!';  // all fonts must start with ! and then increment through the
+                   // ASCII table!!
+    while (file >> fonts[c++]) ;
+}
+
+Uint32 DFont::GetPixel(SDL_Surface *screen, Sint32 x, Sint32 y)
+{
+    switch (screen->format->BytesPerPixel) {
+        case 1: {  /* Assuming 8-bpp */
+            return *((Uint8 *)screen->pixels + y * screen->pitch + x);
+        }
+        break;
+
+        case 2: {  /* Probably 15-bpp or 16-bpp */
+            return *((Uint16 *)screen->pixels + y * screen->pitch / 2 + x);
+        }
+        break;
+
+        case 3: {  /* Slow 24-bpp mode, usually not used */
+            // Fixme
+            return 0;
+        }
+        break;
+
+        case 4: {  /* Probably 32-bpp */
+            return *((Uint32 *)screen->pixels + y * screen->pitch / 4 + x);
+        }
+        break;
+    }
+    return 0xffffffff;
 }
 
 // Good Ol operator overloading Ahhhhh

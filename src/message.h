@@ -18,7 +18,9 @@ $Id: message.h,v 1.3 2003/04/20 16:44:30 mbridak Exp $
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-#include <string>
+#include "SDL/SDL.h"
+#include "SDL/SDL_image.h"
+#include "dfont.h"
 
 /**
   * @author Michael Bridak
@@ -27,37 +29,28 @@ $Id: message.h,v 1.3 2003/04/20 16:44:30 mbridak Exp $
 class msg
 {
 public:
-    char buffer[20][256];
+    /** Constructor... */
+    msg();
+
+    /** Destructor... */
+    ~msg();
 
     void InitGraphics();
 
-    /** Places a one line message into the
-        message buffer to be later displayed
-        by the display_message() method. */
-    void post_message(char *temp_string);
+    /** Places a one line message into the message buffer to be later
+        displayed by the display_message() method. */
+    void post_message(const char *message);
 
-    /** Displays the tail end of the buffer
-        onto the main screen. */
+    /** Displays the tail end of the buffer onto the main screen. */
     void display_message();
-
-    /** Our constructor... */
-    msg();
-
-    /** And the probably never to be used destructor... */
-    ~msg();
 
 private:
     /** Our main storage for buffer text. */
+    char buffer[20][256];
 
     SDL_Surface *screen;
     SDL_Surface *messagewindow;
-    DFont largeFont(const char*, const char *);
-    Uint32  textcolor;
     Uint32  black;
-    Uint32  white;
-    Uint32  red;
-    Uint32  green;
-    Uint32  yellow;
 };
 
 #endif  // MESSAGE_H

@@ -22,22 +22,21 @@ using std::cout;
 
 class DFont
 {
+public:
+    DFont(const char *, const char *);
+    ~DFont();
+    void PutString(SDL_Surface *, Sint16, Sint16, const char *);
+    void PutChar(SDL_Surface *, Sint16, Sint16, char);
+
 protected:
     std::map <char, SDL_Rect> fonts;
     SDL_Surface *fontSurface;
     int gap;
 
 private:
-    void initMap(char *);
-    void loadMap(char *);
-    void loadImage(char *);
+    void initMap(const char *);
+    void loadMap(const char *);
     Uint32 GetPixel(SDL_Surface *, Sint32, Sint32);
-
-public:
-    DFont(char *, char *);
-    ~DFont();
-    void PutString(SDL_Surface *, Sint16, Sint16, char *);
-    void PutChar(SDL_Surface *, Sint16, Sint16, char);
 };
 
 ostream& operator << (ostream &, SDL_Rect const &);  // output a record
