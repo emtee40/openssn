@@ -1,7 +1,6 @@
-#include <stdio.h>
-#include <SDL.h>
-#include <SDL/SDL_mixer.h>
 #include "sound.h"
+#include <cstdio>
+#include <SDL/SDL_mixer.h>
 
 Mix_Music *my_music = NULL;
 int play_sounds = FALSE;

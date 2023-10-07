@@ -3,22 +3,13 @@
 #ifndef DFONT_H
 #define DFONT_H
 
+#include <iostream>
+#include <map>
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 
-#include <iostream>
-using std::ios;
-
-#include <fstream>
 using std::istream;
 using std::ostream;
-using std::ofstream;
-using std::ifstream;
-using std::cerr;
-using std::cin;
-using std::cout;
-
-#include <map>
 
 class DFont
 {

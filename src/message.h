@@ -19,8 +19,6 @@ $Id: message.h,v 1.3 2003/04/20 16:44:30 mbridak Exp $
 #define MESSAGE_H
 
 #include "SDL/SDL.h"
-#include "SDL/SDL_image.h"
-#include "dfont.h"
 
 /**
   * @author Michael Bridak

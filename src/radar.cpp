@@ -15,22 +15,18 @@ $Id: radar.cpp,v 1.16 2003/05/17 22:25:34 mbridak Exp $
 
  ***************************************************************************/
 
-#include <string>
-#include "math.h"
-#include "SDL/SDL.h"
-#include "SDL/SDL_image.h"
-#include "SDL/SDL_thread.h"
+#include "radar.h"
+#include <cmath>
+#include <cstring>
 #include "dfont.h"
 #include "draw.h"
 #include "files.h"
-#include "submarine.h"
 
 // VENZON: need rotozoom now
 #include "SDL_rotozoom.h"
 
 // rdm windows
 #include <iostream>
-using namespace std;
 
 #include "radar.h"
 
@@ -604,11 +600,7 @@ int Radar::getRange(int TargetRange)
 void Radar::ShowData(SDL_Surface *screen, int x, int y)
 {
     static char text[120];
-    // string file1 = "font.png";
-    // string file2 = "font.dat";
-    char filename[] = "images/largefont.png";
-    char filename2[] = "data/largefont.dat";
-    static DFont largeFont(filename, filename2);
+    static DFont largeFont("images/largefont.png", "data/largefont.dat");
 
     double c1, c2, c3, c4, c5, c6;
     int bearing;

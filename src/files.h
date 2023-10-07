@@ -2,6 +2,7 @@
 #define FILES_HEADER_FILE__
 
 #include <SDL.h>
+#include "SDL/SDL.h"
 
 #ifndef DATADIR
 #define DATADIR "."

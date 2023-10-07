@@ -15,8 +15,8 @@ $Id: stack.cpp,v 1.5 2003/04/14 05:51:04 mbridak Exp $
 
  ***************************************************************************/
 
-#include <stdlib.h>
 #include "stack.h"
+#include <cstdlib>
 
 Stack::Stack()
 {

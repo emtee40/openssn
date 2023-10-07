@@ -1,9 +1,9 @@
 // $Id: dstack.cpp,v 1.4 2003/04/14 05:51:03 mbridak Exp $
 // Simple Stack Class
 
-#include <stdio.h>
-#include <stdlib.h>
 #include "dstack.h"
+#include <cstdio>
+#include <cstdlib>
 
 DStack::DStack()
 {

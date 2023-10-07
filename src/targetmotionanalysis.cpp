@@ -15,12 +15,9 @@ $Id: targetmotionanalysis.cpp,v 1.7 2003/05/17 22:27:28 mbridak Exp $
 
  ***************************************************************************/
 
-#include "SDL/SDL.h"
-#include "SDL/SDL_image.h"
-#include "SDL/SDL_thread.h"
 #include "targetmotionanalysis.h"
+#include <cmath>
 #include "draw.h"
-#include "math.h"
 
 TargetMotionAnalysis::TargetMotionAnalysis()
 {

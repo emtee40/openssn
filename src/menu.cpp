@@ -1,6 +1,5 @@
-#include <SDL.h>
-#include "files.h"
 #include "menu.h"
+#include "files.h"
 #include "draw.h"
 #include "dfont.h"
 
@@ -103,7 +102,7 @@ int Display_Mission(int mission_number)
     FILE *mission_file;
     char line[256];
     int y = 610;
-    DFont my_font("images/font.png", "data/font.dat");
+    static DFont my_font("images/font.png", "data/font.dat");
     Uint32 menu_background = SDL_MapRGB(menu_screen->format, 0, 0, 0);
 
 #ifndef WIN32

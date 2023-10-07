@@ -18,6 +18,9 @@ $Id: radar.h,v 1.8 2003/04/14 05:51:04 mbridak Exp $
 #ifndef RADAR_H
 #define RADAR_H
 
+#include "SDL/SDL.h"
+#include "submarine.h"
+
 // rdm windows
 // #include <iostream>
 
@@ -167,9 +170,6 @@ public:
 
     int tempint;
     int tempval;
-    static char text[120];
-
-    DFont largeFont(const char*, const char *);
 
     Uint32 orange;
     Uint32 black;

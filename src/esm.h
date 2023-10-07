@@ -18,6 +18,9 @@ $Id: esm.h,v 1.5 2003/04/14 05:51:03 mbridak Exp $
 #ifndef ESM_H
 #define ESM_H
 
+#include "SDL/SDL.h"
+#include "submarine.h"
+
 /**
   * @author Michael Bridak
   */
@@ -26,13 +29,6 @@ class Esm
 {
 public:
     Submarine *Subs;
-
-    SDL_Surface *esmscreen;
-    SDL_Surface *tempscreen;
-    SDL_Surface *blip;
-    SDL_Surface *sweep1;
-    SDL_Surface *ClearEsm;
-    SDL_Surface *ClearEsm2;
 
     Esm(Submarine *temp);
     ~Esm();
@@ -68,6 +64,13 @@ public:
     void InitGraphics(SDL_Surface *temp, SDL_Surface *tempradarscreen);
 
 private:
+    SDL_Surface *esmscreen;
+    SDL_Surface *tempscreen;
+    SDL_Surface *blip;
+    SDL_Surface *sweep1;
+    SDL_Surface *ClearEsm;
+    SDL_Surface *ClearEsm2;
+
     SDL_Surface *screen;
 
     SDL_Surface *mastdownoff;
@@ -88,11 +91,6 @@ private:
     int x;
     int y;
     Uint32 orange, black;
-
-    static char text[120];
-    DFont largeFont(const char*, const char *);
-    DFont fnt(const char*, const char *);
-    DFont fnt2(const char*, const char *);
 };
 
 #endif  // ESM_H

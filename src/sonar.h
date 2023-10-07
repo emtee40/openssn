@@ -17,6 +17,12 @@ $Id: sonar.h,v 1.10 2003/09/20 22:53:15 mbridak Exp $
 
 #ifndef SONAR_H
 #define SONAR_H
+
+#include "message.h"
+#include "submarine.h"
+#include "targetmotionanalysis.h"
+#include "towedarray.h"
+
 /**
   * @author Michael Bridak
   */
@@ -158,14 +164,12 @@ private:
     SDL_Surface *tracker2[2];
     SDL_Surface *tracker3[2];
     SDL_Surface *tracker4[2];
-    DFont largeFont(const char*, const char *);
     TowedArray &TB16;
     TargetMotionAnalysis &Tma;
     msg &Message;
     int tempint;
     int tempval;
     float deAngle;
-    static char text[120];
     Uint32 black;
     Uint32 white;
     Uint32 green;

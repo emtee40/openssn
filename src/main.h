@@ -18,11 +18,24 @@ $Id: main.h,v 1.11 2003/07/18 03:50:00 mbridak Exp $
 #ifndef MAIN_H
 #define MAIN_H
 
+#include <SDL.h>
+#include <SDL/SDL.h>
+#include "contact.h"
+#include "control.h"
+#include "esm.h"
+#include "gameclock.h"
+#include "helicopter.h"
+#include "map.h"
+#include "message.h"
+#include "radar.h"
+#include "sonar.h"
+#include "submarine.h"
+#include "targetmotionanalysis.h"
+#include "towedarray.h"
+
 #ifndef VERSION
 #define VERSION 1.4
 #endif
-
-#include "helicopter.h"
 
 // delay between game loops
 #define GAME_DELAY 10
@@ -195,14 +208,6 @@ SDL_Surface *tracker4[2] = {NULL, NULL};
 SDL_Surface *noisemaker_image = NULL;
 SDL_Surface *torpedo_image = NULL;
 
-// a mutex so we don't crash and burn 
-// when accessing the same globals
-// in a callback function.
-SDL_mutex *tmamutex;
-
-DFont fnt(const char*, const char *);
-DFont fnt2(const char*, const char *);
-
 int tube_action = 0;   // what are we doing with a torpedo tube
 int tube_to_use = -1;  // the tube to perform this action on
 
@@ -244,16 +249,6 @@ AnBqq5 SonarStation(Subs, TB16, Tma, Message);
 Radar RadarStation(Subs);
 Esm EsmStation(Subs);
 Control ControlStation(Subs);
-
-// Danger I don't know what I'm doing here
-struct position
-{
-    float lat;
-    float lon;
-};
-std::list<position> SubPosLog;  // STL incompetence DANGER!
-// End Danger
-
 
 // declarations
 void SetupScreen(bool);

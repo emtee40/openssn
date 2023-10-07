@@ -1,5 +1,5 @@
-#include <stdio.h>
 #include "mission.h"
+#include <cstdio>
 
 // This function checks to see what our missions status should be. It
 // returns MISSION_STARTED, MISSION_SUCCESS or MISSION_FAILED

@@ -27,15 +27,17 @@ $Id: contact.h,v 1.4 2003/05/20 17:36:04 mbridak Exp $
 class Contact : public Coord
 {
 public:
-    bool Active;  /* Flag to see if ship is in the world. */
-    int ShipType;
-    // Sub = 0, Surface = 1, Air = 2
-    int Friend;
-    // Foe = 0, Friend = 1, Unknown = 2, Neutral = 3
-	
     Contact();
     ~Contact();
     void UpdateContact();
+
+private:
+    // Flag to see if ship is in the world
+    bool Active;
+    // Sub = 0, Surface = 1, Air = 2
+    int ShipType;
+    // Foe = 0, Friend = 1, Unknown = 2, Neutral = 3
+    int Friend;
 };
 
 #endif  // CONTACT_H

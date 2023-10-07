@@ -15,7 +15,6 @@ $Id: boatpositionlog.cpp,v 1.2 2003/04/14 05:51:03 mbridak Exp $
 
  ***************************************************************************/
 
-#include "SDL/SDL.h"
 #include "boatpositionlog.h"
 
 BoatPositionLog::BoatPositionLog()

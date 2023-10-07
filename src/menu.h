@@ -1,6 +1,8 @@
 #ifndef MENU_HEADER_FILE__
 #define MENU_HEADER_FILE__
 
+#include <SDL/SDL.h>
+
 #define ACTION_QUIT         1
 #define ACTION_MISSION      2
 

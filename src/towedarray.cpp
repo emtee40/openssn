@@ -16,7 +16,7 @@ $Id: towedarray.cpp,v 1.3 2003/04/14 05:51:04 mbridak Exp $
  ***************************************************************************/
 
 #include "towedarray.h"
-#include "math.h"
+#include <cmath>
 
 TowedArray::TowedArray()
 {
@@ -105,7 +105,7 @@ void TowedArray::OperateWinch()
             }
             break;
         default:  // just in case.....
-            // cerr << "Uh, Capt'n somethings wrong with the winch." << endl;
+            // std::cerr << "Uh, Capt'n somethings wrong with the winch." << std::endl;
             break;
     }
 }

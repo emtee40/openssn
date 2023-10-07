@@ -15,21 +15,13 @@ $Id: sonar.cpp,v 1.14 2003/09/21 21:52:40 mbridak Exp $
 
  ***************************************************************************/
 
-#include <string>
-#include "math.h"
+#include "sonar.h"
+#include <cmath>
+#include <cstring>
 #include "SDL/SDL.h"
-#include "SDL/SDL_image.h"
-#include "SDL/SDL_thread.h"
 #include "dfont.h"
 #include "draw.h"
 #include "files.h"
-#include "message.h"
-#include "submarine.h"
-#include "towedarray.h"
-#include "targetmotionanalysis.h"
-#include "sonar.h"
-
-using namespace std;
 
 AnBqq5::AnBqq5(Submarine *temp, TowedArray &temp2, TargetMotionAnalysis &temp3,
                msg &temp4): Subs(temp), TB16(temp2), Tma(temp3), Message(temp4)
@@ -57,11 +49,9 @@ void AnBqq5::InitGraphics()
     uppersonarcrt = sonarscreen;
     lowersonarcrt = towedarrayscreen;
     if (screen == NULL || sonarscreen == NULL || towedarrayscreen == NULL) {
-        cerr << "OOPS" << SDL_GetError() << endl;
+        std::cerr << "OOPS" << SDL_GetError() << std::endl;
         exit(1);
     }
-    string filename;
-    string filename2;
     black = SDL_MapRGB(screen->format, 0, 0, 0);
     white = SDL_MapRGB(screen->format, 255, 255, 255);
     green = SDL_MapRGB(screen->format, 0, 255, 0);
@@ -302,9 +292,7 @@ void AnBqq5::UpdateDisplay(Submarine *current_target)
 {
     SDL_Rect destination_rectangle;
     static char text[120];
-    char filename[] = "images/largefont.png";
-    char filename2[] = "data/largefont.dat";
-    static DFont largeFont(filename, filename2);
+    static DFont largeFont("images/largefont.png", "data/largefont.dat");
     DisplaySonar(); //draw sonar screen
     destination_rectangle.x = 830;
     destination_rectangle.y = 410;  // define a rectangle on the screen and make it black
@@ -828,7 +816,7 @@ void AnBqq5::UpdateCursor()
             if (cursorBearing > temp) temp += 360;
             // relative_bearing = temp - cursorBearing;
             // if (relative_bearing < 3 || relative_bearing >357) {
-            // cout << "TargetId: " << TargetId << " - Bearing: " << direction << endl;
+            // std::cout << "TargetId: " << TargetId << " - Bearing: " << direction << std::endl;
             /*
             static char text[120];
             sprintf(text, "TARGET-ID %3i - BEARING %3i", TargetId, direction);
@@ -845,7 +833,7 @@ void AnBqq5::UpdateCursor()
     if (cursorBearing > 360) cursorBearing -= 360;
     // Some debug crap
     /* 
-	if (cursorBearing > 360) cout << "cursor over " << cursorBearing << endl;
-    if (cursorBearing < 0) cout << "cursor under " << cursorBearing << endl;
+    if (cursorBearing > 360) std::cout << "cursor over " << cursorBearing << std::endl;
+    if (cursorBearing < 0) std::cout << "cursor under " << cursorBearing << std::endl;
 	*/
 }

@@ -15,10 +15,8 @@ $Id: gameclock.cpp,v 1.1 2003/05/19 02:26:36 mbridak Exp $
 
  ***************************************************************************/
 
-#include <iostream>
 #include "gameclock.h"
-
-using namespace std;
+#include <iostream>
 
 GameClock::GameClock()
 {

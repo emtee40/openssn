@@ -2,6 +2,7 @@
 #define HELICOPTER_HEADER_FILE__
 
 #include "coord.h"
+#include "map.h"
 #include "submarine.h"
 
 #ifndef FALSE
@@ -32,19 +33,10 @@ public:
     int MaxSpeed, DesiredSpeed;
     int Depth, DesiredDepth;
     int DesiredHeading;
-    int TorpedoesOnBoard;
-    int current_action;  // hovering, listening, moving, returning to base
     int mood;  // convoy, passive, attack
     int Friend;
-    int destination_x, destination_y;
     int ShipType, ShipClass;
-    char ClassName[CLASS_NAME_SIZE];
-    char ClassType[CLASS_TYPE_SIZE];
-    int MaxDepth, Rudder;
-    int hull_strength;
     int has_sonar;
-    int firing_countdown;  // make sure we can't rapid fire
-    float PSCS;
     MAP *map;
     Helicopter *next;
 
@@ -65,6 +57,17 @@ public:
     Submarine *Find_Target(Submarine *all_ships);
     Submarine *Fire_Torpedo(Submarine *target, char *ship_file);
     Submarine *Find_Closest_Friend(Submarine *ships);
+
+private:
+    int TorpedoesOnBoard;
+    int current_action;  // hovering, listening, moving, returning to base
+    int destination_x, destination_y;
+    char ClassName[CLASS_NAME_SIZE];
+    char ClassType[CLASS_TYPE_SIZE];
+    int MaxDepth, Rudder;
+    int hull_strength;
+    int firing_countdown;  // make sure we can't rapid fire
+    float PSCS;
 };
 
 #endif  // HELICOPTER_HEADER_FILE__

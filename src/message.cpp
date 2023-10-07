@@ -15,9 +15,10 @@ $Id: message.cpp,v 1.7 2003/09/21 21:52:40 mbridak Exp $
 
  ***************************************************************************/
 
-#include <string>
-#include "files.h"
 #include "message.h"
+#include <cstring>
+#include "dfont.h"
+#include "files.h"
 
 msg::msg()
 {

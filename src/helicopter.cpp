@@ -1,8 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <limits.h>
 #include "helicopter.h"
+#include <climits>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
 #include "files.h"
 
 Helicopter::Helicopter()

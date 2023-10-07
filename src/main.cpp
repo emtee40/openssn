@@ -18,43 +18,23 @@ $Id: main.cpp,v 1.28 2003/07/18 03:50:00 mbridak Exp $
 #include <config.h>
 #endif
 
-/* Feeling left out? Get included! */
+#include "main.h"
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+#include <fstream>
+#include <iomanip>
 #include <iostream>
-#include <list>
-#include <string.h>
-#include <string>
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <time.h>
 #include <unistd.h>
-#include <SDL.h>
-#include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
-#include <SDL/SDL_thread.h>
 #include "dfont.h"
 #include "draw.h"
-#include "gameclock.h"
-#include "submarine.h"
-#include "towedarray.h"
-#include "targetmotionanalysis.h"
 #include "menu.h"
-#include "message.h"
 #include "mission.h"
-#include "sonar.h"
-#include "radar.h"
 #include "files.h"
-#include "esm.h"
-#include "control.h"
-#include "helicopter.h"
-#include "main.h"
 #include "sound.h"
-#include "map.h"
 #include "winfunctions.h"
-#include <fstream>
-#include <cstdlib>
-#include <iomanip>
-using namespace std;
 
 MAP *my_map = NULL;
 
@@ -64,7 +44,7 @@ void SetupScreen(bool full_screen)
     // Initialize the screen and some default colors
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO) < 0) {
-        cerr << "Couldn't initialize SDL: " << SDL_GetError() << endl;
+        std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << std::endl;
         exit(1);
     }
     atexit(SDL_Quit);
@@ -78,9 +58,9 @@ void SetupScreen(bool full_screen)
     }
 
     if (screen == NULL) {
-        cerr << "Couldn't set video mode..." << endl
-             << "OpenSSN requires 1024x768 @ 16 bpp" << endl
-             << SDL_GetError() << endl;
+        std::cerr << "Couldn't set video mode..." << std::endl
+                  << "OpenSSN requires 1024x768 @ 16 bpp" << std::endl
+                  << SDL_GetError() << std::endl;
         exit(1);
     }
 	
@@ -267,7 +247,7 @@ void DisplayScreen(int item)
             IMGFile = menuscreen;
             break;
         default:
-            cerr << "Unknown screen item" << endl;
+            std::cerr << "Unknown screen item" << std::endl;
             break;
     }
 
@@ -969,7 +949,7 @@ void CreateShips(int mission_number, MAP *map)
     // ships = i - 1;
     // ships = i;
     // rdm 5/15/01 testing to be sure correct number of ships being read
-    // cout << " Number of ships = " <<  i-1 << endl;
+    // std::cout << " Number of ships = " <<  i-1 << std::endl;
     if (Subs) {
         SonarStation.Subs = Subs;
         RadarStation.Subs = Subs;
@@ -1033,7 +1013,7 @@ void Display_Target()
 {
     char buffer[256];
     SDL_Rect rectangle;
-    DFont fnt("images/font.png", "data/font.dat");
+    static DFont fnt("images/font.png", "data/font.dat");
     float range;
     double bearing;
 
@@ -1552,7 +1532,7 @@ void DisplayTMA(int xoffset, int yoffset)
 void DisplayWeapons()
 {
     SDL_Rect weapons, tubes;
-    DFont fnt("images/font.png", "data/font.dat");
+    static DFont fnt("images/font.png", "data/font.dat");
     char text[256];
     int index, y1, y2;
 
@@ -2389,10 +2369,6 @@ int main(int argc, char **argv)
     bool quit = false;  // Quit flag Duh!
     int station;  // flag to decide which work station to display
     bool full_screen = false;
-    char file1[] = "images/font.png";
-    char file2[] = "data/font.dat";
-    char file3[] = "images/largefont.png";
-    char file4[] = "data/largefont.dat";
     int mission_number = 0;
     int enable_sound = FALSE;
     SDL_Event event;  // a typedef to hold events
@@ -2406,7 +2382,6 @@ int main(int argc, char **argv)
     SDL_TimerID timer_id, timer_id2;
     torpedoes = NULL;
     helicopters = NULL;
-    tmamutex = SDL_CreateMutex();
 
     srand(time(NULL));  // Seed the random generator
 
@@ -2440,24 +2415,24 @@ int main(int argc, char **argv)
                 break;
             */
             case 'v':
-                cout << "OpenSSN version " << VERSION << endl;
+                std::cout << "OpenSSN version " << VERSION << std::endl;
                 return 0;
             case 'h':
-                cout << "Usage:" << endl
-                     << "-m <mission> Select specific mission." << endl
-                     << "-f For full screen mode." << endl
-                     << "-s Enable sound effects." << endl
-                     << "-w For Windowed Mode." << endl
-                     << "-v For version." << endl
-                     << "-h For this message." << endl;
+                std::cout << "Usage:" << std::endl
+                          << "-m <mission> Select specific mission." << std::endl
+                          << "-f For full screen mode." << std::endl
+                          << "-s Enable sound effects." << std::endl
+                          << "-w For Windowed Mode." << std::endl
+                          << "-v For version." << std::endl
+                          << "-h For this message." << std::endl;
                 return 0;
                 break;
             case 's':
                 enable_sound = TRUE;
                 break;
             default:
-                cout << "Unknown command-line argument" << endl
-                     << "Please use -h for a list of commands." << endl;
+                std::cout << "Unknown command-line argument" << std::endl
+                          << "Please use -h for a list of commands." << std::endl;
                 return 1;
         }  // end of switch
         status++;
@@ -2476,8 +2451,7 @@ int main(int argc, char **argv)
     LoadScreens();
     LoadWidgets();  //load up the buttons
     DisplayScreen(0);  // Display intro screen
-    DFont fnt(file1, file2);
-    static DFont fnt2(file3, file4);
+    static DFont fnt("images/font.png", "data/font.dat");
     my_map = new MAP();
     #ifdef DEBUGMAP
     my_map->Test_Map();
@@ -2558,7 +2532,7 @@ int main(int argc, char **argv)
                 case NAVMAP:
                     ShowStation(2);
                     UpdateDisplay();
-                    Message.post_message("Naviation display");
+                    Message.post_message("Navigation display");
                     Message.display_message();
                     sprintf(text, "[%i] ", timecompression);
                     fnt.PutString(screen, 933, 718, text);
@@ -2667,7 +2641,7 @@ int main(int argc, char **argv)
                     screendumpcount++;
                     sprintf(text, "screendump%i.bmp", screendumpcount);
                     SDL_SaveBMP(screen, text);  // screen dumps
-                    cerr << "Screen Dump" << endl;
+                    std::cerr << "Screen Dump" << std::endl;
                     break;
                 case TURNPORT:
                     Subs->DesiredHeading--;

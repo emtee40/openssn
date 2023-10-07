@@ -1,9 +1,8 @@
-#include <stdio.h>
-#include <string.h>
-#include <iostream>
-#include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
 #include "files.h"
+#include <cstdio>
+#include <cstdlib>
+#include <iostream>
+#include <SDL/SDL_image.h>
 
 static const char *data_dir = NULL;
 

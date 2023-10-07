@@ -3,6 +3,11 @@
 #include "dfont.h"
 #include "files.h"
 
+#include <fstream>
+using std::ios;
+using std::ofstream;
+using std::ifstream;
+
 DFont::DFont(const char *IFile, const char *DFile)
 {
     fontSurface = Load_Image(IFile);

@@ -20,6 +20,8 @@ $Id: targetmotionanalysis.h,v 1.6 2003/04/20 16:55:49 mbridak Exp $
 
 #define MAXTRACKERS 13
 
+#include "SDL/SDL.h"
+#include "SDL/SDL_thread.h"
 #include "boatpositionlog.h"
 #include "contact.h"
 

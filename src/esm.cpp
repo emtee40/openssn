@@ -15,23 +15,17 @@ $Id: esm.cpp,v 1.5 2003/04/14 05:51:03 mbridak Exp $
 
  ***************************************************************************/
 
-#include <string>
-#include "SDL/SDL.h"
-#include "SDL/SDL_image.h"
-#include "SDL/SDL_thread.h"
-#include "dfont.h"
-#include "draw.h"
-#include "files.h"
-#include "submarine.h"
-
 #include "esm.h"
-#include "dstack.h"
 #include <cmath>
 #include <cstdlib>
+#include <cstring>
+#include "dfont.h"
+#include "draw.h"
+#include "dstack.h"
+#include "files.h"
 
 // rdm windows
 #include <iostream>
-using namespace std;
 
 DStack EsmStack;
 
@@ -267,10 +261,7 @@ int Esm::getEsmHorizon(int ObserverDepth, int TargetHeight, int SeaState)
 void Esm::DisplayContacts()
 {
     static char text[120];
-    char file1[] = "images/font.png";
-    char file2[] = "images/font.dat";
-    DFont fnt(file1, file2);
-    // static DFont largeFont(filename.c_str(), filename2.c_str());
+    static DFont fnt("images/font.png", "images/font.dat");
     float radians;
     float radians_old;
     int bearing, range, depth;

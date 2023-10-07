@@ -3,9 +3,6 @@
 
 #include <SDL.h>
 #include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
-// #include "SDL/SDL_image.h"
-#include <SDL/SDL_thread.h>
 
 #define SCREEN_NAV 2
 #define SCREEN_HELM 4

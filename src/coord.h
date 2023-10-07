@@ -50,10 +50,10 @@ public:
     float Lon_SubSeconds;
     float Lon_TotalYards;
 
-    void UpdateLatLon();
-    void LatLonPercent(float heading, float &lop, float &lap);
     Coord();
     ~Coord();
+    void UpdateLatLon();
+    void LatLonPercent(float heading, float &lop, float &lap);
 };
 
 #endif  // COORD_H

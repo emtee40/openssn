@@ -18,27 +18,22 @@ $Id: control.h,v 1.3 2003/04/14 05:51:03 mbridak Exp $
 #ifndef CONTROL_H
 #define CONTROL_H
 
+#include "SDL/SDL.h"
+#include "submarine.h"
+#include "dfont.h"
+
 /**
   * @author Rick McDaniel
   */
+
 
 class Control
 {
 public:
     Submarine *Subs;
 
-    SDL_Surface *controlscreen;
-    SDL_Surface *tempscreen;
-
-    SDL_Surface *ClearControl;
-
     Control(Submarine *temp);
     ~Control();
-
-    bool A13, A23, ASTD, AFULL, AFLK;
-    bool ASTOP, B13, B23, BSTD, BEMER;
-
-    bool depthup, depthdown;
 
     void  InitGraphics(SDL_Surface *temp, SDL_Surface *tempcontrolscreen);
 
@@ -75,6 +70,15 @@ public:
     void AdjustDepth(int x);
 
 private:
+    SDL_Surface *controlscreen;
+    SDL_Surface *tempscreen;
+
+    SDL_Surface *ClearControl;
+
+    bool A13, A23, ASTD, AFULL, AFLK;
+    bool ASTOP, B13, B23, BSTD, BEMER;
+
+    bool depthup, depthdown;
 
     SDL_Surface *screen;
     SDL_Surface *STOPoff;
@@ -96,12 +100,6 @@ private:
 
     int x;
     int y;
-    // Uint32 orange, green, black;  // rdm 9/11 not needed
-
-    static char text[120];
-    DFont largeFont(const char*, const char *);
-    DFont fnt(const char*, const char *);
-    DFont fnt2(const char*, const char *);
 };
 
 #endif  // CONTROL_H

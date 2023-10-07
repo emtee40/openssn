@@ -1,10 +1,5 @@
-#include <SDL.h>
-#include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
-#include "SDL/SDL_image.h"
-#include <SDL/SDL_thread.h>
-#include <math.h>
 #include "draw.h"
+#include <cmath>
 
 void DrawPixel(SDL_Surface *screen, int x, int y, Uint32 color)
 {

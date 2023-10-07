@@ -15,22 +15,14 @@ $Id: control.cpp,v 1.3 2003/04/20 19:30:29 anoncvs_pygsl Exp $
 
  ***************************************************************************/
 
-#include <string>
-#include "SDL/SDL.h"
-#include "SDL/SDL_image.h"
-#include "SDL/SDL_thread.h"
-#include "SDL/SDL_gfxPrimitives.h"  // rdm 9/11
-#include "dfont.h"
-#include "submarine.h"
-#include "files.h"
-
 #include "control.h"
-#include "dstack.h"
 #include <cmath>
 #include <cstdlib>
-
+#include <cstring>
 #include <iostream>
-using namespace std;
+#include "SDL/SDL_gfxPrimitives.h"  // rdm 9/11
+#include "dstack.h"
+#include "files.h"
 
 // Use these for the display
 DStack HeadingStack, SpeedStack, DepthStack;
@@ -300,9 +292,7 @@ void Control::ToggleAFLK()
 void Control::Display()
 {
     static char text[120];
-    char file1[] = "images/font.png";
-    char file2[] = "data/font.dat";
-    DFont fnt(file1, file2);
+    static DFont fnt("images/font.png", "data/font.dat");
     float radians, previous_radians;
     float previous_speed, previous_depth;
     double x1, y1, x2, y2;

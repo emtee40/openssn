@@ -15,21 +15,19 @@ $Id: submarine.cpp,v 1.6 2003/04/14 05:51:04 mbridak Exp $
 
  ***************************************************************************/
 
-#include <iostream>
-#include <fstream>
-#include <math.h>
-#include <limits.h>
-#include <stdlib.h>
-#include <string.h>
 #include "submarine.h"
+#include <climits>
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
+#include <fstream>
+#include <iostream>
 #include "files.h"
 #include "sound.h"
 #include "map.h"
 #ifdef WIN32
 #include "winfunctions.h"
 #endif
-
-using namespace std;
 
 Submarine::Submarine()
 {
@@ -633,7 +631,7 @@ int Submarine::Load_Class(char *my_file)
     // confirm file exists
     if (!my_file)
         return FALSE;
-    ifstream infile(my_file, ios::in);
+    std::ifstream infile(my_file, std::ios::in);
     if (!infile)
         return FALSE;
 
@@ -1178,7 +1176,8 @@ int Submarine::Check_Status()
         range = DistanceToTarget(target);
         delta_depth = fabs(target->Depth - Depth);
         if ((range < HITTING_RANGE) && (delta_depth < HITTING_DEPTH)) {
-            char *full_path, *explosion = "sounds/explosion.ogg";
+            char *full_path;
+            const char *explosion = "sounds/explosion.ogg";
             full_path = Find_Data_File(explosion);
             Play_Sound(full_path);
             free(full_path);
@@ -1405,7 +1404,8 @@ int Submarine::Send_Ping(Submarine *all_ships)
 {
     Submarine *current;
     int status;
-    char *full_path, *ping_file = "sounds/sonar-ping.ogg";
+    char *full_path;
+    const char *ping_file = "sounds/sonar-ping.ogg";
     // some craft do not have sonar
     if (!has_sonar)
         return FALSE;

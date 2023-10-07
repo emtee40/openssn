@@ -18,6 +18,8 @@ $Id: boatpositionlog.h,v 1.2 2003/04/14 05:51:03 mbridak Exp $
 #ifndef BOATPOSITIONLOG_H
 #define BOATPOSITIONLOG_H
 
+#include "SDL/SDL.h"
+
 /** A stack to hold our intermitent boat position
   * @author Michael Bridak
   */
