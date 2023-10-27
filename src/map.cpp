@@ -1,6 +1,7 @@
 #include "map.h"
 #include <cstdio>
 #include <cstdlib>
+#include "draw.h"
 
 MAP::MAP()
 {
@@ -10,6 +11,15 @@ MAP::MAP()
 MAP::~MAP()
 {
 
+}
+
+void MAP::InitGraphics(SDL_Surface *screen)
+{
+    this->screen = screen;
+
+    white    = SDL_MapRGB(screen->format, 255, 255, 255);
+    red      = SDL_MapRGB(screen->format, 255, 99, 20);
+    mapcolor = SDL_MapRGB(screen->format, 10, 10, 100);
 }
 
 int MAP::Init()
@@ -107,7 +117,7 @@ int MAP::Next_Up(int from_depth)
 }
 
 /*
-This function finds the next themral below the current depth. If
+This function finds the next thermal below the current depth. If
 no thermal lies below this position then we return "from_depth".
 */
 int MAP::Next_Down(int from_depth)
@@ -127,6 +137,38 @@ int MAP::Next_Down(int from_depth)
         return from_depth;
 }
 
+void MAP::Draw_Depth_Meter(int depth, int screen_number)
+{
+    SDL_Rect rectangle;
+    int y, index;
+
+    if (screen_number == SCREEN_NAV) {
+        rectangle.x = 890;
+        rectangle.y = 145;
+        rectangle.h = 500;
+    } else {  // helm screen
+        rectangle.x = 450;
+        rectangle.y = 125;
+        rectangle.h = 525;
+    }
+    rectangle.w = 10;
+
+    // Draw the background
+    SDL_FillRect(screen, &rectangle, mapcolor);
+
+    // Draw the thermals
+    for (index = 0; index < Thermals_Between(0, MAX_DEPTH); index++) {
+        y = thermals[index];
+        y = rectangle.y + (y / 10);
+        FillRectangle(screen, rectangle.x, y, rectangle.x + 10, y + 1, white);
+    }
+
+    // Draw the sub
+    if (depth < 0)
+        return;
+    y = (depth / 10) + rectangle.y;
+    FillRectangle(screen, rectangle.x, y, rectangle.x + 10, y + 1, red);
+}
 
 #ifdef DEBUGMAP
 void MAP::Test_Map()

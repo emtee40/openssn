@@ -20,6 +20,7 @@ $Id: esm.h,v 1.5 2003/04/14 05:51:03 mbridak Exp $
 
 #include "SDL/SDL.h"
 #include "submarine.h"
+#include "widget.h"
 
 /**
   * @author Michael Bridak
@@ -28,19 +29,25 @@ $Id: esm.h,v 1.5 2003/04/14 05:51:03 mbridak Exp $
 class Esm
 {
 public:
-    Submarine *Subs;
-
-    Esm(Submarine *temp);
+    Esm();
     ~Esm();
 
-    void RaiseMast();   // Raise esm mast
+    void setSubs(Submarine *Subs);
+
+    void InitGraphics(SDL_Surface *screen);
+
+    void LoadWidgets();
+    void UnLoadWidgets();
+
+    void DisplayWidgets();
+
     void LowerMast();   // Lower esm mast
+    void RaiseMast();   // Raise esm mast
     void ToggleMast();  // Toggle mast status
 
     // Set functions
     void setRangeScale(int);  // How far do we want to look!
     void setRangeRing(int);   // Used on the display panel
-
 
     // Get functions
     bool getMastStatus() const;           // Get the current mast position
@@ -52,34 +59,24 @@ public:
     bool isTargetVisible(Submarine *, int TargetRange, int ObserverDepth,
                          int TargetHeight, bool TargetRadar, int SeaState);
 
-    void ClearScreen();
-
-    void LoadWidgets();
-    void UnLoadWidgets();
-
-    void DisplayWidget(SDL_Surface *dest, int x, int y, SDL_Surface *source);
-    void DisplayWidgets();
-
     void DisplayContacts();
-    void InitGraphics(SDL_Surface *temp, SDL_Surface *tempradarscreen);
+
+    void UpdateDisplay();
 
 private:
-    SDL_Surface *esmscreen;
-    SDL_Surface *tempscreen;
-    SDL_Surface *blip;
-    SDL_Surface *sweep1;
-    SDL_Surface *ClearEsm;
-    SDL_Surface *ClearEsm2;
+    Submarine *Subs;
 
     SDL_Surface *screen;
 
-    SDL_Surface *mastdownoff;
-    SDL_Surface *mastdownon;
+    Widget esmconsole;
 
-    SDL_Surface *mastupoff;
-    SDL_Surface *mastupon;
+    Widget mastdownoff;
+    Widget mastdownon;
 
-    SDL_Surface *styllus;
+    Widget mastupoff;
+    Widget mastupon;
+
+    Widget styllus;
 
     bool Mast;
     int MastHeight;
@@ -88,9 +85,7 @@ private:
     int bearing;
     int SignalStrength;
     int DetectProb;
-    int x;
-    int y;
-    Uint32 orange, black;
+    Uint32 orange;
 };
 
 #endif  // ESM_H

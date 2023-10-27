@@ -1,6 +1,8 @@
 #ifndef MAP_HEADER_FILE__
 #define MAP_HEADER_FILE__
 
+#include "SDL/SDL.h"
+
 /*
 This file contains definitions for dealing with the depth of the
 water and placing of thermal layers.
@@ -27,6 +29,9 @@ water and placing of thermal layers.
 #define MAP_MAX 300000
 #endif
 
+#define SCREEN_NAV  2
+#define SCREEN_HELM 4
+
 class MAP
 {
 public:
@@ -34,6 +39,7 @@ public:
 
     MAP();
     ~MAP();
+    void InitGraphics(SDL_Surface *screen);
     int Init();
     int Create_Thermal_Layers(int how_many);
 
@@ -42,9 +48,16 @@ public:
     int Next_Up(int current_depth);    // find thermal from our position
     int Next_Down(int current_depth);  // find thermal from our position
 
+    void Draw_Depth_Meter(int depth, int screen_number);
+
     #ifdef DEBUGMAP
     void Test_Map();
     #endif
+
+private:
+    SDL_Surface *screen;
+
+    Uint32 white, red, mapcolor;
 };
 
 #endif  // MAP_HEADER_FILE__

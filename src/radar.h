@@ -20,6 +20,7 @@ $Id: radar.h,v 1.8 2003/04/14 05:51:04 mbridak Exp $
 
 #include "SDL/SDL.h"
 #include "submarine.h"
+#include "widget.h"
 
 // rdm windows
 // #include <iostream>
@@ -36,53 +37,37 @@ $Id: radar.h,v 1.8 2003/04/14 05:51:04 mbridak Exp $
 class Radar
 {
 public:
-
-    SDL_Surface *radarscreen;
-    SDL_Surface *tempscreen;
-    SDL_Surface *blip;
-    SDL_Surface *sweep[1];  // only need 1 now
-    SDL_Surface *ClearRadar;
-    SDL_Surface *ClearRadar2;
-
-    bool rangescale10, rangescale20, rangescale30;
-    bool rangescale40, rangescale50, rangescale60;
-
-    bool rangering0, rangering5, rangering10;
-    bool rangering15, rangering20, rangering25;
-
-    float tick;  // our radar sweep angle
-    int ALPHA;
-
-    Radar(Submarine *temp);
+    Radar();
     ~Radar();
+
+    void setSubs(Submarine *Subs);
 
     /** Initialize the graphic for this class, *screen is the main
         display screen passed in from main. */
-    void InitGraphics(SDL_Surface *screen, SDL_Surface *radarscreen);
-
-    void ClearScreen();
-
-    void ClearTextBox();
+    void InitGraphics(SDL_Surface *screen);
 
     void LoadWidgets();
     void UnLoadWidgets();
 
-    void DisplayWidget(SDL_Surface *dest, int x, int y, SDL_Surface *source);
     void DisplayWidgets();
-
-    void DisplayContacts();
 
     void DisplaySweep();
 
-    void Sweep(float gametime);
-
     void DisplayRings();
+
+    void DisplayContacts();
+
+    void ShowContactData();
+
+    void UpdateDisplay();
+
+    void Sweep(float gametime);
 
     void ClearRangeScale();
 
     void ClearRangeRing();
 
-    void ShowData(SDL_Surface *screen, int x, int y);
+    void selectContact(int x, int y);
 
     int DeltaBearing(int bearing1, int bearing2);
     int ReciprocalBearing(int bearing1);
@@ -122,40 +107,56 @@ public:
 
     bool isTargetVisible(Submarine *, int, int, int, int);  // Can we see the target
 
-    SDL_Surface *screen;
-    SDL_Surface *range10off;
-    SDL_Surface *range10on;
-    SDL_Surface *range20off;
-    SDL_Surface *range20on;
-    SDL_Surface *range30off;
-    SDL_Surface *range30on;
-    SDL_Surface *range40off;
-    SDL_Surface *range40on;
-    SDL_Surface *range50off;
-    SDL_Surface *range50on;
-    SDL_Surface *range60off;
-    SDL_Surface *range60on;
-
-    SDL_Surface *ring0off;
-    SDL_Surface *ring0on;
-    SDL_Surface *ring5off;
-    SDL_Surface *ring5on;
-    SDL_Surface *ring10off;
-    SDL_Surface *ring10on;
-    SDL_Surface *ring15off;
-    SDL_Surface *ring15on;
-    SDL_Surface *ring20off;
-    SDL_Surface *ring20on;
-    SDL_Surface *ring25off;
-    SDL_Surface *ring25on;
-
-    SDL_Surface *mastdownoff;
-    SDL_Surface *mastdownon;
-
-    SDL_Surface *mastupoff;
-    SDL_Surface *mastupon;
-
+private:
     Submarine *Subs;
+
+    bool rangescale10, rangescale20, rangescale30;
+    bool rangescale40, rangescale50, rangescale60;
+
+    bool rangering0, rangering5, rangering10;
+    bool rangering15, rangering20, rangering25;
+
+    float tick;  // our radar sweep angle
+    int ALPHA;
+
+    SDL_Surface *screen;
+
+    Widget radarconsole;
+
+    Widget range10off;
+    Widget range10on;
+    Widget range20off;
+    Widget range20on;
+    Widget range30off;
+    Widget range30on;
+    Widget range40off;
+    Widget range40on;
+    Widget range50off;
+    Widget range50on;
+    Widget range60off;
+    Widget range60on;
+
+    Widget ring0off;
+    Widget ring0on;
+    Widget ring5off;
+    Widget ring5on;
+    Widget ring10off;
+    Widget ring10on;
+    Widget ring15off;
+    Widget ring15on;
+    Widget ring20off;
+    Widget ring20on;
+    Widget ring25off;
+    Widget ring25on;
+
+    Widget mastdownoff;
+    Widget mastdownon;
+
+    Widget mastupoff;
+    Widget mastupon;
+
+    SDL_Surface *blip;
+    SDL_Surface *sweep;
 
     bool Mast;
     int RangeScale;
@@ -165,14 +166,11 @@ public:
     int RadarHorizon;
     int bearing;
     int range;
-    int x;
-    int y;
-
-    int tempint;
-    int tempval;
+    bool contact_selected;
+    int contact_x;
+    int contact_y;
 
     Uint32 orange;
-    Uint32 black;
 };
 
 #endif  // RADAR_H

@@ -27,20 +27,21 @@ $Id: main.h,v 1.11 2003/07/18 03:50:00 mbridak Exp $
 #include "helicopter.h"
 #include "map.h"
 #include "message.h"
+#include "navigation.h"
 #include "radar.h"
 #include "sonar.h"
 #include "submarine.h"
 #include "targetmotionanalysis.h"
 #include "towedarray.h"
+#include "weapons.h"
+#include "widget.h"
 
 #ifndef VERSION
 #define VERSION 1.4
 #endif
 
-// delay between game loops
-#define GAME_DELAY 10
-#define MAP_FACTOR 20
-#define MAX_MAP_SCALE 500
+// frame rate in the game loop
+#define GAME_FRAMERATE 60
 
 #define PERISCOPE_DEPTH 50
 #define MAX_SUBS 20
@@ -139,122 +140,84 @@ $Id: main.h,v 1.11 2003/07/18 03:50:00 mbridak Exp $
 #define GO_PERISCOPE_DEPTH   77
 #define GO_SURFACE           78
 
+// Stations
+#define STN_SONAR             1
+#define STN_NAV               2
+#define STN_TMA               3
+#define STN_WEAPONS           4
+#define STN_SHIPCONTROL       5
+#define STN_ESM               6
+#define STN_RADAR             7
+
+// Screens
+#define SCREEN_TITLE          0
+#define SCREEN_SUCCESS        1
+#define SCREEN_FAILURE        2
+#define SCREEN_MENU           3
 
 //globals
+SDL_Surface *screen;           // The screen we are going to be looking at
 
-// int  ships = 19;  // why does ships equal 19, isn't this set in CreateShips?
-float flowandambientnoise;
+Widget titlescreen;            // screen
+Widget successscreen;          // screen
+Widget failurescreen;          // screen
+Widget menuscreen;             // screen
 
-SDL_Surface *screen = NULL;  // The screen we are going to be looking at
-SDL_Surface *towedarrayscreen = NULL;  // scratch blit surface
+Widget sonarbuttonup;          // button element
+Widget sonarbuttondown;        // button element
+Widget navbuttonup;            // button element
+Widget navbuttondown;          // button element
+Widget tmabuttonup;            // button element
+Widget tmabuttondown;          // button element
+Widget shipcontrolbuttonup;    // button element
+Widget shipcontrolbuttondown;  // button element
+Widget esmbuttonup;            // button element
+Widget esmbuttondown;          // button element
+Widget radarbuttonup;          // button element
+Widget radarbuttondown;        // button element
+Widget quitbuttonup;           // button element
+Widget quitbuttondown;         // button element
+Widget plusbuttonup;           // button element
+Widget plusbuttondown;         // button element
+Widget minusbuttonup;          // button element
+Widget minusbuttondown;        // button element
 
-SDL_Surface *tempscreen = NULL;        // scratch screen
-
-SDL_Surface *titlescreen = NULL;       // screen
-SDL_Surface *sonarscreen = NULL;       // screen
-SDL_Surface *mapscreen = NULL;         // screen
-SDL_Surface *controlscreen = NULL;     // screen
-SDL_Surface *radarscreen = NULL;       // screen
-SDL_Surface *esmscreen = NULL;         // screen
-SDL_Surface *successscreen = NULL;     // screen
-SDL_Surface *failurescreen = NULL;     // screen
-SDL_Surface *menuscreen = NULL;        // screen
-
-SDL_Surface *sonarbuttonup = NULL;     // button element
-SDL_Surface *sonarbuttondown = NULL;   // button element
-SDL_Surface *navbuttonup = NULL;       // button element
-SDL_Surface *navbuttondown = NULL;     // button element
-SDL_Surface *tmabuttonup = NULL;       // button element
-SDL_Surface *tmabuttondown = NULL;     // button element
-SDL_Surface *shipcontrolbuttonup = NULL;    // button element
-SDL_Surface *shipcontrolbuttondown = NULL;  // button element
-SDL_Surface *esmbuttonup = NULL;       // button element
-SDL_Surface *esmbuttondown = NULL;     // button element
-SDL_Surface *radarbuttonup = NULL;     // button element
-SDL_Surface *radarbuttondown = NULL;   // button element
-SDL_Surface *quitbuttonup = NULL;      // button element
-SDL_Surface *quitbuttondown = NULL;    // button element
-SDL_Surface *plusbuttonup = NULL;      // button element
-SDL_Surface *plusbuttondown = NULL;    // button element
-SDL_Surface *centerbuttonup = NULL;    // button element
-SDL_Surface *centerbuttondown = NULL;  // button element
-SDL_Surface *leftbuttonup = NULL;      // button element
-SDL_Surface *leftbuttondown = NULL;    // button element
-SDL_Surface *rightbuttonup = NULL;     // button element
-SDL_Surface *rightbuttondown = NULL;   // button element
-SDL_Surface *upbuttonup = NULL;        // button element
-SDL_Surface *upbuttondown = NULL;      // button element
-SDL_Surface *downbuttonup = NULL;      // button element
-SDL_Surface *downbuttondown = NULL;    // button element
-SDL_Surface *minusbuttonup = NULL;     // button element
-SDL_Surface *minusbuttondown = NULL;   // button element
-SDL_Surface *ncscale = NULL;
-SDL_Surface *scscale = NULL;
-SDL_Surface *truerel[2] = {NULL, NULL};
-SDL_Surface *sphertowed[2] = {NULL, NULL};
-SDL_Surface *tb16winchon = NULL;
-SDL_Surface *tb16winchoff = NULL;
-SDL_Surface *extendtb16[2] = {NULL, NULL};
-SDL_Surface *retracttb16[2] = {NULL, NULL};
-SDL_Surface *uppercrtoff = NULL;
-SDL_Surface *uppercrton = NULL;
-SDL_Surface *lowercrtoff = NULL;
-SDL_Surface *lowercrton = NULL;
-SDL_Surface *assigntrackerwidget[2] = {NULL, NULL};
-SDL_Surface *tracker1[2] = {NULL, NULL};
-SDL_Surface *tracker2[2] = {NULL, NULL};
-SDL_Surface *tracker3[2] = {NULL, NULL};
-SDL_Surface *tracker4[2] = {NULL, NULL};
-SDL_Surface *noisemaker_image = NULL;
-SDL_Surface *torpedo_image = NULL;
+int station;  // flag to decide which work station to display
 
 int tube_action = 0;   // what are we doing with a torpedo tube
 int tube_to_use = -1;  // the tube to perform this action on
 
-int drawsonar;    // flags for UpdateDisplay()
-int drawmap;      // flags for UpdateDisplay()
-int drawtma;      // flags for UpdateDisplay()
-//rdm
-int drawweapons;  // display weapons screen
-int drawradar;    // flags for UpdateDisplay()
-int drawesm;      // flags for UpdateDisplay()
-int drawcontrol;  // flags for UpdateDisplay
-
-int mapscale = 25;
-int mapcenter = 1;  // by default, center the map on our ship
 int timecompression;
-int sonarwidget, navwidget, quitwidget, tmawidget;  // button pressed flags
-int shipcontrolwidget, esmwidget, radarwidget;  // shouldn't these be bools?
-Uint32 textcolor, black, white, red, green, yellow, grey, mapcolor;  // Place to hold color info
+Uint32 black, white, red, green, yellow, grey, mapcolor;  // Place to hold color info
 Uint32 dark_green, dark_red, brown, dark_grey;
-bool show_spherical_traces = true, northcenter = true, pause_game = false;
-bool assigntracker = false;
+bool quit;  // Quit flag Duh!
+bool pause_game = false;
 Submarine *current_target = NULL;
-int update_weapons_screen = TRUE;
 int my_mission_status;
 int should_update_everything = TRUE;
 
 GameClock Clock;
-// Submarine Subs[MAX_SUBS];  // Somewhere to put our little floating buddies
 Submarine *Subs = NULL;      // all subs, ships
 Submarine *player = NULL;
 Contact Contacts[MAX_SUBS];  // Workable contacts
 Submarine *torpedoes;        // a linked-list of torpedoes
 Helicopter *helicopters;     // a linked-list of helicopters
 TowedArray TB16;
-TargetMotionAnalysis Tma;
 msg Message;
-AnBqq5 SonarStation(Subs, TB16, Tma, Message);
+MAP my_map;
 
-Radar RadarStation(Subs);
-Esm EsmStation(Subs);
-Control ControlStation(Subs);
+TargetMotionAnalysis TmaStation;
+AnBqq5 SonarStation(TB16, TmaStation, Message);
+Navigation NavigationStation;
+Weapons WeaponsStation;
+Control ControlStation;
+Esm EsmStation;
+Radar RadarStation;
 
 // declarations
 void SetupScreen(bool);
 void CreateShips(int mission_number, MAP *map);
 void UpdateSensors(void);
-void UpdateDisplay(void);
 void TakeCommands(void);
 double RelativeBearing(Submarine *observer, Submarine *target);
 int ReciprocalBearing(int bearing);
@@ -264,31 +227,15 @@ int minimize360(int course);
 double CalculateRange(Submarine *observer, Submarine *target);
 void LatLonDifference(Submarine *observer, Submarine *target, double *platdif, double *plondif);
 void PositionCursor(int, int);
-void ClearScreen(void);
-void Display_Target(void);
-void DrawMap(void);
-void Draw_Depth_Meter(Submarine *my_sub, int which_screen);
-void PlaceShips(int, int = 0, int = 0, Submarine *target = NULL);  // the int = 0's are default values
-void LoadScreens();
-void UnLoadScreens();
-void DisplayScreen(int screen_to_display);
-void ShowStation(int station);
-void DisplaySonar();
-void DisplayTMA(int xoffset = 0, int yoffset = 0);
-void DisplayWeapons(void);
+void InitGraphics();  // init the station graphics
 void LoadWidgets(void);
 void UnLoadWidgets(void);
-void DisplayWidget(SDL_Surface *dest, int x, int y, SDL_Surface *source);
-void DisplayWidgets(void);
-void DisplayNavigationWidgets();
-void DisplayTMAWidgets();
-void DisplayESMWidgets();
-void DisplayRADARWidgets();
-void ResetWidgetFlags(void);
+void DisplayScreen(int screen_to_display);
+void DisplayStationWidgets();
+void DisplaySubStatus();
+void DisplayTimeBox();
+void UpdateDisplay(void);
 inline int RandInt(int to);
-void MapIcon(int x, int y, int ShipType, int Friend, Uint32 color);
-void DirectionalPointer(int X, int Y, int Heading, int speed, Uint32 Color);
-int InBaffles(Submarine *observer, Submarine *target, int sensor);
 void SoundEnvironment(void);
 float Any_Detection(double Range, Submarine *observer, Submarine *target);
 float Radar_Detection(double Range, Submarine *observer, Submarine *target);
@@ -297,8 +244,9 @@ float Esm_Detection(double Range, Submarine *observer, Submarine *target);
 float Sonar_Detection_New(double Range, Submarine *observer, Submarine *target);
 inline int Clamp(int);
 inline double Clamp(double);
-Uint32 TmaTimer(Uint32 interval, void *param);
 Uint32 timerfunc(Uint32 interval, void *param);
+Uint32 TmaTimer(Uint32 interval, void *param);
+int HandleInput(SDL_Event &event);
 
 Submarine *Add_Ship(Submarine *all_torpedoes, Submarine *new_torpedo);
 Submarine *Remove_Ship(Submarine *all_torpedoes, Submarine *old_torpedo);

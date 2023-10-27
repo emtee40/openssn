@@ -33,7 +33,7 @@ $Id: radar.cpp,v 1.16 2003/05/17 22:25:34 mbridak Exp $
 // VENZON: I've replaced all occurrences of 10*tick with tick, since I upped
 // the resolution by a factor of 10
 
-Radar::Radar(Submarine *temp): Subs(temp)
+Radar::Radar()
 {
     // Default values: Mast down, RangeRing off, RangeScale = 10
 
@@ -57,177 +57,139 @@ Radar::Radar(Submarine *temp): Subs(temp)
     // radar sweep counter
     tick = 0;
     ALPHA = 255;
+
+    // display contact data?
+    contact_selected = false;
 }
 
 Radar::~Radar()
 {
 }
 
-void Radar::InitGraphics(SDL_Surface *temp, SDL_Surface *tempradarscreen)
+void Radar::setSubs(Submarine *Subs)
 {
-    screen = temp;
-    radarscreen = tempradarscreen;
+    this->Subs = Subs;
+}
 
-    temp = SDL_CreateRGBSurface(SDL_SWSURFACE, 420, 490, 32,
-                                screen->format->Rmask,
-                                screen->format->Gmask,
-                                screen->format->Bmask,
-                                screen->format->Amask);
-    tempscreen = SDL_DisplayFormat(temp);
-    SDL_FreeSurface(temp);
-
-    LoadWidgets();
-    DisplayWidgets();
+void Radar::InitGraphics(SDL_Surface *screen)
+{
+    this->screen = screen;
 
     orange = SDL_MapRGB(screen->format, 238, 118, 0);
 }
 
 void Radar::LoadWidgets()
 {
+    // Load radar console
+    radarconsole.load("images/RadarScreen.png");
+
     // Load Range Scale Widgets
-    range10off = Load_Image("images/range10off.png");
-    range10on = Load_Image("images/range10on.png");
-    range20off = Load_Image("images/range20off.png");
-    range20on = Load_Image("images/range20on.png");
-    range30off = Load_Image("images/range30off.png");
-    range30on = Load_Image("images/range30on.png");
-    range40off = Load_Image("images/range40off.png");
-    range40on = Load_Image("images/range40on.png");
-    range50off = Load_Image("images/range50off.png");
-    range50on = Load_Image("images/range50on.png");
-    range60off = Load_Image("images/range60off.png");
-    range60on = Load_Image("images/range60on.png");
+    range10off.load("images/range10off.png");
+    range10on.load("images/range10on.png");
+    range20off.load("images/range20off.png");
+    range20on.load("images/range20on.png");
+    range30off.load("images/range30off.png");
+    range30on.load("images/range30on.png");
+    range40off.load("images/range40off.png");
+    range40on.load("images/range40on.png");
+    range50off.load("images/range50off.png");
+    range50on.load("images/range50on.png");
+    range60off.load("images/range60off.png");
+    range60on.load("images/range60on.png");
 
     // Load Range Ring Widgets
-    ring0off = Load_Image("images/ring0off.png");
-    ring0on = Load_Image("images/ring0on.png");
-    ring5off = Load_Image("images/ring5off.png");
-    ring5on = Load_Image("images/ring5on.png");
-    ring10off = Load_Image("images/ring10off.png");
-    ring10on = Load_Image("images/ring10on.png");
-    ring15off = Load_Image("images/ring15off.png");
-    ring15on = Load_Image("images/ring15on.png");
-    ring20off = Load_Image("images/ring20off.png");
-    ring20on = Load_Image("images/ring20on.png");
-    ring25off = Load_Image("images/ring25off.png");
-    ring25on = Load_Image("images/ring25on.png");
+    ring0off.load("images/ring0off.png");
+    ring0on.load("images/ring0on.png");
+    ring5off.load("images/ring5off.png");
+    ring5on.load("images/ring5on.png");
+    ring10off.load("images/ring10off.png");
+    ring10on.load("images/ring10on.png");
+    ring15off.load("images/ring15off.png");
+    ring15on.load("images/ring15on.png");
+    ring20off.load("images/ring20off.png");
+    ring20on.load("images/ring20on.png");
+    ring25off.load("images/ring25off.png");
+    ring25on.load("images/ring25on.png");
 
     // Load Mast Widgets
-    mastdownoff = Load_Image("images/mastdownoff.png");
-    mastdownon = Load_Image("images/mastdownon.png");
-    mastupoff = Load_Image("images/mastupoff.png");
-    mastupon = Load_Image("images/mastupon.png");
+    mastdownoff.load("images/mastdownoff.png");
+    mastdownon.load("images/mastdownon.png");
+    mastupoff.load("images/mastupoff.png");
+    mastupon.load("images/mastupon.png");
 
     // VENZON: only need 1 sweep image now
-    sweep[0] = Load_Image("images/sweep0.png");
+    sweep = Load_Image("images/sweep0.png");
 
     // Load the picture of a blip
     blip = Load_Image("images/blip.png");
     SDL_SetAlpha(blip, SDL_SRCALPHA, 128);
-
-    // Clear Widgets
-    ClearRadar = Load_Image("images/ClearRadar.png");
-    ClearRadar2 = Load_Image("images/ClearRadar2.png");
 }
 
 void Radar::UnLoadWidgets()
 {
     // free the surfaces
-    SDL_FreeSurface(range10off);
-    SDL_FreeSurface(range10on);
-    SDL_FreeSurface(range20off);
-    SDL_FreeSurface(range20on);
-    SDL_FreeSurface(range30off);
-    SDL_FreeSurface(range30on);
-    SDL_FreeSurface(range40off);
-    SDL_FreeSurface(range40on);
-    SDL_FreeSurface(range50off);
-    SDL_FreeSurface(range50on);
-    SDL_FreeSurface(range60off);
-    SDL_FreeSurface(range60on);
+    radarconsole.unload();
 
-    SDL_FreeSurface(ring0off);
-    SDL_FreeSurface(ring0on);
-    SDL_FreeSurface(ring5off);
-    SDL_FreeSurface(ring5on);
-    SDL_FreeSurface(ring10off);
-    SDL_FreeSurface(ring10on);
-    SDL_FreeSurface(ring15off);
-    SDL_FreeSurface(ring15on);
-    SDL_FreeSurface(ring20off);
-    SDL_FreeSurface(ring20on);
-    SDL_FreeSurface(ring25off);
-    SDL_FreeSurface(ring25on);
+    range10off.unload();
+    range10on.unload();
+    range20off.unload();
+    range20on.unload();
+    range30off.unload();
+    range30on.unload();
+    range40off.unload();
+    range40on.unload();
+    range50off.unload();
+    range50on.unload();
+    range60off.unload();
+    range60on.unload();
 
-    SDL_FreeSurface(mastdownoff);
-    SDL_FreeSurface(mastdownon);
-    SDL_FreeSurface(mastupoff);
-    SDL_FreeSurface(mastupon);
+    ring0off.unload();
+    ring0on.unload();
+    ring5off.unload();
+    ring5on.unload();
+    ring10off.unload();
+    ring10on.unload();
+    ring15off.unload();
+    ring15on.unload();
+    ring20off.unload();
+    ring20on.unload();
+    ring25off.unload();
+    ring25on.unload();
 
-    SDL_FreeSurface(sweep[0]);
+    mastdownoff.unload();
+    mastdownon.unload();
+    mastupoff.unload();
+    mastupon.unload();
+
+    SDL_FreeSurface(sweep);
 
     SDL_FreeSurface(blip);
-
-    SDL_FreeSurface(ClearRadar);
-    SDL_FreeSurface(ClearRadar2);
-}
-
-void Radar::DisplayWidget(SDL_Surface *dest, int x, int y, SDL_Surface *source)
-{
-    SDL_Rect rect;
-
-    // Blit destination x & y to the upper left
-    rect.x = x;
-    rect.y = y;
-    // Height and width equal to the source images...
-    rect.h = source->h;
-    rect.w = source->w;
-    // Do the actual blit
-    SDL_BlitSurface(source, NULL, dest, &rect);
-    // Show the screen...
-    SDL_UpdateRects(dest, 1, &rect);
 }
 
 void Radar::DisplayWidgets()
 {
-    // Range Scale Widgets
-    DisplayWidget(screen, 748, 320, rangescale10 ? range10on : range10off);
-    DisplayWidget(screen, 795, 320, rangescale20 ? range20on : range20off);
-    DisplayWidget(screen, 842, 320, rangescale30 ? range30on : range30off);
-    DisplayWidget(screen, 748, 367, rangescale40 ? range40on : range40off);
-    DisplayWidget(screen, 795, 367, rangescale50 ? range50on : range50off);
-    DisplayWidget(screen, 842, 367, rangescale60 ? range60on : range60off);
+    // Radar console
+    radarconsole.draw(screen, 0, 0);
 
-    // Mast Widgets
-    DisplayWidget(screen, 850, 185, Mast ? mastupon : mastupoff);
-    DisplayWidget(screen, 744, 185, Mast ? mastdownoff : mastdownon);
+    // Range Scale Widgets
+    rangescale10 ? range10on.draw(screen, 748, 320) : range10off.draw(screen, 748, 320);
+    rangescale20 ? range20on.draw(screen, 795, 320) : range20off.draw(screen, 795, 320);
+    rangescale30 ? range30on.draw(screen, 842, 320) : range30off.draw(screen, 842, 320);
+    rangescale40 ? range40on.draw(screen, 748, 367) : range40off.draw(screen, 748, 367);
+    rangescale50 ? range50on.draw(screen, 795, 367) : range50off.draw(screen, 795, 367);
+    rangescale60 ? range60on.draw(screen, 842, 367) : range60off.draw(screen, 842, 367);
 
     // Range Ring Widgets
-    DisplayWidget(screen, 749, 501, rangering0 ? ring0on : ring0off);
-    DisplayWidget(screen, 796, 501, rangering5 ? ring5on : ring5off);
-    DisplayWidget(screen, 843, 501, rangering10 ? ring10on : ring10off);
-    DisplayWidget(screen, 749, 548, rangering15 ? ring15on : ring15off);
-    DisplayWidget(screen, 796, 548, rangering20 ? ring20on : ring20off);
-    DisplayWidget(screen, 843, 548, rangering25 ? ring25on : ring25off);
+    rangering0 ? ring0on.draw(screen, 749, 501) : ring0off.draw(screen, 749, 501);
+    rangering5 ? ring5on.draw(screen, 796, 501) : ring5off.draw(screen, 796, 501);
+    rangering10 ? ring10on.draw(screen, 843, 501) : ring10off.draw(screen, 843, 501);
+    rangering15 ? ring15on.draw(screen, 749, 548) : ring15off.draw(screen, 749, 548);
+    rangering20 ? ring20on.draw(screen, 796, 548) : ring20off.draw(screen, 796, 548);
+    rangering25 ? ring25on.draw(screen, 843, 548) : ring25off.draw(screen, 843, 548);
 
-    // Need this for the time compression??
-    SDL_UpdateRect(screen, 0, 0, 0, 0);
-}
-
-void Radar::ClearScreen()
-{
-    // Clear the whole radar area (scope + text boxes) on the screen
-    DisplayWidget(screen, 98, 154, ClearRadar);
-
-    DisplayWidgets();
-}
-
-void Radar::ClearTextBox()
-{
-    // Clear the text boxes area on the screen
-    DisplayWidget(screen, 139, 572, ClearRadar2);
-
-    DisplayWidgets();
+    // Mast Widgets
+    Mast ? mastupon.draw(screen, 850, 185) : mastupoff.draw(screen, 850, 185);
+    Mast ? mastdownoff.draw(screen, 744, 185) : mastdownon.draw(screen, 744, 185);
 }
 
 void Radar::Sweep(float gametime)
@@ -241,36 +203,37 @@ void Radar::Sweep(float gametime)
 
 void Radar::DisplaySweep()
 {
-    SDL_Rect dest;
+    SDL_Rect rect;
 
-    if (getMastStatus()) {  // If the mast is up start sweep
+    if (!getMastStatus())
+        return;
 
-        dest.x = 193;
-        dest.y = 245;
-        dest.w = sweep[0]->w;
-        dest.h = sweep[0]->h;
+    // If the mast is up start sweep
+    rect.x = 193;
+    rect.y = 245;
+    rect.w = sweep->w;
+    rect.h = sweep->h;
 
-        // VENZON: some rotozooming!
-        SDL_SetAlpha(sweep[0], SDL_SRCALPHA, 128);
-        SDL_FillRect(screen, &dest, black);
-        SDL_Surface *sweeprot;
+    // VENZON: some rotozooming!
+    SDL_SetAlpha(sweep, SDL_SRCALPHA, 128);
+    SDL_Surface *sweeprot;
 
-        // set the last argument of this function to 0 for a bit faster
-        // (but much crappier looking) rotozooming
-        sweeprot = rotozoomSurface(sweep[0], -tick, 1.0, 1);
+    // set the last argument of this function to 0 for a bit faster
+    // (but much crappier looking) rotozooming
+    sweeprot = rotozoomSurface(sweep, -tick, 1.0, 1);
 
-        // I'm not sure what this alpha stuff is for, but hopefully
-        // the rotozoomer won't mess it up
-        SDL_SetAlpha(sweeprot, SDL_SRCALPHA, 128);
+    // I'm not sure what this alpha stuff is for, but hopefully
+    // the rotozoomer won't mess it up
+    SDL_SetAlpha(sweeprot, SDL_SRCALPHA, 128);
 
-        // the rotozoomer seems to create a surface with whatever width and
-        // height necessary, so we have to recompute the destination coords
-        DisplayWidget(screen,
-                      sweep[0]->w / 2 + dest.x - sweeprot->w / 2,
-                      sweep[0]->h / 2 + dest.y - sweeprot->h / 2,
-                      sweeprot);
-        SDL_FreeSurface(sweeprot);
-    }
+    // the rotozoomer seems to create a surface with whatever width and
+    // height necessary, so we have to recompute the destination coords
+    rect.x = sweep->w / 2 + rect.x - sweeprot->w / 2;
+    rect.y = sweep->h / 2 + rect.y - sweeprot->h / 2;
+    rect.h = sweeprot->h;
+    rect.w = sweeprot->w;
+    SDL_BlitSurface(sweeprot, NULL, screen, &rect);
+    SDL_FreeSurface(sweeprot);
 }
 
 void Radar::DisplayRings()
@@ -291,6 +254,7 @@ void Radar::DisplayRings()
 void Radar::DisplayContacts()
 {
     float radians;
+    int x, y;
     int bearing, range, depth;
     Submarine *target;
     SDL_Rect dest;
@@ -341,14 +305,54 @@ void Radar::DisplayContacts()
             }
 
             SDL_SetAlpha(blip, SDL_SRCALPHA, ALPHA);
-            SDL_FillRect(screen, &dest, black);
 
             SDL_BlitSurface(blip, NULL, screen, &dest);  // Do the actual blit
 
         }  // if visible
         target = target->next;
     }  // end of while
-    SDL_UpdateRect(screen, 0, 0, 0, 0);
+}
+
+void Radar::ShowContactData()
+{
+    static char text[120];
+    static DFont largeFont("images/largefont.png", "data/largefont.dat");
+
+    double c1, c2, c3, c4, c5, c6;
+    int bearing;
+    int range;
+
+    if (!getMastStatus() || !contact_selected)
+        return;
+
+    c1 = double(316);
+    c2 = double((460 - 316)) / double(RangeScale);
+    c3 = double(374);
+    c4 = double((374 - 230)) / double(RangeScale);
+
+    c5 = c2 * (double(contact_y) - c3);
+    c6 = c4 * (double(contact_x) - c1);
+
+    if (contact_x >= 316) {
+        bearing = int(90.0 + (180 / 3.14) * atan(c5 / c6));
+    } else {
+        bearing = int(270.0 + (180 / 3.14) * atan(c5 / c6));
+    }
+
+    range = int(1000.0 * sqrt(pow(((double(contact_x) - c1) / c2), 2) + pow(((double(contact_y) - c3) / c4), 2)));
+
+    sprintf(text, "  %i  ", bearing);
+    largeFont.PutString(screen, 170, 615, text);
+
+    sprintf(text, "  %i  ", range);
+    largeFont.PutString(screen, 370, 615, text);
+}
+
+void Radar::UpdateDisplay()
+{
+    DisplayWidgets();
+    DisplayContacts();
+    ShowContactData();
 }
 
 void Radar::ClearRangeScale()
@@ -359,7 +363,6 @@ void Radar::ClearRangeScale()
     rangescale40 = false;
     rangescale50 = false;
     rangescale60 = false;
-    ClearScreen();
 }
 
 void Radar::ClearRangeRing()
@@ -370,7 +373,6 @@ void Radar::ClearRangeRing()
     rangering15 = false;
     rangering20 = false;
     rangering25 = false;
-    ClearScreen();
 }
 
 // Toggle Range Scale
@@ -471,7 +473,6 @@ void Radar::LowerMast()
 
 void Radar::ToggleMast()
 {
-    // ClearScreen();
     Mast = !Mast;
 }
 
@@ -597,40 +598,14 @@ int Radar::getRange(int TargetRange)
     return range;
 }
 
-void Radar::ShowData(SDL_Surface *screen, int x, int y)
+void Radar::selectContact(int x, int y)
 {
-    static char text[120];
-    static DFont largeFont("images/largefont.png", "data/largefont.dat");
+    if (!getMastStatus())
+        return;
 
-    double c1, c2, c3, c4, c5, c6;
-    int bearing;
-    int range;
-
-    c1 = double(316);
-    c2 = double((460 - 316)) / double(RangeScale);
-    c3 = double(374);
-    c4 = double((374 - 230)) / double(RangeScale);
-
-    c5 = c2 * (double(y) - c3);
-    c6 = c4 * (double(x) - c1);
-
-    ClearTextBox();
-
-    if (x >= 316) {
-        bearing = int(90.0 + (180 / 3.14) * atan(c5 / c6));
-    } else {
-        bearing = int(270.0 + (180 / 3.14) * atan(c5 / c6));
-    }
-
-    range = int(1000.0 * sqrt(pow(((double(x) - c1) / c2), 2) + pow(((double(y) - c3) / c4), 2)));
-
-    sprintf(text, "  %i  ", bearing);
-    largeFont.PutString(screen, 170, 615, text);
-
-    sprintf(text, "  %i  ", range);
-    largeFont.PutString(screen, 370, 615, text);
-
-    return;
+    contact_x = x;
+    contact_y = y;
+    contact_selected = true;
 }
 
 int Radar::DeltaBearing(int bearing1, int bearing2)

@@ -582,7 +582,7 @@ int Helicopter::Can_Hear(Submarine *target)
         TargetNoise -= TargetNoise * (thermal_layers * THERMAL_FILTER);
     value = TargetNoise - (20.0 * log10(NauticalMiles) + 1.1 * NauticalMiles) - Lbp;
     // if (!observer)
-    //     SonarStation.flowandambientnoise = (Lbp - 34);
+    //     SonarStation.setFlowandambientnoise(Lbp - 34);
     if (value > minimum_sound) {
         return TRUE;
     } else {

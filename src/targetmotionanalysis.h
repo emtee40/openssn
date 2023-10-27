@@ -24,6 +24,8 @@ $Id: targetmotionanalysis.h,v 1.6 2003/04/20 16:55:49 mbridak Exp $
 #include "SDL/SDL_thread.h"
 #include "boatpositionlog.h"
 #include "contact.h"
+#include "submarine.h"
+#include "widget.h"
 
 /**
   * @author Michael Bridak
@@ -33,7 +35,7 @@ class TargetMotionAnalysis : public BoatPositionLog
 {
 public:
     Contact Solution[12];
-    Uint32 textcolor, black, white, red, green, yellow, mapcolor;  // Place to hold color info
+    Uint32 black, white, red, green, yellow, mapcolor;  // Place to hold color info
 
     double our_heading;
     double target_heading;
@@ -53,6 +55,21 @@ public:
     TargetMotionAnalysis();
     ~TargetMotionAnalysis();
 
+    /** Update the subs list */
+    void setSubs(Submarine *Subs);
+
+    /** Initialize the graphics */
+    void InitGraphics(SDL_Surface *screen);
+
+    /** Load the widgets */
+    void LoadWidgets();
+
+    /** Free the widgets */
+    void UnLoadWidgets();
+
+    /** Display all TMA widgets */
+    void DisplayWidgets();
+
     /** Frees a tracker to be used later */
     void ClearTracker(int tracker);
 
@@ -70,7 +87,7 @@ public:
     /** Display a GeoPlot for the designated contact based on the
     position of the boat and the bearing history of the contact.
     */
-    void DisplayGeoPlot(int xoffset, int yoffset);
+    void DisplayGeoPlot();
 
     /** Display the LOS Diagram
     */
@@ -84,7 +101,7 @@ public:
     /** Plots the amount of error from the expected bearing to target
     and the actual bearing recieved.
     */
-    void BearingDevitaionPlot();
+    void BearingDeviationPlot();
 
     /** Record the boats current position
     */
@@ -96,14 +113,17 @@ public:
     /** Unlock Mutex */
     void UnLock();
 
-    /** Initialize the graphics */
-    void InitGraphics();
-
     /** erases the work screen */
     void ClearGeoPlot();
 
     /** Plot the boats history */
-    void PlotHistory(int scale, int change_scrollx, int change_scrolly);
+    void PlotHistory();
+
+    /** Display the TMA */
+    void DisplayTMA();
+
+    /** Display of the TMA console, widgets and screen */
+    void UpdateDisplay();
 
     /** Increments plotscale to zoom in on the GeoPlot */
     void IncreasePlotScale();
@@ -114,10 +134,46 @@ public:
     /** No descriptions */
     void ToggleGeoPlotCenter();
 
+    /** Scroll the plot history up */
+    void ScrollPlotUp(int change_scrolly);
+
+    /** Scroll the plot history down */
+    void ScrollPlotDown(int change_scrolly);
+
+    /** Scroll the plot history left */
+    void ScrollPlotLeft(int change_scrollx);
+
+    /** Scroll the plot history right */
+    void ScrollPlotRight(int change_scrollx);
+
     /** Fill in the initial values for the solution. */
     void InitializeSolution(float LatYards, float LonYards, int Speed, int Heading);
 
 private:  // Private attributes
+    Submarine *Subs;
+
+    /** Pointer to the display surface */
+    SDL_Surface *screen;
+
+    Widget tmaconsole;
+    Widget centerbuttonup;
+    Widget centerbuttondown;
+    Widget leftbuttonup;
+    Widget leftbuttondown;
+    Widget rightbuttonup;
+    Widget rightbuttondown;
+    Widget upbuttonup;
+    Widget upbuttondown;
+    Widget downbuttonup;
+    Widget downbuttondown;
+    Widget plusbuttonup;
+    Widget plusbuttondown;
+    Widget minusbuttonup;
+    Widget minusbuttondown;
+
+    int scrolloffsetx;  // offset to center map
+    int scrolloffsety;
+
     /**  */
     bool trackerstate[MAXTRACKERS];
     struct packet

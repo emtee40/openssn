@@ -47,7 +47,6 @@ void DFont::PutChar(SDL_Surface *screen, Sint16 x, Sint16 y, char c)
     dest.x = x;
     dest.y = y;
     SDL_BlitSurface(fontSurface, &fonts[c], screen, &dest);
-    SDL_UpdateRects(screen, 1, &dest);
 }
 
 /*

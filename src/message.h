@@ -33,7 +33,7 @@ public:
     /** Destructor... */
     ~msg();
 
-    void InitGraphics();
+    void InitGraphics(SDL_Surface *screen);
 
     /** Places a one line message into the message buffer to be later
         displayed by the display_message() method. */

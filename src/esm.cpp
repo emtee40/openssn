@@ -21,15 +21,12 @@ $Id: esm.cpp,v 1.5 2003/04/14 05:51:03 mbridak Exp $
 #include <cstring>
 #include "dfont.h"
 #include "draw.h"
-#include "dstack.h"
 #include "files.h"
 
 // rdm windows
 #include <iostream>
 
-DStack EsmStack;
-
-Esm::Esm(Submarine *temp): Subs(temp)
+Esm::Esm()
 {
     // Default values: mast down, power off
     MastHeight = 68;  // Max height of esm mast
@@ -40,84 +37,50 @@ Esm::~Esm()
 {
 }
 
-void Esm::InitGraphics(SDL_Surface *temp, SDL_Surface *tempesmscreen)
+void Esm::setSubs(Submarine *Subs)
 {
-    screen = temp;
-    esmscreen = tempesmscreen;
+    this->Subs = Subs;
+}
 
-    temp = SDL_CreateRGBSurface(SDL_SWSURFACE, 420, 490, 32,
-                                screen->format->Rmask,
-                                screen->format->Gmask,
-                                screen->format->Bmask,
-                                screen->format->Amask);
-    tempscreen = SDL_DisplayFormat(temp);
-    SDL_FreeSurface(temp);
+void Esm::InitGraphics(SDL_Surface *screen)
+{
+    this->screen = screen;
 
-    LoadWidgets();
-    DisplayWidgets();
     orange = SDL_MapRGB(screen->format, 238, 118, 0);
-    black = SDL_MapRGB(screen->format, 0, 0, 0);
 }
 
 void Esm::LoadWidgets()
 {
-    mastdownoff = Load_Image("images/mastdownoff.png");
-    mastdownon = Load_Image("images/mastdownon.png");
-    mastupoff = Load_Image("images/mastupoff.png");
-    mastupon = Load_Image("images/mastupon.png");
-    styllus = Load_Image("images/styllus.png");
-
-    ClearEsm = Load_Image("images/ClearEsm.png");
-    ClearEsm2 = Load_Image("images/ClearEsm2.png");
+    esmconsole.load("images/ESMScreen.png");
+    mastdownoff.load("images/mastdownoff.png");
+    mastdownon.load("images/mastdownon.png");
+    mastupoff.load("images/mastupoff.png");
+    mastupon.load("images/mastupon.png");
+    styllus.load("images/styllus.png");
 }
 
 void Esm::UnLoadWidgets()
 {
     // free the surfaces
-    SDL_FreeSurface(mastdownoff);
-    SDL_FreeSurface(mastdownon);
-    SDL_FreeSurface(mastupoff);
-    SDL_FreeSurface(mastupon);
-    SDL_FreeSurface(styllus);
-
-    SDL_FreeSurface(ClearEsm);
-    SDL_FreeSurface(ClearEsm2);
-}
-
-void Esm::DisplayWidget(SDL_Surface *dest, int x, int y, SDL_Surface *source)
-{
-    SDL_Rect rect;
-
-    // Blit destination x & y to the upper left
-    rect.x = x;
-    rect.y = y;
-    // Height and width equal to the source images...
-    rect.h = source->h;
-    rect.w = source->w;
-    // Do the actual blit
-    SDL_BlitSurface(source, NULL, dest, &rect);
-    // Show the screen...
-    SDL_UpdateRects(dest, 1, &rect);
+    esmconsole.unload();
+    mastdownoff.unload();
+    mastdownon.unload();
+    mastupoff.unload();
+    mastupon.unload();
+    styllus.unload();
 }
 
 void Esm::DisplayWidgets()
 {
+    // ESM console
+    esmconsole.draw(screen, 0, 0);
+
     // Center of ESM screen at (316,325)
-    // DisplayWidget(screen, 316, 325, styllus);
+    // styllus.draw(screen, 316, 325);
 
     // Mast up/down buttons
-    DisplayWidget(screen, 845, 187, Mast ? mastupon : mastupoff);
-    DisplayWidget(screen, 740, 187, Mast ? mastdownoff : mastdownon);
-
-    // Need this for the time compression??
-    // SDL_UpdateRect(screen,0, 0, 0, 0);
-}
-
-void Esm::ClearScreen()
-{
-    // Clear the ESM and contact areas on the screen
-    DisplayWidget(screen, 105, 169, ClearEsm);
-    DisplayWidget(screen, 693, 308, ClearEsm2);
+    Mast ? mastupon.draw(screen, 845, 187) : mastupoff.draw(screen, 845, 187);
+    Mast ? mastdownoff.draw(screen, 740, 187) : mastdownon.draw(screen, 740, 187);
 }
 
 void Esm::LowerMast()
@@ -263,7 +226,7 @@ void Esm::DisplayContacts()
     static char text[120];
     static DFont fnt("images/font.png", "images/font.dat");
     float radians;
-    float radians_old;
+    int x, y;
     int bearing, range, depth;
     Submarine *target;
     int count;
@@ -271,36 +234,12 @@ void Esm::DisplayContacts()
     // Note: Center of radar screen at (x,y) = (323,330)
     // set dx = 144 dy = 144
 
-    /*
-    if (!EsmStack.empty())  // Is there is data on the stack?
-    {
-        // TODO: FIX THIS
-        for(count=1; count<8;count++) {
-            radians_old[count] = EsmStack.pop();
-
-            // Clear Old Data from Heading Compass
-            x = int(326.0 + (460.0 - 326.0) * cos(1.57 - radians_old[count]));
-            y = int(383.0 - (460.0 - 326.0) * sin(1.57 - radians_old[count]));
-            DrawLine(screen, 326, 383, x, y, black);
-        }
-    }
-    */
-
-    while (!EsmStack.empty()) {
-        radians_old = EsmStack.pop();
-        x = int(326.0 + (460.0 - 326.0) * cos(1.57 - radians_old));
-        y = int(383.0 - (460.0 - 326.0) * sin(1.57 - radians_old));
-        DrawLine(screen, 326, 383, x, y, black);
-    }
-
     target = Subs->next;
     count = 0;
     while (target) {
         bearing = (int)Subs->BearingToTarget(target);
         range = (int)Subs->DistanceToTarget(target);
         depth = (int)Subs->Depth;
-
-        // bearing = getBearing((int)Subs[0].BearingToTarget(Subs[target]), depth, 100, 3);
 
         radians = float(bearing) * (3.14 / 180.0);  // degrees to radians
 
@@ -314,11 +253,14 @@ void Esm::DisplayContacts()
             sprintf(text, "BEARING  %i   SS %i", bearing,
                     getSignalStrength(target, range, 60, 100, true, 3));
             fnt.PutString(screen, 698, 300 + 11 * count, text);
-            // Push the data on the stack
-            EsmStack.push(radians);
         }
 
         target = target->next;
     }
-    SDL_UpdateRect(screen, 0, 0, 0, 0);
+}
+
+void Esm::UpdateDisplay()
+{
+    DisplayWidgets();
+    DisplayContacts();
 }

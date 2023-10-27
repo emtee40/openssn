@@ -22,6 +22,7 @@ $Id: sonar.h,v 1.10 2003/09/20 22:53:15 mbridak Exp $
 #include "submarine.h"
 #include "targetmotionanalysis.h"
 #include "towedarray.h"
+#include "widget.h"
 
 /**
   * @author Michael Bridak
@@ -30,20 +31,18 @@ $Id: sonar.h,v 1.10 2003/09/20 22:53:15 mbridak Exp $
 class AnBqq5
 {
 public:
-    Submarine *Subs;
-    int cursorBearing;
-    bool bearingdisplay5by6;
-    bool arraychoice5by6;
-    bool sonarwidget;
-    bool assigntracker;
-    float flowandambientnoise;
-
-    AnBqq5(Submarine *temp, TowedArray &temp2, TargetMotionAnalysis &temp3, msg &temp4);
+    AnBqq5(TowedArray &tb16, TargetMotionAnalysis &tma, msg &msg);
     ~AnBqq5();
+
+    /** Update the subs list */
+    void setSubs(Submarine *Subs);
+
+    /** Set the flow and ambiant noise */
+    void setFlowandambientnoise(float flowandambientnoise);
 
     /** Initialize the graphic for this class, *screen is the main
         display screen passed in from main. */
-    void InitGraphics();
+    void InitGraphics(SDL_Surface *screen);
 
     /** Loads in the widgets */
     void LoadWidgets();
@@ -51,11 +50,8 @@ public:
     /** Unloads the widgets */
     void UnLoadWidgets();
 
-    /** Displays a single widget at the given coordinates */
-    void DisplayWidget(SDL_Surface *dest, int x, int y, SDL_Surface *source);
-
     /** Displays the widgets needed for the sonar display */
-    void DisplaySonarWidgets();
+    void DisplayWidgets();
 
     void Sonar(bool center);
 
@@ -114,6 +110,10 @@ public:
         to show the desired sonar sensors history. */
     void LowerCRT_Button();
 
+    /** Called to checked whether the user has clicked on the assign
+        tracker widget on the sonar screen. */
+    bool GetAssignTrackerState();
+
     /** Called when the user clicks on the assign tracker widget on the
         sonar screen. Toggles the assigntracker bool variable. When the
         flag is true, and the user clicks on one of the tracker widgets,
@@ -138,37 +138,45 @@ public:
     void UpdateCursor();
 
 private:
+    Submarine *Subs;
+
+    int cursorBearing;
+    bool bearingdisplay5by6;
+    bool arraychoice5by6;
+    bool assigntracker;
+    float flowandambientnoise;
+
     SDL_Surface *screen;
+
     SDL_Surface *sonarscreen;
     SDL_Surface *towedarrayscreen;
     SDL_Surface *uppersonarcrt;
     SDL_Surface *lowersonarcrt;
-    SDL_Surface *ncscale;
-    SDL_Surface *scscale;
-    SDL_Surface *sonarbuttondown;
-    SDL_Surface *sonarbuttonup;
-    SDL_Surface *truerel[2];
-    SDL_Surface *sphertowed[2];
-    SDL_Surface *uppercrtoff;
-    SDL_Surface *uppercrton;
-    SDL_Surface *lowercrtoff;
-    SDL_Surface *lowercrton;
-    SDL_Surface *tb16winchoff;
-    SDL_Surface *tb16winchon;
-    SDL_Surface *extendtb16[2];
-    SDL_Surface *retracttb16[2];
-    SDL_Surface *cutarray;
-    SDL_Surface *sendping;
-    SDL_Surface *assigntrackerwidget[2];
-    SDL_Surface *tracker1[2];
-    SDL_Surface *tracker2[2];
-    SDL_Surface *tracker3[2];
-    SDL_Surface *tracker4[2];
+
+    Widget sonarconsole;
+    Widget ncscale;
+    Widget scscale;
+    Widget truerel[2];
+    Widget sphertowed[2];
+    Widget uppercrtoff;
+    Widget uppercrton;
+    Widget lowercrtoff;
+    Widget lowercrton;
+    Widget tb16winchoff;
+    Widget tb16winchon;
+    Widget extendtb16[2];
+    Widget retracttb16[2];
+    Widget cutarray;
+    Widget sendping;
+    Widget assigntrackerwidget[2];
+    Widget tracker1[2];
+    Widget tracker2[2];
+    Widget tracker3[2];
+    Widget tracker4[2];
+
     TowedArray &TB16;
     TargetMotionAnalysis &Tma;
     msg &Message;
-    int tempint;
-    int tempval;
     float deAngle;
     Uint32 black;
     Uint32 white;

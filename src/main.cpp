@@ -36,8 +36,6 @@ $Id: main.cpp,v 1.28 2003/07/18 03:50:00 mbridak Exp $
 #include "sound.h"
 #include "winfunctions.h"
 
-MAP *my_map = NULL;
-
 //#######GRAPHIC PRIMITIVES#############
 void SetupScreen(bool full_screen)
 {
@@ -67,7 +65,6 @@ void SetupScreen(bool full_screen)
     SDL_WM_SetCaption("OpenSSN http://openssn.sf.net", "OpenSSN");
 
     // define some standard colors
-    textcolor  = SDL_MapRGB(screen->format, 192, 255, 6);
     black      = SDL_MapRGB(screen->format, 0, 0, 0);
     white      = SDL_MapRGB(screen->format, 255, 255, 255);
     red        = SDL_MapRGB(screen->format, 255, 99, 20);
@@ -78,333 +75,122 @@ void SetupScreen(bool full_screen)
     brown      = SDL_MapRGB(screen->format, 120, 140, 0);
     grey       = SDL_MapRGB(screen->format, 180, 180, 180);
     dark_grey  = SDL_MapRGB(screen->format, 100, 100, 100);
-    // mapcolor = SDL_MapRGB(screen->format, 130, 201, 225);
     mapcolor   = SDL_MapRGB(screen->format, 10, 10, 100);
-    // Init_Audio();
 }
 
-void MapIcon(int x, int y, int ShipType, int Friend, Uint32 color)
+// Let all stations initialize their graphics
+void InitGraphics()
 {
-    // Display NTDS symbols according to the following Legend
-    // Hostile:  Submarine = Red Bottom Half Diamond, Surface = Red Full Diamond,
-    //           Aircraft = Red Top Half Diamond
-
-    // Friendly: Submarine = green Bottom SemiCircle, Surface = green Circle,
-    //           Aircraft = green Top SemiCircle
-
-    // Unknown:  Submarine = grey Bottom Half Box, Surface = grey Box,
-    //           Aircraft = grey Top Half Box
-
-    // Neutral:  Submarine = Yellow Bottom Half box, Surface = Yellow box,
-    //           Aircraft = Yellow Top Half box
-
-    // Is it a submarine?
-    if (ShipType == TYPE_SUB) {
-        switch (Friend) {
-            case 0:  // Foe??
-                DrawDiamond(screen, x - 2, y + 2, 7, 'B', black);  // Bottom Half Diamond
-                DrawDiamond(screen, x, y, 7, 'B', color);  // Bottom Half Diamond
-                break;
-            case 1:  // Friend??
-                DrawArc(screen, x - 2, y + 2, 7, 180, 360, black);  // Bottom SemiCircle
-                DrawArc(screen, x - 2, y + 3, 7, 180, 360, black);  // thickness
-                DrawArc(screen, x, y, 7, 180, 360, color);  // Bottom SemiCircle
-                DrawArc(screen, x, y + 1, 7, 180, 360, color);  // thickness
-                break;
-            case 2:  // Unknown??
-                DrawBox(screen, x - 2, y + 2, 7, 'B', black);  // Bottom Half Box
-                DrawBox(screen, x, y, 7, 'B', color);  // Bottom Half Box
-                break;
-            default:  // Neutral
-                DrawBox(screen, x - 2, y + 2, 7, 'B', black);  // Bottom Half Box
-                DrawBox(screen, x, y, 7, 'B', color);  // Bottom Half Box
-        }
-    }
-
-    // Is it a surface ship?
-    else if (ShipType == TYPE_SHIP) {
-        switch (Friend) {
-            case 0:  // Foe??
-                DrawDiamond(screen, x - 2, y + 2, 7, 'F', black);  // Diamond
-                DrawDiamond(screen, x, y, 7, 'F', color);  // Diamond
-                break;
-            case 1:  // Friend??
-                DrawCircle(screen, x - 2, y + 2, 7, black);  // Circle
-                DrawCircle(screen, x, y, 7, color);  // Circle
-                break;
-            case 2:  // Unknown??
-                DrawBox(screen, x - 2, y + 2, 7, 'F', black);  // Box
-                DrawBox(screen, x, y, 7, 'F', color);  // Box
-                break;
-            default:  // Neutral
-                DrawBox(screen, x - 2, y + 2, 7, 'F', black);  // Cross
-                DrawBox(screen, x, y, 7, 'F', color);  // Cross
-        }
-    }
-
-    // Is it an airplane or Helo?
-    else if (ShipType == TYPE_HELICOPTER) {
-        switch (Friend) {
-            case 0:  // Foe??
-                DrawDiamond(screen, x, y, 7, 'T', color);  // Top Half Diamond
-                break;
-            case 1:  // Friend??
-                DrawArc(screen, x, y, 7, 0, 180, color);  // Top SemiCircle
-                break;
-            case 2:  // Unknown??
-                DrawBox(screen, x, y, 7, 'T', color);  // Top Half Box
-                break;
-            default:  // Neutral
-                DrawBox(screen, x, y, 7, 'T', color);  // Top Half Cross
-        }
-    } else if (ShipType == TYPE_TORPEDO) {
-        DrawDiamond(screen, x, y, 7, 'B', color);
-        DrawLine(screen, x, y - 5, x, y, color);
-    } else if (ShipType == TYPE_NOISEMAKER) {
-        DrawBox(screen, x, y, 7, 'B', color);
-    }
-}
-
-void DirectionalPointer(int x, int y, int heading, int speed, Uint32 color)
-{
-    // Draws a directional vane on a ships map icon.
-    // the length will vary depending on the speed.
-
-    double var1;  // just a place to hold a value so we don't have to calc it twice.
-    double destinationx; // the dest x & y point for
-    double destinationy; // the drawn line.
-
-    if ((speed > 1) || (speed < -1)) speed = speed / 2;  // allow for 0 speed.
-    var1 = heading * 0.017453;  // convert degrees to radians.
-    destinationx = (sin(var1) * speed) + x;
-    destinationy = (-1) * (cos(var1) * speed) + y;
-    DrawLine(screen, x, y, (int) destinationx, (int) destinationy, color);
-}
-
-void LoadScreens()
-{
-    // Loads all background PNG files into SDL surfaces.
-    titlescreen   = Load_Image("images/tittle.png");
-    sonarscreen   = Load_Image("images/Sonarscreen.png");
-    mapscreen     = Load_Image("images/Mapscreen.png");
-    controlscreen = Load_Image("images/ControlScreen.png");
-    radarscreen   = Load_Image("images/RadarScreen.png");
-    esmscreen     = Load_Image("images/ESMScreen.png");
-    successscreen = Load_Image("images/sub_surfacing.png");
-    failurescreen = Load_Image("images/sub_rising.png");
-    menuscreen    = Load_Image("images/sub_menu.png");
-}
-
-void UnLoadScreens()
-{
-    // Free all surfaces.
-    SDL_FreeSurface(titlescreen);
-    SDL_FreeSurface(sonarscreen);
-    SDL_FreeSurface(mapscreen);
-    SDL_FreeSurface(controlscreen);
-    SDL_FreeSurface(radarscreen);
-    SDL_FreeSurface(esmscreen);
-    SDL_FreeSurface(successscreen);
-    SDL_FreeSurface(failurescreen);
-    SDL_FreeSurface(menuscreen);
-}
-
-void DisplayScreen(int item)
-{
-    // Blit the required SDL surface to the display surface.
-
-    SDL_Surface *IMGFile = NULL;
-
-    switch (item) {
-        case 0:
-            IMGFile = titlescreen;
-            break;
-        case 1:
-            IMGFile = sonarscreen;
-            break;
-        case 2:
-            IMGFile = mapscreen;
-            break;
-        case 3:
-            IMGFile = mapscreen;
-            break;
-        case 4:
-            IMGFile = controlscreen;
-            break;
-        case 5:
-            IMGFile = radarscreen;
-            break;
-        case 6:
-            IMGFile = esmscreen;
-            break;
-        case 7:
-            IMGFile = successscreen;
-            break;
-        case 8:
-            IMGFile = failurescreen;
-            break;
-        case 9:
-            IMGFile = menuscreen;
-            break;
-        default:
-            std::cerr << "Unknown screen item" << std::endl;
-            break;
-    }
-
-    DisplayWidget(screen, 0, 0, IMGFile);
+    SonarStation.InitGraphics(screen);
+    NavigationStation.InitGraphics(screen);
+    WeaponsStation.InitGraphics(screen);
+    TmaStation.InitGraphics(screen);
+    ControlStation.InitGraphics(screen);
+    EsmStation.InitGraphics(screen);
+    RadarStation.InitGraphics(screen);
 }
 
 void LoadWidgets()
 {
-    navbuttonup = Load_Image("images/mapup.png");
-    navbuttondown = Load_Image("images/mapdown.png");
-    tmabuttonup = Load_Image("images/tmaup.png");
-    tmabuttondown = Load_Image("images/tmadown.png");
-    shipcontrolbuttonup = Load_Image("images/shipcontrolup.png");
-    shipcontrolbuttondown = Load_Image("images/shipcontroldown.png");
-    esmbuttonup = Load_Image("images/esmup.png");
-    esmbuttondown = Load_Image("images/esmdown.png");
-    radarbuttonup = Load_Image("images/radarup.png");
-    radarbuttondown = Load_Image("images/radardown.png");
-    quitbuttonup = Load_Image("images/quitbuttonup.png");
-    quitbuttondown = Load_Image("images/quitbuttondown.png");
-    plusbuttonup = Load_Image("images/plusbuttonup.png");
-    plusbuttondown = Load_Image("images/plusbuttondown.png");
-    minusbuttonup = Load_Image("images/minusbuttonup.png");
-    minusbuttondown = Load_Image("images/minusbuttondown.png");
-    centerbuttonup = Load_Image("images/centerbuttonup.png");
-    centerbuttondown = Load_Image("images/centerbuttondown.png");
-    upbuttonup = Load_Image("images/upbuttonup.png");
-    upbuttondown = Load_Image("images/upbuttondown.png");
-    downbuttonup = Load_Image("images/downbuttonup.png");
-    downbuttondown = Load_Image("images/downbuttondown.png");
-    leftbuttonup = Load_Image("images/leftbuttonup.png");
-    leftbuttondown = Load_Image("images/leftbuttondown.png");
-    rightbuttonup = Load_Image("images/rightbuttonup.png");
-    rightbuttondown = Load_Image("images/rightbuttondown.png");
-    noisemaker_image = Load_Image("images/noisemaker.png");
-    torpedo_image = Load_Image("images/torpedo.png");
+    titlescreen.load("images/tittle.png");
+    successscreen.load("images/sub_surfacing.png");
+    failurescreen.load("images/sub_rising.png");
+    menuscreen.load("images/sub_menu.png");
+
+    sonarbuttonup.load("images/sonarup.png");
+    sonarbuttondown.load("images/sonardown.png");
+    navbuttonup.load("images/mapup.png");
+    navbuttondown.load("images/mapdown.png");
+    tmabuttonup.load("images/tmaup.png");
+    tmabuttondown.load("images/tmadown.png");
+    shipcontrolbuttonup.load("images/shipcontrolup.png");
+    shipcontrolbuttondown.load("images/shipcontroldown.png");
+    esmbuttonup.load("images/esmup.png");
+    esmbuttondown.load("images/esmdown.png");
+    radarbuttonup.load("images/radarup.png");
+    radarbuttondown.load("images/radardown.png");
+    quitbuttonup.load("images/quitbuttonup.png");
+    quitbuttondown.load("images/quitbuttondown.png");
+    plusbuttonup.load("images/plusbuttonup.png");
+    plusbuttondown.load("images/plusbuttondown.png");
+    minusbuttonup.load("images/minusbuttonup.png");
+    minusbuttondown.load("images/minusbuttondown.png");
+
+    SonarStation.LoadWidgets();
+    NavigationStation.LoadWidgets();
+    WeaponsStation.LoadWidgets();
+    TmaStation.LoadWidgets();
+    ControlStation.LoadWidgets();
+    EsmStation.LoadWidgets();
+    RadarStation.LoadWidgets();
 }
 
 void UnLoadWidgets()
 {
     // free the surfaces
-    SDL_FreeSurface(navbuttonup);
-    SDL_FreeSurface(navbuttondown);
-    SDL_FreeSurface(tmabuttonup);
-    SDL_FreeSurface(tmabuttondown);
-    SDL_FreeSurface(shipcontrolbuttonup);
-    SDL_FreeSurface(shipcontrolbuttondown);
-    SDL_FreeSurface(esmbuttonup);
-    SDL_FreeSurface(esmbuttondown);
-    SDL_FreeSurface(radarbuttonup);
-    SDL_FreeSurface(radarbuttondown);
-    SDL_FreeSurface(quitbuttonup);
-    SDL_FreeSurface(quitbuttondown);
-    SDL_FreeSurface(plusbuttonup);
-    SDL_FreeSurface(plusbuttondown);
-    SDL_FreeSurface(minusbuttonup);
-    SDL_FreeSurface(minusbuttondown);
-    SDL_FreeSurface(centerbuttonup);
-    SDL_FreeSurface(centerbuttondown);
-    SDL_FreeSurface(upbuttonup);
-    SDL_FreeSurface(upbuttondown);
-    SDL_FreeSurface(downbuttonup);
-    SDL_FreeSurface(downbuttondown);
-    SDL_FreeSurface(leftbuttonup);
-    SDL_FreeSurface(leftbuttondown);
-    SDL_FreeSurface(rightbuttonup);
-    SDL_FreeSurface(rightbuttondown);
-    SDL_FreeSurface(torpedo_image);
-    SDL_FreeSurface(noisemaker_image);
+    titlescreen.unload();
+    successscreen.unload();
+    failurescreen.unload();
+    menuscreen.unload();
 
+    sonarbuttonup.unload();
+    sonarbuttondown.unload();
+    navbuttonup.unload();
+    navbuttondown.unload();
+    tmabuttonup.unload();
+    tmabuttondown.unload();
+    shipcontrolbuttonup.unload();
+    shipcontrolbuttondown.unload();
+    esmbuttonup.unload();
+    esmbuttondown.unload();
+    radarbuttonup.unload();
+    radarbuttondown.unload();
+    quitbuttonup.unload();
+    quitbuttondown.unload();
+    plusbuttonup.unload();
+    plusbuttondown.unload();
+    minusbuttonup.unload();
+    minusbuttondown.unload();
+
+    SonarStation.UnLoadWidgets();
+    NavigationStation.UnLoadWidgets();
+    WeaponsStation.UnLoadWidgets();
+    TmaStation.UnLoadWidgets();
     ControlStation.UnLoadWidgets();
     EsmStation.UnLoadWidgets();
     RadarStation.UnLoadWidgets();
-    SonarStation.UnLoadWidgets();
 }
 
-void DisplayWidget(SDL_Surface *dest, int x, int y, SDL_Surface *source)
+void DisplayScreen(int item)
 {
-    SDL_Rect rect;
-
-    // Blit destination x & y to the upper left
-    rect.x = x;
-    rect.y = y;
-    // Height and width equal to the source images...
-    rect.h = source->h;
-    rect.w = source->w;
-    // Do the actual blit
-    SDL_BlitSurface(source, NULL, dest, &rect);
-    // Show the screen...
-    SDL_UpdateRects(dest, 1, &rect);
+    switch (item) {
+        case SCREEN_TITLE:
+            titlescreen.draw(screen, 0, 0);
+            break;
+        case SCREEN_SUCCESS:
+            successscreen.draw(screen, 0, 0);
+            break;
+        case SCREEN_FAILURE:
+            failurescreen.draw(screen, 0, 0);
+            break;
+        case SCREEN_MENU:
+            menuscreen.draw(screen, 0, 0);
+            break;
+        default:
+            std::cerr << "Unknown screen item" << std::endl;
+            break;
+    }
 }
 
-void DisplayNavigationWidgets()
+void DisplayStationWidgets()
 {
-    DisplayWidget(screen, 280, 710, navwidget ? navbuttondown : navbuttonup);
-
-    // is the nav button down?
-    if (!navwidget)
-        return;
-
-    DisplayWidget(screen, 225, 269, mapcenter ? centerbuttondown : centerbuttonup);
-    DisplayWidget(screen, 225, 219, upbuttonup);
-    DisplayWidget(screen, 225, 319, downbuttonup);
-    DisplayWidget(screen, 175, 269, leftbuttonup);
-    DisplayWidget(screen, 275, 269, rightbuttonup);
-    DisplayWidget(screen, 175, 359, plusbuttonup);
-    DisplayWidget(screen, 275, 359, minusbuttonup);
-}
-
-void DisplayTMAWidgets()
-{
-    DisplayWidget(screen, 380, 710, tmawidget ? tmabuttondown : tmabuttonup);
-
-    // is the TMA button down?
-    if (!tmawidget)
-        return;
-
-    DisplayWidget(screen, 225, 269, Tma.centerGeoPlot ? centerbuttondown : centerbuttonup);
-    DisplayWidget(screen, 225, 219, upbuttonup);
-    DisplayWidget(screen, 225, 319, downbuttonup);
-    DisplayWidget(screen, 175, 269, leftbuttonup);
-    DisplayWidget(screen, 275, 269, rightbuttonup);
-    DisplayWidget(screen, 175, 359, plusbuttonup);
-    DisplayWidget(screen, 275, 359, minusbuttonup);
-}
-
-void DisplayESMWidgets()
-{
-    DisplayWidget(screen, 580, 710, esmwidget ? esmbuttondown : esmbuttonup);
-}
-
-void DisplayRADARWidgets()
-{
-    DisplayWidget(screen, 680, 710, radarwidget ? radarbuttondown : radarbuttonup);
-}
-
-void DisplayShipControlWidgets()
-{
-    DisplayWidget(screen, 480, 710, shipcontrolwidget ? shipcontrolbuttondown : shipcontrolbuttonup);
-}
-
-void DisplayWidgets()
-{
-    // All stations
-    SonarStation.DisplaySonarWidgets();
-    DisplayNavigationWidgets();
-    DisplayTMAWidgets();
-    DisplayShipControlWidgets();
-    DisplayESMWidgets();
-    DisplayRADARWidgets();
-
-    // Quit button
-    DisplayWidget(screen, 780, 710, quitwidget ? quitbuttondown : quitbuttonup);
-
-    // Plus/minus buttons for the time compression
-    DisplayWidget(screen, 880, 710, plusbuttonup);
-    DisplayWidget(screen, 970, 710, minusbuttonup);
+    station == STN_SONAR ? sonarbuttondown.draw(screen, 180, 710) : sonarbuttonup.draw(screen, 180, 710);
+    station == STN_NAV ? navbuttondown.draw(screen, 280, 710) : navbuttonup.draw(screen, 280, 710);
+    station == STN_WEAPONS ? tmabuttondown.draw(screen, 380, 710) : tmabuttonup.draw(screen, 380, 710);
+    station == STN_SHIPCONTROL ? shipcontrolbuttondown.draw(screen, 480, 710) : shipcontrolbuttonup.draw(screen, 480, 710);
+    station == STN_ESM ? esmbuttondown.draw(screen, 580, 710) : esmbuttonup.draw(screen, 580, 710);
+    station == STN_RADAR ? radarbuttondown.draw(screen, 680, 710) : radarbuttonup.draw(screen, 680, 710);
+    quit ? quitbuttondown.draw(screen, 780, 710) : quitbuttonup.draw(screen, 780, 710);
 }
 
 // This function adds a torpedo to the linked-list of torpedoes
@@ -588,7 +374,6 @@ void ShipHandeling()
         if ((my_torp->target == player) &&
                 (my_torp->fuel_remaining == (TORPEDO_FUEL - 30))) {
             Message.post_message("Torpedo coming our way!");
-            Message.display_message();
         }
         my_torp->UpdateLatLon();
         my_torp->Torpedo_AI(Subs);  // see where we should be going
@@ -606,7 +391,6 @@ void ShipHandeling()
             Subs->Cancel_Target(my_torp);
             torpedoes = Remove_Ship(torpedoes, my_torp);
             my_torp = temp_torp;
-            Message.display_message();
         } else if (status == HIT_TARGET) {
             int target_status = DAMAGE_OK;
             // damage target
@@ -639,7 +423,6 @@ void ShipHandeling()
             // Message.post_message("A torpedo hit its target!");
             if (target_status == DAMAGE_SINK)
                 Message.post_message("Target is sinking!");
-            Message.display_message();
         } else
             my_torp = my_torp->next;
     }  // end of all torpedoes
@@ -951,10 +734,14 @@ void CreateShips(int mission_number, MAP *map)
     // rdm 5/15/01 testing to be sure correct number of ships being read
     // std::cout << " Number of ships = " <<  i-1 << std::endl;
     if (Subs) {
-        SonarStation.Subs = Subs;
-        RadarStation.Subs = Subs;
-        EsmStation.Subs = Subs;
-        ControlStation.Subs = Subs;
+        SonarStation.setSubs(Subs);
+        NavigationStation.setShips(Subs, torpedoes, helicopters);
+        NavigationStation.setDepthMap(map);
+        TmaStation.setSubs(Subs);
+        WeaponsStation.setSubs(Subs);
+        ControlStation.setSubs(Subs);
+        EsmStation.setSubs(Subs);
+        RadarStation.setSubs(Subs);
         player = Subs;
     }
 }
@@ -979,299 +766,6 @@ void UpdateSensors()
     SoundEnvironment();  // lets give a listen...
     SonarStation.Sonar(SonarStation.GetNorthCenterState());
     SonarStation.TowedSonar(SonarStation.GetNorthCenterState());
-}
-
-void UpdateDisplay()
-{
-    if (drawmap) {
-        Display_Target();
-        DrawMap();  // fix me to do something useful!
-        Draw_Depth_Meter(player, SCREEN_NAV);
-    }
-    if (drawsonar) {
-        SonarStation.UpdateDisplay(current_target);
-    }
-    if (drawtma) {
-        DisplayTMA();
-    }
-    if (drawweapons)
-        DisplayWeapons();
-    if (drawradar) {
-        RadarStation.DisplayContacts();
-    }
-    if (drawesm) {
-        EsmStation.DisplayContacts();
-    }
-    if (drawcontrol) {
-        ControlStation.Display();
-        Draw_Depth_Meter(player, SCREEN_HELM);
-    }
-}
-
-// Show information on the currently selected target
-void Display_Target()
-{
-    char buffer[256];
-    SDL_Rect rectangle;
-    static DFont fnt("images/font.png", "data/font.dat");
-    float range;
-    double bearing;
-
-    // if (!current_target)
-    //     return;
-
-    // make empty box to the side of the screen
-    rectangle.x = 120;
-    rectangle.y = 400;
-    rectangle.w = 200;
-    rectangle.h = 160;
-    SDL_FillRect(screen, &rectangle, black);
-
-    if (current_target) {
-        // fill in data
-        sprintf(buffer, "   Target");
-        fnt.PutString(screen, 150, 400, buffer);
-        sprintf(buffer, "Heading: %d", (int) current_target->Heading);
-        fnt.PutString(screen, 140, 424, buffer);
-
-        sprintf(buffer, "Spead: %d knots", (int) current_target->Speed);
-        fnt.PutString(screen, 140, 436, buffer);
-
-        range = Subs->DistanceToTarget(current_target);
-        // range *= 0.000568;
-        range *= YARDS_TO_MILES;
-        sprintf(buffer, "Range: %2.1f miles", range);
-        fnt.PutString(screen, 140, 448, buffer);
-
-        bearing = Subs->BearingToTarget(current_target);
-        sprintf(buffer, "Bearing: %2.0lf", bearing);
-        fnt.PutString(screen, 140, 460, buffer);
-
-        sprintf(buffer, "Depth: %d feet", (int) current_target->Depth);
-        fnt.PutString(screen, 140, 472, buffer);
-
-        sprintf(buffer, "Type: %s ", current_target->ClassName);
-        if (current_target->ClassType[0])
-            strcat(buffer, current_target->ClassType);
-        fnt.PutString(screen, 140, 484, buffer);
-    }  // end of valid target
-    SDL_UpdateRects(screen, 1, &rectangle);
-}
-
-void Draw_Depth_Meter(Submarine *my_sub, int screen_number)
-{
-    SDL_Rect rectangle;
-    int y, index;
-
-    if (screen_number == SCREEN_NAV) {
-        rectangle.x = 890;
-        rectangle.y = 145;
-        rectangle.h = 500;
-    } else {  // helm screen
-        rectangle.x = 450;
-        rectangle.y = 125;
-        rectangle.h = 525;
-    }
-    rectangle.w = 10;
-
-    if (!my_sub)
-        return;
-    SDL_FillRect(screen, &rectangle, mapcolor);
-    if (my_sub->map) {
-        for (index = 0; index < my_sub->map->Thermals_Between(0, MAX_DEPTH); index++) {
-            y = my_sub->map->thermals[index];
-            y = rectangle.y + (y / 10);
-            FillRectangle(screen, rectangle.x, y, rectangle.x + 10, y + 1, white);
-        }
-    }
-    y = (my_sub->Depth / 10) + rectangle.y;
-    FillRectangle(screen, rectangle.x, y, rectangle.x + 10, y + 1, red);
-    SDL_UpdateRects(screen, 1, &rectangle);
-}
-
-void DrawMap()
-{
-    // Future home of an actual map display routine, right now just a blank field with dots
-
-    SDL_Rect rectangle;
-    rectangle.x = 374;
-    rectangle.y = 145;  // define a rectangle on the screen and make it blue
-    rectangle.h = 500;
-    rectangle.w = 501;
-    SDL_FillRect(screen, &rectangle, mapcolor);
-
-    for (int x = 374; x < 874; x += 10) {  // Make meaningless dots grid on "Map"
-        for (int y = 145; y < 637; y += 10) {
-            DrawPixel(screen, x + 5, y + 5, white);
-        }
-    }
-    #ifdef DEBUG
-    printf("About to place ships.\n");
-    #endif
-    PlaceShips(mapscale, 0, 0, current_target);
-    SDL_UpdateRects(screen, 1, &rectangle);
-}
-
-void PlaceShips(int scale, int change_scrollx, int change_scrolly, Submarine *current_target)
-{
-    // Places all Ships onto the map. Soon to change, so only registered contacts appear.
-    // scale is in YDS per pixel
-    int fresh;
-    int x, y;  // where to place the ships
-    int xoffset = 374;  // offsets to move the ships to
-    int yoffset = 145;  // the defined place on map screen
-    static int scrolloffsetx = 0;  // offset to center map
-    static int scrolloffsety = 0;
-    Uint32 color;
-    Submarine *a_torp;
-    Submarine *target_ship;
-    Helicopter *a_helicopter;
-    int layers;
-
-    scale = scale * MAP_FACTOR;
-    if (mapcenter) {  // center map onto our own ntds symbol
-        scrolloffsetx = 250 - ((int) Subs->Lat_TotalYards / scale);
-        scrolloffsety = 250 - ((int) Subs->Lon_TotalYards / scale);
-    } else {
-        scrolloffsetx += change_scrollx;
-        scrolloffsety += change_scrolly;
-    }
-    target_ship = Subs;
-    #ifdef DEBUG
-    printf("About to place ships on map.\n");
-    #endif
-    while (target_ship) {
-        fresh = Subs->Can_Detect(target_ship);
-        #ifdef DEBUG
-        printf("Freshness factor %d\n", fresh);
-        #endif
-        if ((fresh) || (target_ship == Subs)) {
-            x = 500 - ((int) target_ship->Lat_TotalYards / scale);
-            x = x - scrolloffsetx;
-            y = 500 - ((int) target_ship->Lon_TotalYards / scale);
-            y = y - scrolloffsety;
-            if (x > 10 && x < 490 && y > 10 && y < 490) {  // are we going to fall off the damn map???
-                x = x + xoffset;
-                y = y + yoffset;
-                // not only do we need friend/foe, but
-                // also fresh/old contact
-                // fresh = Subs->Can_Detect(target_ship);
-                switch (target_ship->Friend) {
-                    case 0:  // Foe??
-                        if (fresh >= CONTACT_SOLID)
-                            color = red;
-                        else
-                            color = dark_red;
-                        break;
-                    case 1:  // Friend??
-                        if (fresh >= CONTACT_SOLID)
-                            color = green;
-                        else
-                            color = dark_green;
-                        break;
-                    case 2:  // Neither???
-                        if (fresh >= CONTACT_SOLID)
-                            color = yellow;
-                        else
-                            color = brown;
-                        break;
-                    default:  // Unknown
-                        if (fresh >= CONTACT_SOLID)
-                            color = grey;
-                        else
-                            color = dark_grey;
-                        break;
-                }
-                if (target_ship == Subs) {  // Is it me???
-                    color = green;
-                }
-                #ifdef DEBUG
-                printf("Deciding if to draw clearly.\n");
-                #endif
-                if ((fresh >= CONTACT_WEAK) || (Subs == target_ship)) {
-                    MapIcon(x, y, (int) target_ship->ShipType, (int) target_ship->Friend, color);  // Draw the NTDS symbol.
-                    // check to see if we should highlight
-                    if (current_target == target_ship)
-                        MapIcon(x, y + 1, (int) target_ship->ShipType, (int) target_ship->Friend, color);
-                    DirectionalPointer(x - 2, y + 2, (int) target_ship->Heading, (int) target_ship->Speed, black);
-                    DirectionalPointer(x, y, (int) target_ship->Heading, (int) target_ship->Speed, color);
-                    // Add pointer the show heading.
-                }  // end of we can hear you ok
-            }  // end of we are on the map
-        }  // end of able to detect
-        target_ship = target_ship->next;
-    }
-
-    // now place torpedoes
-    #ifdef DEBUG
-    printf("About to draw torpedoes on map\n");
-    #endif
-    a_torp = torpedoes;
-    while (a_torp) {
-        x = 500 - ((int) a_torp->Lat_TotalYards / scale);
-        x = x - scrolloffsetx;
-        y = 500 - ((int) a_torp->Lon_TotalYards / scale);
-        y = y - scrolloffsety;
-        if (x > 10 && x < 490 && y > 10 && y < 490) {  // are we going to fall off map??
-            x = x + xoffset;
-            y = y + yoffset;
-            switch (a_torp->Friend) {
-                case 0:  // Foe??
-                    color = red;
-                    break;
-                case 1:  // Friend??
-                    color = green;
-                    break;
-                case 2:  // Neither???
-                    color = yellow;
-                    break;
-                default:  // Unknown
-                    color = grey;
-                    break;
-            }
-            MapIcon(x, y, (int) a_torp->ShipType, (int) a_torp->Friend, color);
-        }  // within map limits
-
-        a_torp = a_torp->next;
-    }  // end of displaying torpedoes
-
-    #ifdef DEBUG
-    printf("About to draw helicopters on map.\n");
-    #endif
-    // we only draw helicopters if we are near the surface
-    // and moving slow. This is crude, but it'll do for now
-    layers = my_map->Thermals_Between(0, player->Depth);
-    if ((layers < 1) && (player->Speed < (player->MaxSpeed / 2))) {
-        a_helicopter = helicopters;
-        while (a_helicopter) {
-            x = 500 - ((int) a_helicopter->Lat_TotalYards / scale);
-            x = x - scrolloffsetx;
-            y = 500 - ((int) a_helicopter->Lon_TotalYards / scale);
-            y = y - scrolloffsety;
-            if (x > 10 && x < 490 && y > 10 && y < 490) {  // are we on the map
-                x = x + xoffset;
-                y = y + yoffset;
-                switch (a_helicopter->Friend) {
-                    case FOE:
-                        color = red;
-                        break;
-                    case FRIEND:
-                        color = green;
-                        break;
-                    case NEUTRAL:
-                        color = grey;
-                        break;
-                    case UNKNOWN:
-                    default:
-                        color = yellow;
-                        break;
-                }  // end of friend/foe switch
-                MapIcon(x, y, a_helicopter->ShipType,
-                        a_helicopter->Friend, color);
-            }  // within map limits
-            a_helicopter = a_helicopter->next;
-        }  // end of drawing helicopters
-    }  // end of if near surface
 }
 
 // calls the other detection functions to see if there is
@@ -1364,8 +858,8 @@ float Sonar_Detection_New(double Range, Submarine *observer, Submarine *target)
         NoiseFromSpeed = 0.65;
         BasisNoiseLevel = 9.75;
     }
-    if (my_map)
-        thermal_layers = my_map->Thermals_Between(observer->Depth, target->Depth);
+
+    thermal_layers = my_map.Thermals_Between(observer->Depth, target->Depth);
     #ifdef DEBUGMAP
     printf("There are %d thermal layers between us.\n", thermal_layers);
     #endif
@@ -1386,7 +880,7 @@ float Sonar_Detection_New(double Range, Submarine *observer, Submarine *target)
     #endif
     value = TargetNoise - (20.0 * log10(NauticalMiles) + 1.1 * NauticalMiles) - Lbp;
     if (!observer)
-        SonarStation.flowandambientnoise = (Lbp - 34);
+        SonarStation.setFlowandambientnoise(Lbp - 34);
     if (value > -45.0) {
         return (value - -45.0) + 1.0;
     } else {
@@ -1467,149 +961,7 @@ void SoundEnvironment()
     }
 }
 
-/*********************************************
-  This function will return if a target is in
-  the observers baffles and therefore not
-  detectable. Values for 'int sensor' are 1 for
-  spherical array, 2 for towed array, 3 for port
-  hull array and 4 for starboard hull array.
-
-  Might want to move the calculations of the
-  baffle angles to the Coord class so they don't
-  have to be calculated all the time.
-*********************************************/
-/*
-Moving InBaffles to the Submarine class to keep things cleaner.
--- Jesse
-
-int InBaffles(Submarine *observer, Submarine *target, int sensor)
-{
-    int array_heading;
-    int relative_bearing;
-    int sensordeaf=1;
-    int bearing_to_target;
-
-    switch(sensor) {
-        case 1:  // Spherical
-            sensordeaf = 0;
-            array_heading = (int) observer->Heading;
-            bearing_to_target = (int)observer->BearingToTarget(target);
-            if (array_heading > bearing_to_target) bearing_to_target += 360;
-            relative_bearing = bearing_to_target - array_heading;
-            if (relative_bearing > 150 && relative_bearing < 210) sensordeaf = 1;
-            if (target == observer) sensordeaf = 1;
-            break;
-        case 2:  // Towed
-            sensordeaf = 0;
-            array_heading = (int) TB16.ReturnHeading();
-            bearing_to_target = (int) TB16.BearingToTarget(target->Lat_TotalYards, target->Lon_TotalYards);
-            if (array_heading > bearing_to_target) bearing_to_target += 360;
-            relative_bearing = bearing_to_target - array_heading;
-            if (relative_bearing < 30 || relative_bearing > 330) sensordeaf = 1;
-            break;
-        case 3:  // port hull
-        case 4:  // sb hull
-        default:
-            break;
-    }
-    return sensordeaf;
-}
-*/
-
-void DisplayTMA(int xoffset, int yoffset)
-{
-    Tma.Lock();
-    Tma.our_heading = (double) Subs->Heading;
-    Tma.our_speed = (float) Subs->Speed;
-    Tma.target_heading = (double) Subs->Heading;
-    Tma.target_speed = (float) Subs->Speed;
-    Tma.DisplayGeoPlot(xoffset, yoffset);
-    // Tma.DisplayLOS();
-    DisplayWidget(screen, 374, 145, Tma.GeoPlotScreen);
-    Tma.UnLock();
-}
-
-void DisplayWeapons()
-{
-    SDL_Rect weapons, tubes;
-    static DFont fnt("images/font.png", "data/font.dat");
-    char text[256];
-    int index, y1, y2;
-
-    if (!update_weapons_screen)
-        return;
-
-    weapons.x = 150;
-    weapons.y = 145;
-    weapons.w = 200;
-    weapons.h = 300;
-    tubes.x = 374;
-    tubes.y = 145;
-    tubes.h = 500;
-    tubes.w = 501;
-
-    SDL_FillRect(screen, &weapons, black);
-    sprintf(text, "WEAPONS");
-    fnt.PutString(screen, 190, 150, text);
-    sprintf(text, "     Torpedos: %d", Subs->TorpedosOnBoard);
-    fnt.PutString(screen, 160, 174, text);
-    sprintf(text, "Noise Makers: %d", Subs->NoiseMakers);
-    fnt.PutString(screen, 160, 196, text);
-    sprintf(text, "'T' to load torpedo");
-    fnt.PutString(screen, 160, 300, text);
-    sprintf(text, "'N' to load noise maker");
-    fnt.PutString(screen, 160, 312, text);
-    sprintf(text, "'U' to unload device");
-    fnt.PutString(screen, 160, 324, text);
-    sprintf(text, "'F' to fire");
-    fnt.PutString(screen, 160, 336, text);
-    SDL_UpdateRects(screen, 1, &weapons);
-
-    SDL_FillRect(screen, &tubes, black);
-    y1 = 150;
-    y2 = 190;
-    for (index = 0; index < MAX_TUBES; index++) {
-        // draw tube
-        DrawRectangle(screen, 390, y1, 500, y2, green);
-        // draw buttons
-        fnt.PutString(screen, 520, y1 + 5, "  Load");
-        fnt.PutString(screen, 520, y1 + 18, "Torpedo");
-        DrawRectangle(screen, 520, y1, 590, y2, green);
-        fnt.PutString(screen, 600, y1 + 5, "   Load");
-        fnt.PutString(screen, 600, y1 + 18, "Noise Maker");
-        DrawRectangle(screen, 600, y1, 690, y2, green);
-        fnt.PutString(screen, 700, y1 + 10, "Unload");
-        DrawRectangle(screen, 700, y1, 760, y2, green);
-        fnt.PutString(screen, 770, y1 + 10, "Fire!");
-        DrawRectangle(screen, 770, y1, 815, y2, green);
-        y1 += 50;
-        y2 += 50;
-    }
-    SDL_UpdateRects(screen, 1, &tubes);
-
-    // put stuff in the tubes
-    y1 = 151;
-    for (index = 0; index < MAX_TUBES; index++) {
-        if (Subs->torpedo_tube[index] == TUBE_TORPEDO)
-            DisplayWidget(screen, 391, y1, torpedo_image);
-        else if (Subs->torpedo_tube[index] == TUBE_NOISEMAKER)
-            DisplayWidget(screen, 391, y1, noisemaker_image);
-        else {
-            tubes.x = 391;
-            tubes.y = y1;
-            tubes.w = 105;
-            tubes.h = 35;
-            SDL_FillRect(screen, &tubes, black);
-            sprintf(text, "Tube %d", index + 1);
-            fnt.PutString(screen, 420, y1 + 10, text);
-        }
-        SDL_UpdateRects(screen, 1, &tubes);
-        y1 += 50;
-    }
-    update_weapons_screen = FALSE;
-}
-
-inline int RandInt(int TO)  // Returns a random interger... TO is upper limit
+inline int RandInt(int TO)  // Returns a random integer... TO is upper limit
 {
     return (rand() % TO);
 }
@@ -1636,70 +988,91 @@ inline double Clamp(double sample)  // Overloaded for floats
     return sample;
 }
 
-void ResetWidgetFlags()
+// Display the status of the sub: speed / ordered speed, heading / ordered
+// heading, depth / ordered depth, and time
+void DisplaySubStatus()
 {
-    // turns off all the widget redraw flags
-    SonarStation.sonarwidget = false;
-    navwidget = 0;
-    quitwidget = 0;
-    tmawidget = 0;
-    esmwidget = 0;
-    radarwidget = 0;
-    shipcontrolwidget = 0;
+    int hours, minutes, seconds;
+    SDL_Rect rectangle;
+    static DFont fnt("images/font.png", "data/font.dat");
+    static char text[120];
+    rectangle.x = 16;
+    rectangle.y = 14;  // define a rectangle on the screen and make it black
+    rectangle.h = 72;
+    rectangle.w = 126;
+    SDL_FillRect(screen, &rectangle, black);
+    sprintf(text, "Now - Wanted");
+    fnt.PutString(screen, 30, 20, text);
+    sprintf(text, "S: [%3i]  -   [%3i]", (int) Subs->Speed, Subs->DesiredSpeed);
+    fnt.PutString(screen, 30, 31, text);
+    sprintf(text, "H: [%3i]  -   [%3i]", (int) Subs->Heading, Subs->DesiredHeading);
+    fnt.PutString(screen, 30, 42, text);
+    sprintf(text, "D: [%4i]  -  [%4i]", (int) Subs->Depth, Subs->DesiredDepth);
+    fnt.PutString(screen, 30, 53, text);
+    // sprintf(text, "ARRAY [%4i]", TB16.GetLength());
+    // fnt.PutString(screen, 40, 53, text);
+    Clock.GetTime(hours, minutes, seconds);
+    sprintf(text, "%.2i:%.2i:%.2i", hours, minutes, seconds);
+    fnt.PutString(screen, 40, 64, text);
 }
 
-void ShowStation(int station)
+// Display the current time compression factor and the plus/minus buttons
+void DisplayTimeBox()
 {
-    // init everything to avoid overlap
-    drawmap = drawweapons = drawsonar = drawradar = drawesm = drawcontrol = 0;
-    navwidget = shipcontrolwidget = radarwidget = esmwidget = 0;
-    switch (station) {  // which station are we at?
-        case 1:  // sonar screen
-            DisplayScreen(1);  // load in the screen for the SONAR station
-            ResetWidgetFlags();  // self explanatory
-            SonarStation.sonarwidget = true;  // depress the widget
-            DisplayWidgets();  // display the widgets
-            drawsonar = 1;  // tell the sonar it's ok to draw itself
+    static char text[120];
+    static DFont fnt("images/font.png", "data/font.dat");
+
+    // Display the time compression factor
+    sprintf(text, "[%i] ", timecompression);
+    fnt.PutString(screen, 933, 718, text);
+
+    // Display the plus/minus buttons
+    plusbuttonup.draw(screen, 880, 710);
+    minusbuttonup.draw(screen, 970, 710);
+}
+
+// Update the whole screen: station, status, messages, icons & time compression
+void UpdateDisplay()
+{
+    // Display the current station:
+    // - background screen
+    // - widgets (buttons)
+    // - content (sonar screens, map, esm & radar scopes)
+    switch (station) {
+        case STN_SONAR:
+            SonarStation.UpdateDisplay(current_target);
             break;
-        case 2:  // nav screen
-            DisplayScreen(2);  // load in the screen for the NAV station
-            ResetWidgetFlags();  // self explanatory
-            navwidget = 1;  // depress the widget
-            DisplayWidgets();  // display the widgets
-            drawmap = 1;  // tell the map it's ok to draw itself
+        case STN_NAV:
+            NavigationStation.UpdateDisplay(current_target);
             break;
-        case 3:  // tma screen
-            DisplayScreen(3);  // load in the screen for the TMA station
-            ResetWidgetFlags();  // self explanatory
-            // tmawidget = 1;  // depress the widget
-            DisplayWidgets();  // display the widgets
-            drawweapons = 1;  // Turn on TMA screen updates
+        case STN_TMA:
+            TmaStation.UpdateDisplay();
             break;
-        case 4:  // shipcontrol screen
-            DisplayScreen(4);  // load in the screen for the shipcontrol station
-            ResetWidgetFlags();  // self explanatory
-            shipcontrolwidget = 1;  // depress the widget
-            DisplayWidgets();  // display the widgets
-            drawcontrol = 1;
-            ControlStation.InitGraphics(screen, controlscreen);
+        case STN_WEAPONS:
+            WeaponsStation.UpdateDisplay();
             break;
-        case 5:  // RADAR screen
-            DisplayScreen(5);  // load in the screen for the RADAR station
-            ResetWidgetFlags();  // self explanatory
-            radarwidget = 1;  // depress the widget
-            DisplayWidgets();  // display the widgets
-            drawradar = 1;  // Turn on Radar screen updates
-            RadarStation.InitGraphics(screen, radarscreen);
+        case STN_SHIPCONTROL:
+            ControlStation.UpdateDisplay();
             break;
-        case 6:  // ESM screen
-            DisplayScreen(6);  // load in the screen for the ESM station
-            ResetWidgetFlags();  // self explanitory
-            esmwidget = 1;  // depress the widget
-            DisplayWidgets();  // display the widgets
-            drawesm = 1;  // Turn on ESM screen updates
-            EsmStation.InitGraphics(screen, esmscreen);
+        case STN_ESM:
+            EsmStation.UpdateDisplay();
+            break;
+        case STN_RADAR:
+            RadarStation.UpdateDisplay();
             break;
     }
+
+    // Display the sub status
+    DisplaySubStatus();
+
+    // Display the messages
+    Message.display_message();
+
+    // Station icons and quit button
+    DisplayStationWidgets();
+
+    // Time compression factor and plus/minus buttons
+    DisplayTimeBox();
 }
 
 /**************************************************
@@ -1739,16 +1112,17 @@ resolution TMA stuff.
 Uint32 TmaTimer(Uint32 interval, void *param)
 {
     static Uint32 tick = 0;
-    Tma.Lock();  // Lock Tma access mutex
+    TmaStation.Lock();  // Lock Tma access mutex
     param = NULL;  // Quites error messages.
     tick ++;  // record the time of the tma record.
-    Tma.RecordBoatPosition(Subs->Lat_TotalYards, Subs->Lon_TotalYards, Subs->BearingToTarget(& (Subs[1])), tick);
-    Tma.UnLock();  // Unlock mutex
+    TmaStation.RecordBoatPosition(Subs->Lat_TotalYards, Subs->Lon_TotalYards, Subs->BearingToTarget(& (Subs[1])), tick);
+    TmaStation.UnLock();  // Unlock mutex
     return interval;
 }
 
-int HandleInput(SDL_Event &event, int &mousex, int &mousey)
+int HandleInput(SDL_Event &event)
 {
+    int mousex = 0, mousey = 0;  // where is the mouse?
     int y1, y2, x_checks_out;
     int index;
 
@@ -1795,7 +1169,7 @@ int HandleInput(SDL_Event &event, int &mousex, int &mousey)
                     break;
                 }
             }
-            if (drawmap || drawtma) {
+            if (station == STN_NAV || station == STN_TMA) {
                 if (mousex > 224 && mousex < 257) {
                     if (mousey > 270 && mousey < 300) {
                         return CENTERDISPLAY;
@@ -1840,10 +1214,10 @@ int HandleInput(SDL_Event &event, int &mousex, int &mousey)
                 }
             }
             // Radar events
-            if (drawradar) {
+            if (station == STN_RADAR) {
                 if (mousex > 105 && mousex < 512) {
                     if (mousey > 156 && mousey < 566) {
-                        RadarStation.ShowData(screen, mousex, mousey);
+                        RadarStation.selectContact(mousex, mousey);
                         break;
                     }
                 }
@@ -1948,7 +1322,7 @@ int HandleInput(SDL_Event &event, int &mousex, int &mousey)
             }
 
             // Weapon console events
-            if (drawweapons) {
+            if (station == STN_WEAPONS) {
                 x_checks_out = TRUE;
                 y1 = 150;
                 y2 = 190;
@@ -1989,7 +1363,7 @@ int HandleInput(SDL_Event &event, int &mousex, int &mousey)
 
             }  // end of weapons screen
             // ESM events
-            if (drawesm) {
+            if (station == STN_ESM) {
                 if (mousex > 744 && mousex < 791) {
                     if (mousey > 185 && mousey < 232) {
                         return ESMDOWN;
@@ -2006,7 +1380,7 @@ int HandleInput(SDL_Event &event, int &mousex, int &mousey)
             }
 
             // Control events
-            if (drawcontrol) {
+            if (station == STN_SHIPCONTROL) {
                 if (mousex > 158 && mousex < 347) {
                     if (mousey > 250 && mousey < 430) {
                         ControlStation.AdjustHeading(mousex, mousey);
@@ -2113,7 +1487,7 @@ int HandleInput(SDL_Event &event, int &mousex, int &mousey)
                 }
             }
 
-            if (drawsonar) {
+            if (station == STN_SONAR) {
                 if (mousex > 615 && mousex < 657) {
                     if (mousey > 162 && mousey < 210) {
                         return TOGGLETRUERELATIVE;
@@ -2360,25 +1734,13 @@ int main(int argc, char **argv)
 {
     static char text[120];
     int status;
-    int hours = 0;
-    int minutes = 0;
-    int seconds = 0;
     int option_choice;  // a place to put command line switches
     int screendumpcount = 0;
-    int mousex = 0, mousey = 0;  // where is the mouse?
-    bool quit = false;  // Quit flag Duh!
-    int station;  // flag to decide which work station to display
     bool full_screen = false;
     int mission_number = 0;
     int enable_sound = FALSE;
     SDL_Event event;  // a typedef to hold events
-    drawsonar = 0;  // draw the sonar flag
-    drawmap = 1;  // draw the map flag
-    drawradar = 0;
-    drawesm = 0;
-    drawcontrol = 0;
-    northcenter = true;  // make the sonar display N. centered
-    Uint32 timer1;  //timer2;  // our event timers...
+    Uint32 ticks;  // our tick counter
     SDL_TimerID timer_id, timer_id2;
     torpedoes = NULL;
     helicopters = NULL;
@@ -2386,10 +1748,6 @@ int main(int argc, char **argv)
     srand(time(NULL));  // Seed the random generator
 
     // Process command line options
-    /*
-    sprintf(text,"m:vwfkhs");
-    while ((option_choice = getopt(argc, argv, text)) != -1) {
-    */
     status = 1;
     while (status < argc) {
         if (argv[status][0] == '-')
@@ -2440,163 +1798,81 @@ int main(int argc, char **argv)
 
     SetupScreen(full_screen);
     Init_Audio(enable_sound);
-    // CreateShips(mission_number);
-    Tma.InitGraphics();
-    SonarStation.InitGraphics();
-    // msg Message;
-    Message.InitGraphics();
+    InitGraphics();
+    Message.InitGraphics(screen);
+    my_map.InitGraphics(screen);
     Clock.InitTime(12, 15, 0);
-    SonarStation.LoadWidgets();
     SDL_EnableKeyRepeat(150, 100);
-    LoadScreens();
-    LoadWidgets();  //load up the buttons
-    DisplayScreen(0);  // Display intro screen
-    static DFont fnt("images/font.png", "data/font.dat");
-    my_map = new MAP();
-    #ifdef DEBUGMAP
-    my_map->Test_Map();
-    #endif
+    LoadWidgets();  //load up the screens and buttons
+    DisplayScreen(SCREEN_TITLE);  // Display intro screen
     SDL_UpdateRect(screen, 0, 0, 0, 0);
-    timer1 = SDL_GetTicks();  // initialize the timer
+    #ifdef DEBUGMAP
+    my_map.Test_Map();
+    #endif
+    ticks = SDL_GetTicks();  // initialize the tick counter
     SDL_Delay(1000);  // show splash screen for one second
     quit = false;  // reset loop exit flag
-    DisplayScreen(9);
+    DisplayScreen(SCREEN_MENU);
+    SDL_UpdateRect(screen, 0, 0, 0, 0);
     // main menu stuff goes here
     status = Main_Menu(&mission_number, screen);
     if (status == ACTION_QUIT)
         quit = true;
 
-    CreateShips(mission_number, my_map);
-    SDL_Rect rectangle;
-    rectangle.x = 0;
-    rectangle.y = 0;
-    rectangle.w = 1024;  // This block of code clears the screen
-    rectangle.h = 768;
-    SDL_FillRect(screen, &rectangle, black);
+    CreateShips(mission_number, &my_map);
     timecompression = 1;
-    station = 2;  // default station
-    ShowStation(station);
+    station = STN_NAV;  // default station
     sprintf(text, "OpenSSN version %2.1f", VERSION);
     Message.post_message(text);
     Message.post_message("http://openssn.sourceforge.net");
     Message.display_message();
-    sprintf(text, "[%i] ", timecompression);
-    fnt.PutString(screen, 933, 718, text);
     my_mission_status = MISSION_STARTED;
     timer_id = SDL_AddTimer(1000, timerfunc, NULL);
     timer_id2 = SDL_AddTimer(60000, TmaTimer, NULL);
-    timer1 = SDL_GetTicks();
-    // timer2 = SDL_GetTicks();
-    const int frameperiod = 100;  // how fast we want the displays to update (in milliseconds)... this allows for a fixed frame rate
+    const int frameperiod = 1000 / GAME_FRAMERATE;  // how fast we want the displays to update (in milliseconds)... this allows for a fixed frame rate
 
+    // This is the main loop...
     while (!quit) {
-        // This is the main loop...
-        if (timer1 + (frameperiod) < SDL_GetTicks()) {
-            timer1 = SDL_GetTicks();
-            RadarStation.Sweep(frameperiod * timecompression);
-            UpdateDisplay();
-
-            SDL_Rect rectangle;
-            rectangle.x = 16;
-            rectangle.y = 14;  // define a rectangle on the screen and make it black
-            rectangle.h = 72;
-            rectangle.w = 126;
-            SDL_FillRect(screen, &rectangle, black);
-            sprintf(text, "Now - Wanted");
-            fnt.PutString(screen, 30, 20, text);
-            sprintf(text, "S: [%3i]  -   [%3i]", (int) Subs->Speed, Subs->DesiredSpeed);
-            fnt.PutString(screen, 30, 31, text);
-            sprintf(text, "H: [%3i]  -   [%3i]", (int) Subs->Heading, Subs->DesiredHeading);
-            fnt.PutString(screen, 30, 42, text);
-            sprintf(text, "D: [%4i]  -  [%4i]", (int) Subs->Depth, Subs->DesiredDepth);
-            fnt.PutString(screen, 30, 53, text);
-            // sprintf(text, "ARRAY [%4i]", TB16.GetLength());
-            // fnt.PutString(screen, 40, 53, text);
-            Clock.GetTime(hours, minutes, seconds);
-            sprintf(text, "%.2i:%.2i:%.2i", hours, minutes, seconds);
-            fnt.PutString(screen, 40, 64, text);
-            SDL_UpdateRects(screen, 1, &rectangle);
-        }
-
+        // Events handling
         while (SDL_PollEvent(&event)) {
             // If there are events waiting take care of them
-            switch (HandleInput(event, mousex, mousey)) {
+            switch (HandleInput(event)) {
                 case SONAR:
-                    ShowStation(1);
-                    UpdateDisplay();
+                    station = STN_SONAR;
                     Message.post_message("Sonar station");
-                    Message.display_message();
-                    sprintf(text, "[%i] ", timecompression);
-                    fnt.PutString(screen, 933, 718, text);
                     break;
                 case NAVMAP:
-                    ShowStation(2);
-                    UpdateDisplay();
+                    station = STN_NAV;
                     Message.post_message("Navigation display");
-                    Message.display_message();
-                    sprintf(text, "[%i] ", timecompression);
-                    fnt.PutString(screen, 933, 718, text);
                     break;
                 case WEAPONS:
-                    update_weapons_screen = TRUE;
-                    ShowStation(3);
-                    UpdateDisplay();
+                    station = STN_WEAPONS;
                     Message.post_message("Weapons console");
-                    Message.display_message();
-                    sprintf(text, "[%i] ", timecompression);
-                    fnt.PutString(screen, 933, 718, text);
                     break;
                 case WHICHTUBE:
-                    update_weapons_screen = TRUE;
-                    UpdateDisplay();
                     Message.post_message("Which tube (1-6)?");
-                    Message.display_message();
                     break;
                 case SHIPCONTROL:
-                    ShowStation(4);
-                    UpdateDisplay();
+                    station = STN_SHIPCONTROL;
                     Message.post_message("Helm control");
-                    Message.display_message();
-                    sprintf(text, "[%i] ", timecompression);
-                    fnt.PutString(screen, 933, 718, text);
                     break;
                 case ESM:
-                    ShowStation(6);
-                    UpdateDisplay();
+                    station = STN_ESM;
                     Message.post_message("ESM station");
-                    Message.display_message();
-                    sprintf(text, "[%i] ", timecompression);
-                    fnt.PutString(screen, 933, 718, text);
                     break;
                 case RADAR:
-                    ShowStation(5);
-                    UpdateDisplay();
+                    station = STN_RADAR;
                     Message.post_message("Radar console");
-                    Message.display_message();
-                    sprintf(text, "[%i] ", timecompression);
-                    fnt.PutString(screen, 933, 718, text);
                     break;
                 case SWITCHTARGET:
                     current_target = Subs->Next_Target();
-                    if (drawmap) {
-                        DrawMap();
-                        // PlaceShips(mapscale, 0, -10, current_target);
-                    }
-                    SDL_Delay(100);
                     break;
                 case QUIT:
                     printf("Got quit signal.\n");
-                    ResetWidgetFlags();
-                    quitwidget = 1;
-                    DisplayWidgets();
-                    SDL_Delay(200);
-                    quitwidget = 0;
-                    DisplayWidgets();
-                    SDL_Delay(500);
                     quit = true;
                     break;
                 case COMPRESSTIME:  // Make Einstein proud.
-                    DisplayWidget(screen, 880, 710, plusbuttondown);
+                    plusbuttondown.draw(screen, 880, 710, true);
                     timecompression++;
                     if (timecompression > 8) {
                         timecompression = 8;
@@ -2607,14 +1883,11 @@ int main(int argc, char **argv)
                             timer_id = SDL_AddTimer(1000 / timecompression, timerfunc, NULL);
                             timer_id2 = SDL_AddTimer(60000 / timecompression, TmaTimer, NULL);
                         }
-                        sprintf(text, "[%i] ", timecompression);
-                        fnt.PutString(screen, 933, 718, text);
                     }
                     SDL_Delay(150);
-                    DisplayWidgets();
                     break;
                 case UNCOMPRESSTIME:  // Take A Downer
-                    DisplayWidget(screen, 970, 710, minusbuttondown);
+                    minusbuttondown.draw(screen, 970, 710, true);
                     timecompression--;
                     if (timecompression < 1) {
                         timecompression = 1;
@@ -2625,11 +1898,8 @@ int main(int argc, char **argv)
                             timer_id = SDL_AddTimer(1000 / timecompression, timerfunc, NULL);
                             timer_id2 = SDL_AddTimer(60000 / timecompression, TmaTimer, NULL);
                         }
-                        sprintf(text, "[%i] ", timecompression);
-                        fnt.PutString(screen, 933, 718, text);
                     }
                     SDL_Delay(150);
-                    DisplayWidgets();
                     break;
                 case INCREASESPEED:
                     Subs->DesiredSpeed++;
@@ -2667,121 +1937,68 @@ int main(int argc, char **argv)
                     }
                     break;
                 case INCREASEMAPSCALE:
-                    if (drawmap) {
-                        mapscale++;
-                        if (mapscale > MAX_MAP_SCALE) mapscale = MAX_MAP_SCALE;
-                        DisplayWidget(screen, 175, 359, plusbuttondown);
-                        DrawMap();
-                        // UpdateDisplay();
-                        SDL_Delay(100);
-                        DisplayNavigationWidgets();
+                    if (station == STN_NAV) {
+                        NavigationStation.IncreaseMapScale();
                     }
-                    if (drawtma) {
-                        DisplayWidget(screen, 175, 359, plusbuttondown);
-                        Tma.IncreasePlotScale();
-                        DisplayTMA();
-                        SDL_Delay(100);
-                        DisplayTMAWidgets();
+                    if (station == STN_TMA) {
+                        TmaStation.IncreasePlotScale();
                     }
                     break;
                 case DECREASEMAPSCALE:
-                    if (drawmap) {
-                        mapscale--;
-                        if (mapscale < 1) mapscale = 1;
-                        DisplayWidget(screen, 275, 359, minusbuttondown);
-                        DrawMap();
-                        // UpdateDisplay();
-                        SDL_Delay(100);
-                        DisplayNavigationWidgets();
+                    if (station == STN_NAV) {
+                        NavigationStation.DecreaseMapScale();
                     }
-                    if (drawtma) {
-                        Tma.DecreasePlotScale();
-                        DisplayWidget(screen, 275, 359, minusbuttondown);
-                        DisplayTMA();
-                        SDL_Delay(100);
-                        DisplayTMAWidgets();
+                    if (station == STN_TMA) {
+                        TmaStation.DecreasePlotScale();
                     }
                     break;
                 case SCROLLMAPUP:
-                    if (drawmap) {
-                        DisplayWidget(screen, 225, 219, upbuttondown);
-                        PlaceShips(mapscale, 0, -10, current_target);
-                        DrawMap();
-                        SDL_Delay(100);
-                        DisplayNavigationWidgets();
+                    if (station == STN_NAV) {
+                        NavigationStation.ScrollMapUp(10);
                     }
-                    if (drawtma) {
-                        DisplayWidget(screen, 225, 219, upbuttondown);
-                        PlaceShips(mapscale, 0, -10, current_target);
-                        DisplayTMA(0, -10);
-                        SDL_Delay(100);
-                        DisplayTMAWidgets();
+                    if (station == STN_TMA) {
+                        TmaStation.ScrollPlotUp(10);
                     }
                     break;
                 case SCROLLMAPDOWN:
-                    if (drawmap) {
-                        DisplayWidget(screen, 225, 319, downbuttondown);
-                        PlaceShips(mapscale, 0, 10, current_target);
-                        DrawMap();
-                        SDL_Delay(100);
-                        DisplayNavigationWidgets();
+                    if (station == STN_NAV) {
+                        NavigationStation.ScrollMapDown(10);
                     }
-                    if (drawtma) {
-                        DisplayWidget(screen, 225, 319, downbuttondown);
-                        PlaceShips(mapscale, 0, 10, current_target);
-                        DisplayTMA(0, 10);
-                        SDL_Delay(100);
-                        DisplayTMAWidgets();
+                    if (station == STN_TMA) {
+                        TmaStation.ScrollPlotDown(10);
                     }
                     break;
                 case SCROLLMAPLEFT:
-                    if (drawmap) {
-                        DisplayWidget(screen, 175, 269, leftbuttondown);
-                        PlaceShips(mapscale, -10, 0, current_target);
-                        DrawMap();
-                        SDL_Delay(100);
-                        DisplayNavigationWidgets();
+                    if (station == STN_NAV) {
+                        NavigationStation.ScrollMapLeft(10);
                     }
-                    if (drawtma) {
-                        DisplayWidget(screen, 175, 269, leftbuttondown);
-                        PlaceShips(mapscale, -10, 0, current_target);
-                        DisplayTMA(-10, 0);
-                        SDL_Delay(100);
-                        DisplayTMAWidgets();
+                    if (station == STN_TMA) {
+                        TmaStation.ScrollPlotLeft(10);
                     }
                     break;
                 case SCROLLMAPRIGHT:
-                    if (drawmap) {
-                        DisplayWidget(screen, 275, 269, rightbuttondown);
-                        PlaceShips(mapscale, 10, 0, current_target);
-                        DrawMap();
-                        SDL_Delay(100);
-                        DisplayNavigationWidgets();
+                    if (station == STN_NAV) {
+                        NavigationStation.ScrollMapRight(10);
                     }
-                    if (drawtma) {
-                        DisplayWidget(screen, 275, 269, rightbuttondown);
-                        DisplayTMA(10, 0);
-                        SDL_Delay(100);
-                        DisplayTMAWidgets();
+                    if (station == STN_TMA) {
+                        TmaStation.ScrollPlotRight(10);
                     }
                     break;
                 case UP_THERMAL:
-                    if ((player) && (my_map)) {
-                        status = my_map->Next_Up(player->Depth);
+                    if (player) {
+                        status = my_map.Next_Up(player->Depth);
                         if (status != player->Depth) {
                             player->DesiredDepth = status - 25;
                             Message.post_message("Going up one thermal.");
-                            Message.display_message();
                         }
                     }
                     break;
                 case DOWN_THERMAL:
-                    if ((player) && (my_map)) {
-                        status = my_map->Next_Down(player->Depth);
+                    if (player) {
+                        status = my_map.Next_Down(player->Depth);
                         if (status != player->Depth) {
                             player->DesiredDepth = status + 25;
                             Message.post_message("Going down one thermal.");
-                            Message.display_message();
                         }
                     }
                     break;
@@ -2789,28 +2006,23 @@ int main(int argc, char **argv)
                     if (player)
                         player->DesiredDepth = player->Depth;
                     Message.post_message("Holding depth, Captain.");
-                    Message.display_message();
                     break;
                 case GO_SURFACE:
                     if (player)
                         player->DesiredDepth = 0;
                     Message.post_message("Surfacing, Captain!");
-                    Message.display_message();
                     break;
                 case GO_PERISCOPE_DEPTH:
                     if (player)
                         player->DesiredDepth = PERISCOPE_DEPTH;
                     Message.post_message("Heading to periscope depth.");
-                    Message.display_message();
                     break;
 
                 case TOGGLESPHERICALTOWED:
                     SonarStation.ToggleArrayChoice();
-                    SonarStation.DisplaySonarWidgets();
                     break;
                 case TOGGLETRUERELATIVE:
                     SonarStation.ToggleTrueRel();
-                    SonarStation.DisplaySonarWidgets();
                     break;
                 case UPPERCRTBUTTON:
                     SonarStation.UpperCRT_Button();
@@ -2819,91 +2031,67 @@ int main(int argc, char **argv)
                     SonarStation.LowerCRT_Button();
                     break;
                 case CENTERDISPLAY:
-                    if (drawmap) {
-                        if (mapcenter) {
-                            mapcenter = 0;
-                            DisplayNavigationWidgets();
-                        } else {
-                            mapcenter = 1;
-                            DisplayNavigationWidgets();
-                        }
-                        UpdateDisplay();
+                    if (station == STN_NAV) {
+                        NavigationStation.ToggleMapCenter();
                     }
-                    if (drawsonar) {
+                    if (station == STN_SONAR) {
                         SonarStation.ToggleNorthCenter();
                         SonarStation.ClearSonarData();
-                        UpdateDisplay();
-                        Message.display_message();
                     }
-                    if (drawtma) {
-                        Tma.ToggleGeoPlotCenter();
-                        DisplayTMAWidgets();
-                        UpdateDisplay();
-                        Message.display_message();
+                    if (station == STN_TMA) {
+                        TmaStation.ToggleGeoPlotCenter();
                     }
                     break;
                 case EXTENDARRAY:
                     status = TB16.Extend();
                     if (status) {
-                        SonarStation.DisplaySonarWidgets();
                         Message.post_message("Extending sonar array.");
                     } else
                         Message.post_message("Unable to extend array.");
-                    Message.display_message();
                     break;
                 case RETRACTARRAY:
                     status = TB16.ReelIn();
                     if (status) {
-                        SonarStation.DisplaySonarWidgets();
                         Message.post_message("Retrieving sonar array.");
                     } else
                         Message.post_message("Unable to retrieve array.");
-                    Message.display_message();
                     break;
                 case CUTARRAY:
                     status = TB16.CutArray();
-                    SonarStation.DisplaySonarWidgets();
                     if (status)
                         Message.post_message("Cut towed array.");
                     else
                         Message.post_message("Cannot cut array.");
-                    Message.display_message();
                     break;
                 case STOPWINCH:
                     SonarStation.StopWinch();
                     Message.post_message("Stopping sonar array.");
-                    Message.display_message();
                     break;
                 case ASSIGNTRACKER:
                     SonarStation.ToggleAssignTracker();
-                    SonarStation.DisplaySonarWidgets();
                     break;
                 case TRACKER1:
-                    if (SonarStation.assigntracker) {
+                    if (SonarStation.GetAssignTrackerState()) {
                         SonarStation.ToggleAssignTracker();
-                        Tma.AssignTracker(0, 0);
-                        SonarStation.DisplaySonarWidgets();
+                        TmaStation.AssignTracker(0, 0);
                     }
                     break;
                 case TRACKER2:
-                    if (SonarStation.assigntracker) {
+                    if (SonarStation.GetAssignTrackerState()) {
                         SonarStation.ToggleAssignTracker();
-                        Tma.AssignTracker(1, 0);
-                        SonarStation.DisplaySonarWidgets();
+                        TmaStation.AssignTracker(1, 0);
                     }
                     break;
                 case TRACKER3:
-                    if (SonarStation.assigntracker) {
+                    if (SonarStation.GetAssignTrackerState()) {
                         SonarStation.ToggleAssignTracker();
-                        Tma.AssignTracker(2, 0);
-                        SonarStation.DisplaySonarWidgets();
+                        TmaStation.AssignTracker(2, 0);
                     }
                     break;
                 case TRACKER4:
-                    if (SonarStation.assigntracker) {
+                    if (SonarStation.GetAssignTrackerState()) {
                         SonarStation.ToggleAssignTracker();
-                        Tma.AssignTracker(3, 0);
-                        SonarStation.DisplaySonarWidgets();
+                        TmaStation.AssignTracker(3, 0);
                     }
                     break;
                 case DESIGNATECONTACT:
@@ -2912,122 +2100,93 @@ int main(int argc, char **argv)
                     break;
                 case TOGGLER10:
                     RadarStation.ToggleRangeScale10();
-                    RadarStation.DisplayWidgets();
                     break;
                 case TOGGLER20:
                     RadarStation.ToggleRangeScale20();
-                    RadarStation.DisplayWidgets();
                     break;
                 case TOGGLER30:
                     RadarStation.ToggleRangeScale30();
-                    RadarStation.DisplayWidgets();
                     break;
                 case TOGGLER40:
                     RadarStation.ToggleRangeScale40();
-                    RadarStation.DisplayWidgets();
                     break;
                 case TOGGLER50:
                     RadarStation.ToggleRangeScale50();
-                    RadarStation.DisplayWidgets();
                     break;
                 case TOGGLER60:
                     RadarStation.ToggleRangeScale60();
-                    RadarStation.DisplayWidgets();
                     break;
                 case RING0:
                     RadarStation.ToggleRangeRing0();
-                    RadarStation.DisplayWidgets();
                     break;
                 case RING5:
                     RadarStation.ToggleRangeRing5();
-                    RadarStation.DisplayWidgets();
                     break;
                 case RING10:
                     RadarStation.ToggleRangeRing10();
-                    RadarStation.DisplayWidgets();
                     break;
                 case RING15:
                     RadarStation.ToggleRangeRing15();
-                    RadarStation.DisplayWidgets();
                     break;
                 case RING20:
                     RadarStation.ToggleRangeRing20();
-                    RadarStation.DisplayWidgets();
                     break;
                 case RING25:
                     RadarStation.ToggleRangeRing25();
-                    RadarStation.DisplayWidgets();
                     break;
                 case RADARDOWN:
                     RadarStation.LowerMast();
-                    RadarStation.DisplayWidgets();
-                    RadarStation.ClearScreen();
                     if (player)
                         player->using_radar = FALSE;
                     break;
                 case RADARUP:
                     if (Subs->Depth <= PERISCOPE_DEPTH) {
                         RadarStation.RaiseMast();
-                        RadarStation.DisplayWidgets();
                         if (player)
                             player->using_radar = TRUE;
                     }
                     break;
                 case ESMDOWN:
                     EsmStation.LowerMast();
-                    EsmStation.DisplayWidgets();
-                    EsmStation.ClearScreen();
                     break;
                 case ESMUP:
                     if (Subs->Depth <= PERISCOPE_DEPTH) {
                         EsmStation.RaiseMast();
-                        EsmStation.DisplayWidgets();
                     }
                     break;
                 case ASTOP:
                     ControlStation.ToggleASTOP();
-                    ControlStation.DisplayWidgets();
                     break;
                 case A13:
                     ControlStation.ToggleA13();
-                    ControlStation.DisplayWidgets();
                     break;
                 case A23:
                     ControlStation.ToggleA23();
-                    ControlStation.DisplayWidgets();
                     break;
                 case ASTD:
                     ControlStation.ToggleASTD();
-                    ControlStation.DisplayWidgets();
                     break;
                 case AFULL:
                     ControlStation.ToggleAFULL();
-                    ControlStation.DisplayWidgets();
                     break;
                 case AFLK:
                     ControlStation.ToggleAFLK();
-                    ControlStation.DisplayWidgets();
                     break;
                 case B13:
                     ControlStation.ToggleB13();
-                    ControlStation.DisplayWidgets();
                     break;
                 case B23:
                     ControlStation.ToggleB23();
-                    ControlStation.DisplayWidgets();
                     break;
                 case BSTD:
                     ControlStation.ToggleBSTD();
-                    ControlStation.DisplayWidgets();
                     break;
                 case BEMER:
                     ControlStation.ToggleBEMER();
-                    ControlStation.DisplayWidgets();
                     break;
                 case SEND_PING:
                     player->Send_Ping(Subs);
                     Message.post_message("Sending active ping, sir.");
-                    Message.display_message();
                     break;
                 case USE_TUBE:
                     // check to see if we already have too
@@ -3036,7 +2195,6 @@ int main(int argc, char **argv)
                     status += player->Count_Noisemakers(torpedoes);
                     if (status >= MAX_PLAYER_WEAPONS) {
                         Message.post_message("Tracking computer full, Captain.");
-                        Message.display_message();
                         break;
                     }
                     // load, fire or unload a tube
@@ -3052,7 +2210,6 @@ int main(int argc, char **argv)
                             new_torpedo->owner = player;
                             torpedoes = Add_Ship(torpedoes, new_torpedo);
                             Message.post_message("Noise maker launched!");
-                            Message.display_message();
                             my_torp = torpedoes;
                             while (my_torp) {
                                 if (my_torp->target == player)
@@ -3077,19 +2234,15 @@ int main(int argc, char **argv)
                                 new_torpedo->owner = Subs;
                                 torpedoes = Add_Ship(torpedoes, new_torpedo);
                                 Message.post_message("Torpedo launched!");
-                                Message.display_message();
                             }
                         }
                     } else if (status == TUBE_ERROR_FIRE_SUCCESS) {
                         Message.post_message("Torpedo has no target.");
-                        Message.display_message();
                         Subs->TorpedosOnBoard++;
                     }
 
                     tube_action = 0;
                     tube_to_use = -1;
-                    update_weapons_screen = TRUE;
-                    UpdateDisplay();
                     break;
                 case PAUSEGAME:
                     if (pause_game) {  // UnPause
@@ -3106,39 +2259,43 @@ int main(int argc, char **argv)
                     break;
             }
         }
-        /*
-        if (timer2 < (SDL_GetTicks() - (1000 / timecompression))) {
-           #ifdef DEBUG
-           printf("Launching timer function.\n");
-           #endif
-           // timerfunc(0, NULL);
-           timer2 = SDL_GetTicks();
-        }
-        */
+
+        // Update sensors
         if (should_update_everything) {
             should_update_everything = FALSE;
             Update_Everything();
         }
+
+        // Render - if time elapsed is more than frame period (or quit)
+        if ((SDL_GetTicks() > ticks + frameperiod) || quit) {
+            // Update tick counter for current frame
+            ticks = SDL_GetTicks();
+            RadarStation.Sweep(frameperiod * timecompression);
+            // Redraw the whole screen
+            UpdateDisplay();
+            // Update the display
+            SDL_UpdateRect(screen, 0, 0, 0, 0);
+        }
+
         if (my_mission_status == MISSION_SUCCESS) {
             printf("Mission completed successfully!\n");
-            DisplayScreen(7);
+            DisplayScreen(SCREEN_SUCCESS);
             SDL_Delay(5000);
             quit = true;
         } else if (my_mission_status == MISSION_FAILED) {
             printf("Mission failed.\n");
-            DisplayScreen(8);
+            DisplayScreen(SCREEN_FAILURE);
             SDL_Delay(5000);
             quit = true;
         }
-
-        SDL_Delay(GAME_DELAY);
     }  // end of main loop
+
+    SDL_Delay(200);
 
     #ifdef DEBUG
     printf("Unloading widgets.\n");
     #endif
     UnLoadWidgets();
-    UnLoadScreens();
     // get rid of torpedoes
     #ifdef DEBUG
     printf("Destroying torpedoes\n");
@@ -3159,8 +2316,6 @@ int main(int argc, char **argv)
     printf("Killing SDL\n");
     #endif
     Clean_Up_Audio();
-    if (my_map)
-        delete my_map;
     SDL_Quit();
     return 0;  // just to make the compiler happy
 }

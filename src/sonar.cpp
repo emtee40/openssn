@@ -23,29 +23,38 @@ $Id: sonar.cpp,v 1.14 2003/09/21 21:52:40 mbridak Exp $
 #include "draw.h"
 #include "files.h"
 
-AnBqq5::AnBqq5(Submarine *temp, TowedArray &temp2, TargetMotionAnalysis &temp3,
-               msg &temp4): Subs(temp), TB16(temp2), Tma(temp3), Message(temp4)
+AnBqq5::AnBqq5(TowedArray &tb16, TargetMotionAnalysis &tma, msg &msg)
+    : TB16(tb16), Tma(tma), Message(msg)
 {
     northcenter = true;
     arraychoice5by6 = true;
     bearingdisplay5by6 = true;
-    sonarwidget = false;
     cursorBearing = 0;
 }
 
 AnBqq5::~AnBqq5() {}
 
-void AnBqq5::InitGraphics()
+void AnBqq5::setSubs(Submarine *Subs)
 {
-    screen = SDL_GetVideoSurface();
-    SDL_Surface *temp = SDL_CreateRGBSurface(SDL_SWSURFACE, 368, 280, 32,
-                        screen->format->Rmask,
-                        screen->format->Gmask,
-                        screen->format->Bmask,
-                        screen->format->Amask);
-    sonarscreen = SDL_DisplayFormat(temp);
-    towedarrayscreen = SDL_DisplayFormat(temp);
-    SDL_FreeSurface(temp);
+    this->Subs = Subs;
+}
+
+void AnBqq5::setFlowandambientnoise(float flowandambientnoise)
+{
+    this->flowandambientnoise = flowandambientnoise;
+}
+
+void AnBqq5::InitGraphics(SDL_Surface *screen)
+{
+    this->screen = screen;
+    SDL_Surface *surface = SDL_CreateRGBSurface(SDL_SWSURFACE, 368, 280, 32,
+                                                screen->format->Rmask,
+                                                screen->format->Gmask,
+                                                screen->format->Bmask,
+                                                screen->format->Amask);
+    sonarscreen = SDL_DisplayFormat(surface);
+    towedarrayscreen = SDL_DisplayFormat(surface);
+    SDL_FreeSurface(surface);
     uppersonarcrt = sonarscreen;
     lowersonarcrt = towedarrayscreen;
     if (screen == NULL || sonarscreen == NULL || towedarrayscreen == NULL) {
@@ -55,120 +64,97 @@ void AnBqq5::InitGraphics()
     black = SDL_MapRGB(screen->format, 0, 0, 0);
     white = SDL_MapRGB(screen->format, 255, 255, 255);
     green = SDL_MapRGB(screen->format, 0, 255, 0);
-    // medium_green = SDL_MapRGB(screen->format, 0, 160, 0);
-    // dark_green = SDL_MapRGB(screen->format, 0, 100, 0);
 }
 
 void AnBqq5::LoadWidgets()
 {
-    sonarbuttonup = Load_Image("images/sonarup.png");
-    sonarbuttondown = Load_Image("images/sonardown.png");
-    ncscale = Load_Image("images/nc_scale.png");
-    scscale = Load_Image("images/sc_scale.png");
-    truerel[0] = Load_Image("images/rel_true.png");
-    truerel[1] = Load_Image("images/true_rel.png");
-    sphertowed[0] = Load_Image("images/towedspherical.png");
-    sphertowed[1] = Load_Image("images/sphericaltowed.png");
-    uppercrtoff = Load_Image("images/uppercrtoff.png");
-    uppercrton = Load_Image("images/uppercrton.png");
-    lowercrtoff = Load_Image("images/lowercrtoff.png");
-    lowercrton = Load_Image("images/lowercrton.png");
-    tb16winchon = Load_Image("images/tb16winchon.png");
-    tb16winchoff = Load_Image("images/tb16winchoff.png");
-    extendtb16[0] = Load_Image("images/extendtb16off.png");
-    extendtb16[1] = Load_Image("images/extendtb16on.png");
-    retracttb16[0] = Load_Image("images/retracttb16off.png");
-    retracttb16[1] = Load_Image("images/retracttb16on.png");
-    cutarray = Load_Image("images/cutarray.png");
-    sendping = Load_Image("images/ping_button.png");
-    assigntrackerwidget[0] = Load_Image("images/assigntrackeroff.png");
-    assigntrackerwidget[1] = Load_Image("images/assigntrackeron.png");
-    tracker1[0] = Load_Image("images/track1.png");
-    tracker1[1] = Load_Image("images/track1assigned.png");
-    tracker2[0] = Load_Image("images/track2.png");
-    tracker2[1] = Load_Image("images/track2assigned.png");
-    tracker3[0] = Load_Image("images/track3.png");
-    tracker3[1] = Load_Image("images/track3assigned.png");
-    tracker4[0] = Load_Image("images/track4.png");
-    tracker4[1] = Load_Image("images/track4assigned.png");
+    sonarconsole.load("images/Sonarscreen.png");
+    ncscale.load("images/nc_scale.png");
+    scscale.load("images/sc_scale.png");
+    truerel[0].load("images/rel_true.png");
+    truerel[1].load("images/true_rel.png");
+    sphertowed[0].load("images/towedspherical.png");
+    sphertowed[1].load("images/sphericaltowed.png");
+    uppercrtoff.load("images/uppercrtoff.png");
+    uppercrton.load("images/uppercrton.png");
+    lowercrtoff.load("images/lowercrtoff.png");
+    lowercrton.load("images/lowercrton.png");
+    tb16winchon.load("images/tb16winchon.png");
+    tb16winchoff.load("images/tb16winchoff.png");
+    extendtb16[0].load("images/extendtb16off.png");
+    extendtb16[1].load("images/extendtb16on.png");
+    retracttb16[0].load("images/retracttb16off.png");
+    retracttb16[1].load("images/retracttb16on.png");
+    cutarray.load("images/cutarray.png");
+    sendping.load("images/ping_button.png");
+    assigntrackerwidget[0].load("images/assigntrackeroff.png");
+    assigntrackerwidget[1].load("images/assigntrackeron.png");
+    tracker1[0].load("images/track1.png");
+    tracker1[1].load("images/track1assigned.png");
+    tracker2[0].load("images/track2.png");
+    tracker2[1].load("images/track2assigned.png");
+    tracker3[0].load("images/track3.png");
+    tracker3[1].load("images/track3assigned.png");
+    tracker4[0].load("images/track4.png");
+    tracker4[1].load("images/track4assigned.png");
 }
 
 void AnBqq5::UnLoadWidgets()
 {
     // free the surfaces
-    SDL_FreeSurface(sonarbuttonup);
-    SDL_FreeSurface(sonarbuttondown);
-    SDL_FreeSurface(ncscale);
-    SDL_FreeSurface(scscale);
-    SDL_FreeSurface(truerel[0]);
-    SDL_FreeSurface(truerel[1]);
-    SDL_FreeSurface(sphertowed[0]);
-    SDL_FreeSurface(sphertowed[1]);
-    SDL_FreeSurface(uppercrtoff);
-    SDL_FreeSurface(uppercrton);
-    SDL_FreeSurface(lowercrtoff);
-    SDL_FreeSurface(lowercrton);
-    SDL_FreeSurface(tb16winchon);
-    SDL_FreeSurface(tb16winchoff);
-    SDL_FreeSurface(extendtb16[0]);
-    SDL_FreeSurface(extendtb16[1]);
-    SDL_FreeSurface(retracttb16[0]);
-    SDL_FreeSurface(retracttb16[1]);
-    SDL_FreeSurface(cutarray);
-    SDL_FreeSurface(sendping);
-    SDL_FreeSurface(assigntrackerwidget[0]);
-    SDL_FreeSurface(assigntrackerwidget[1]);
-    SDL_FreeSurface(tracker1[0]);
-    SDL_FreeSurface(tracker1[1]);
-    SDL_FreeSurface(tracker2[0]);
-    SDL_FreeSurface(tracker2[1]);
-    SDL_FreeSurface(tracker3[0]);
-    SDL_FreeSurface(tracker3[1]);
-    SDL_FreeSurface(tracker4[0]);
-    SDL_FreeSurface(tracker4[1]);
+    sonarconsole.unload();
+    ncscale.unload();
+    scscale.unload();
+    truerel[0].unload();
+    truerel[1].unload();
+    sphertowed[0].unload();
+    sphertowed[1].unload();
+    uppercrtoff.unload();
+    uppercrton.unload();
+    lowercrtoff.unload();
+    lowercrton.unload();
+    tb16winchon.unload();
+    tb16winchoff.unload();
+    extendtb16[0].unload();
+    extendtb16[1].unload();
+    retracttb16[0].unload();
+    retracttb16[1].unload();
+    cutarray.unload();
+    sendping.unload();
+    assigntrackerwidget[0].unload();
+    assigntrackerwidget[1].unload();
+    tracker1[0].unload();
+    tracker1[1].unload();
+    tracker2[0].unload();
+    tracker2[1].unload();
+    tracker3[0].unload();
+    tracker3[1].unload();
+    tracker4[0].unload();
+    tracker4[1].unload();
 }
 
-void AnBqq5::DisplayWidget(SDL_Surface *dest, int x, int y, SDL_Surface *source)
+void AnBqq5::DisplayWidgets()
 {
-    SDL_Rect rect;
-
-    // Blit destination x & y to the upper left
-    rect.x = x;
-    rect.y = y;
-    // Height and width equal to the source images...
-    rect.h = source->h;
-    rect.w = source->w;
-    // Do the actual blit
-    SDL_BlitSurface(source, NULL, dest, &rect);
-    // Show the screen...
-    SDL_UpdateRects(dest, 1, &rect);
-}
-
-void AnBqq5::DisplaySonarWidgets()
-{
-    DisplayWidget(screen, 180, 710, sonarwidget ? sonarbuttondown : sonarbuttonup);
-
-    if (!sonarwidget)
-        return;
-
+    // Sonar console
+    sonarconsole.draw(screen, 0, 0);
     // True/relative bearing / Spherical/towed array
-    DisplayWidget(screen, 614, 161, truerel[bearingdisplay5by6]);
-    DisplayWidget(screen, 614, 215, sphertowed[arraychoice5by6]);
+    truerel[bearingdisplay5by6].draw(screen, 614, 161);
+    sphertowed[arraychoice5by6].draw(screen, 614, 215);
     // Upper CRT / Lower CRT
-    DisplayWidget(screen, 661, 161, uppercrtoff);
-    DisplayWidget(screen, 661, 215, lowercrtoff);
+    uppercrtoff.draw(screen, 661, 161);
+    lowercrtoff.draw(screen, 661, 215);
     // Assign tracker / tracker 1 / tracker 2 / tracker 3 / tracker 4
-    DisplayWidget(screen, 473, 403, assigntrackerwidget[assigntracker]);
-    DisplayWidget(screen, 520, 403, tracker1[Tma.GetTrackerState(0)]);
-    DisplayWidget(screen, 567, 403, tracker2[Tma.GetTrackerState(1)]);
-    DisplayWidget(screen, 614, 403, tracker3[Tma.GetTrackerState(2)]);
-    DisplayWidget(screen, 661, 403, tracker4[Tma.GetTrackerState(3)]);
+    assigntrackerwidget[assigntracker].draw(screen, 473, 403);
+    tracker1[Tma.GetTrackerState(0)].draw(screen, 520, 403);
+    tracker2[Tma.GetTrackerState(1)].draw(screen, 567, 403);
+    tracker3[Tma.GetTrackerState(2)].draw(screen, 614, 403);
+    tracker4[Tma.GetTrackerState(3)].draw(screen, 661, 403);
     // Send ping / Cut array / Stop winch / Extend / Retract
-    DisplayWidget(screen, 472, 590, sendping);
-    DisplayWidget(screen, 520, 590, cutarray);
-    DisplayWidget(screen, 567, 590, tb16winchoff);
-    DisplayWidget(screen, 614, 590, extendtb16[TB16.winch == 1]);
-    DisplayWidget(screen, 661, 590, retracttb16[TB16.winch == 2]);
+    sendping.draw(screen, 472, 590);
+    cutarray.draw(screen, 520, 590);
+    tb16winchoff.draw(screen, 567, 590);
+    extendtb16[TB16.winch == 1].draw(screen, 614, 590);
+    retracttb16[TB16.winch == 2].draw(screen, 661, 590);
 }
 
 void AnBqq5::ClearSonarData()  // when the display is switched from north centered
@@ -271,7 +257,6 @@ void AnBqq5::DisplaySonar()
         destination_rectangle.w = 360;
         destination_rectangle.h = 200;
         SDL_BlitSurface(uppersonarcrt, &source_rectangle, screen, &destination_rectangle);
-        SDL_UpdateRects(screen, 1, &destination_rectangle);
     }
 
     if (lowersonarcrt != NULL) {
@@ -284,25 +269,19 @@ void AnBqq5::DisplaySonar()
         destination_rectangle.w = 360;
         destination_rectangle.h = 200;
         SDL_BlitSurface(lowersonarcrt, &source_rectangle, screen, &destination_rectangle);
-        SDL_UpdateRects(screen, 1, &destination_rectangle);
     }
 }
 
 void AnBqq5::UpdateDisplay(Submarine *current_target)
 {
-    SDL_Rect destination_rectangle;
     static char text[120];
     static DFont largeFont("images/largefont.png", "data/largefont.dat");
-    DisplaySonar(); //draw sonar screen
-    destination_rectangle.x = 830;
-    destination_rectangle.y = 410;  // define a rectangle on the screen and make it black
-    destination_rectangle.h = 30;
-    destination_rectangle.w = 90;
-    SDL_FillRect(screen, &destination_rectangle, black);
-    SDL_UpdateRects(screen, 1, &destination_rectangle);
-    destination_rectangle.y = 498;  // define a rectangle on the screen and make it black
-    SDL_FillRect(screen, &destination_rectangle, black);
-    SDL_UpdateRects(screen, 1, &destination_rectangle);
+    int tempint;
+    // Display console and widgets
+    DisplayWidgets();
+    // Draw sonar screen
+    DisplaySonar();
+    // Display bearing and deangle of current target
     if (current_target) {
         tempint = (int) Subs->BearingToTarget(current_target);
         sprintf(text, "%4i", tempint);
@@ -679,8 +658,8 @@ void AnBqq5::AdvanceTB16Screen()
 
 void AnBqq5::DisplayBearingScale(bool center)
 {
-    DisplayWidget(screen, 50, 130, center ? ncscale : scscale);
-    DisplayWidget(screen, 50, 430, center ? ncscale : scscale);
+    center ? ncscale.draw(screen, 50, 130) : scscale.draw(screen, 50, 130);
+    center ? ncscale.draw(screen, 50, 430) : scscale.draw(screen, 50, 430);
 }
 
 void AnBqq5::UpperCRT_Spherical()
@@ -713,6 +692,11 @@ void AnBqq5::ToggleTrueRel()
     bearingdisplay5by6 = !bearingdisplay5by6;
 }
 
+bool AnBqq5::GetAssignTrackerState()
+{
+    return assigntracker;
+}
+
 void AnBqq5::ToggleAssignTracker()
 {
     assigntracker = !assigntracker;
@@ -730,7 +714,7 @@ void AnBqq5::ToggleNorthCenter()
 
 void AnBqq5::UpperCRT_Button()
 {
-    DisplayWidget(screen, 661, 161, uppercrton);
+    uppercrton.draw(screen, 661, 161, true);
 
     SDL_Delay(200);
     if (arraychoice5by6) {
@@ -738,12 +722,11 @@ void AnBqq5::UpperCRT_Button()
     } else {
         UpperCRT_TowedArray();
     }
-    DisplaySonarWidgets();
 }
 
 void AnBqq5::LowerCRT_Button()
 {
-    DisplayWidget(screen, 661, 215, lowercrton);
+    lowercrton.draw(screen, 661, 215, true);
 
     SDL_Delay(200);
     if (arraychoice5by6) {
@@ -751,18 +734,16 @@ void AnBqq5::LowerCRT_Button()
     } else {
         LowerCRT_TowedArray();
     }
-    DisplaySonarWidgets();
 }
 
 void AnBqq5::StopWinch()
 {
-    DisplayWidget(screen, 567, 590, tb16winchon);
+    tb16winchon.draw(screen, 567, 590, true);
     TB16.Stop();
     SDL_Delay(200);
-    DisplaySonarWidgets();
 }
 
-int AnBqq5::RandInt(int TO)  // Returns a random interger...TO is upper limit
+int AnBqq5::RandInt(int TO)  // Returns a random integer...TO is upper limit
 {
     return (rand() % TO);
 }
@@ -781,20 +762,13 @@ int AnBqq5::ReciprocalBearing(int bearing)
 
 void AnBqq5::DisplayCursor()
 {
-    SDL_Rect rectangle;
     // Draw Cursor
     if (!northcenter) {
         DrawLine(screen, 51 + cursorBearing, 140, 51 + cursorBearing, 147, green);
-        rectangle.x = 51 + cursorBearing;
     } else {
         int recipCursorBearing = ReciprocalBearing(cursorBearing);
         DrawLine(screen, 51 + recipCursorBearing, 140, 51 + recipCursorBearing, 147, green);
-        rectangle.x = 51 + recipCursorBearing;
     }
-    rectangle.y = 140;
-    rectangle.h = 7;
-    rectangle.w = 1;
-    SDL_UpdateRects(screen, 1, &rectangle);
 }
 
 void AnBqq5::UpdateCursor()

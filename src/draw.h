@@ -4,10 +4,6 @@
 #include <SDL.h>
 #include <SDL/SDL.h>
 
-#define SCREEN_NAV 2
-#define SCREEN_HELM 4
-
-
 void DrawPixel(SDL_Surface *screen, int x, int y, Uint32 color);
 
 void DrawLine(SDL_Surface *screen, int x1, int y1, int x2, int y2, Uint32 color);

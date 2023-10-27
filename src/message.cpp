@@ -32,16 +32,16 @@ msg::~msg()
 {
 }
 
-void msg::InitGraphics()
+void msg::InitGraphics(SDL_Surface *screen)
 {
-    screen = SDL_GetVideoSurface();
-    SDL_Surface *temp = SDL_CreateRGBSurface(SDL_SWSURFACE, 800, 72, 32,
-                        screen->format->Rmask,
-                        screen->format->Gmask,
-                        screen->format->Bmask,
-                        screen->format->Amask);
-    messagewindow = SDL_DisplayFormat(temp);
-    SDL_FreeSurface(temp);
+    this->screen = screen;
+    SDL_Surface *surface = SDL_CreateRGBSurface(SDL_SWSURFACE, 800, 72, 32,
+                                                screen->format->Rmask,
+                                                screen->format->Gmask,
+                                                screen->format->Bmask,
+                                                screen->format->Amask);
+    messagewindow = SDL_DisplayFormat(surface);
+    SDL_FreeSurface(surface);
     black = SDL_MapRGB(screen->format, 0, 0, 0);
 }
 
@@ -75,5 +75,4 @@ void msg::display_message()
     rectangle.w = 800;
     rectangle.h = 72;
     SDL_BlitSurface(messagewindow, NULL, screen, &rectangle);
-    SDL_UpdateRects(screen, 1, &rectangle);
 }

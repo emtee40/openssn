@@ -155,7 +155,6 @@ public:
     float EffectiveTargetSpeed;
     float AmbientNoise;
     float OwnShipNoise;
-    float flowandambientnoise;
     float TotalNoise;
     float TargetNoise;
     float Gb;
